@@ -1,0 +1,25 @@
+---
+title: "Age of 1st Reproduction"
+author: ""
+date: "7/10/2020"
+output:
+  html_document: default
+  pdf_document: default
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Preamble
+
+***This will be a general preable common to all the documents included as Electronic Supplements to CARMMHA's pelagic injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc. ***
+
+This is an Electronic Supplement to the paper submited to MEPS on the ??-??-???? by Marques, T. A., Thomas, L., Booth, C., Garrison, L. P., Rosel, P. E., Mullin, K. D. & L. Schwacke entitled "Quantifying Deepwater Horizon oil spill induced injury on offshore - ***pelagic*** cetaceans".
+
+If you do happen to use this material, drop us a line at tiago.marques@st-andrews.ac.uk just so that we know it was useful to you.
+
+# Introduction
+
+Here we describe how we decided on the distribution for the age of first reproduction for the bottlenose dolphins.
