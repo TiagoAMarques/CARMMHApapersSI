@@ -149,7 +149,7 @@ runSims <- function(Sp,nsims,nyears){
   #--------------------------------------------------------------------------
   ages <- 0:60
   #replaced nrow(pf) with nsims
-  ncols <- nsims
+  ncols <- nS
   nrows <- length(ages)
   #get a dataframe to use ggplot2
   #objects to hold female and male realizations
