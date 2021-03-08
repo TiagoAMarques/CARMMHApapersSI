@@ -383,7 +383,9 @@ runSims <- function(Sp,nsims,nyears){
     
     #get population averaged survival pre-oil spill
     # see file "survivalReduction" for details 
-    qijs<-c(distNominal[1:61]*predictions[i,],distNominal[62:122]*predictions[i,])/sum(c(distNominal[1:61]*predictions[i,],distNominal[62:122]*predictions[i,]))
+    # note we use the index iS even though there's no link between the pmarked and the siler model, but there's both 4000 iterations in each
+    # and so that saves having to set a new index
+    qijs<-c(distNominal[1:61]*predictions[iS,],distNominal[62:122]*predictions[iS,])/sum(c(distNominal[1:61]*predictions[iS,],distNominal[62:122]*predictions[iS,]))
     #population baseline, i.e. pre oil spill, average survival consistent with SCR study
     meanS<-sum(pxMF[,iS]*qijs)
     #-----------------------------------------------------------
