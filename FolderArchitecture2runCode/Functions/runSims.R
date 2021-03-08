@@ -148,13 +148,14 @@ runSims <- function(Sp,nsims,nyears){
   #get sex and age specific survivals
   #--------------------------------------------------------------------------
   ages <- 0:60
-  ncols <- nrow(pf)
+  #replaced nrow(pf) with nsims
+  ncols <- nsims
   nrows <- length(ages)
   #get a dataframe to use ggplot2
   #objects to hold female and male realizations
   pxFs <- matrix(NA,nrow=nrows,ncol=ncols)
   pxMs <- matrix(NA,nrow=nrows,ncol=ncols)
-  #for each obseration of the posterior
+  #for each observation of the posterior
   for(i in itS){
     #get the funtion
     pxFs[,i] <- px(ages,pf[i,1],pf[i,2],pf[i,3],pf[i,4],pf[i,5])
