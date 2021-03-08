@@ -1,0 +1,80 @@
+---
+title: "Electronic supplements for CARMMHA's BNB Barataria Bay injury paper"
+author: ""
+date: \today
+output:
+  html_document: default
+  pdf_document: default
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+```
+
+# Preamble
+
+***This will be a general preable common to all the documents included as Electronic Supplements to CARMMHA's bottlenose dolphin BB injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc. - this is the MASTER version of the preamble and it must be copied over to all other docs before submission***
+
+This is an Electronic Supplement to the paper submitted to Conservation Letters on the ??-??-???? by L.H. Schwacke, T.A. Marques, C. Booth, C. Smith, F. Gomez, B. Balmer, A. Barratclough, S. De Guise, L. Garrison, K. Colegrove, J. Morey, K. D. Mullin, B. M. Quigley, P. Rosel, T. Rowles, R. Takeshita,  F. Townsend, T. Speakman, R. Wells, E. Zolman, L. Thomas entitled "Why bottlenose dolphin populations have still not recovered a decade after the Deepwater Horizon oil spill".
+
+If you do happen to use this material, drop us a line at tiago.marques@st-andrews.ac.uk just so that we know it was useful to you. 
+
+# Introduction
+
+This file is named "ElectronicSupplements.pdf". This document is a master file that presents a full list of [Electronic Supplements available](#list-of-electronic-supplements). 
+
+All these files are created as dynamic reports using RMarkdown. Given these being RMarkdown you might be reading this as a pdf, as a html or as a word, depending on how the corresponding .Rmd was compiled. The original .Rmd files are provided in the original github repository:
+
+https://github.com/TiagoAMarques/CARMMHApapersSI/
+
+The above repository also includes all the code required for readers to reproduce independently the paper results that correspond to the population dynamics model. [Below](#how-to-reproduce-the-paper-results) is a quick description of how all the results in the paper might be recreated by the reader, within a framework of reproducible research.
+
+This means also that it should be straightforward for a reader to update the results with new information, be it new data that becomes available or different assumptions about the populations, allowing to explore both the consequences of new knowledge or the impact of the assumptions we made on the results presented.
+
+```{r fig1,eval=FALSE,echo=FALSE,fig.width=3,fig.align="center",fig.cap="\\label{fig:fig1}Artwork by @allison_horst at available at https://github.com/allisonhorst/stats-illustrations. This image illustrates the concept of reproducible research and is a tribute to Allison's work on combining art and science."}
+# All defaults
+include_graphics("figs/reproducibility_court.png")
+```
+
+![Artwork by @allison_horst at available at https://github.com/allisonhorst/stats-illustrations. This image illustrates the concept of reproducible research and is a tribute to Allison's work on combining art and science.](figs/reproducibility_court.png){width=50%}
+
+# List of Electronic Supplements
+
+[Back to Introduction](#introduction)
+
+***Ideally we can work with the Editorial office such that we can add links below that will link to the actual files on the publisher server***.
+
+The other Electronic Supplements files names and brief content descriptions follow:
+
+* [ElectronicSupplement1_EE.pdf](ElectronicSupplement1_EE.html) – Supplementary material about the expert elicitation exercises; **NOTE THIS must link to LORI'S FILE!)**
+
+* [SurvivalReduction.pdf](SurvivalReduction.html) – Supplementary material about how we obtain the survival reduction factor. This combines baseline survival probability with post oil survival probability obtained by SCR. For the baseline survival probability we describe the analysis that integrates the different components required . The survival post oil spill for Barataria Bay bottlenose dolphins is obtained in a separate paper, Glennie et al (2021). - **just a single file in this paper, not in the pelagic paper, that will then refer to this? or two files, the same, but one for each paper?**
+
+* [AgeOf1stReproduction.pdf](AgeOf1stReproduction.html) - Supplementary material with details about how we obtained the age at first reproduction for *Tursiops truncatus*; **(Work in Progress TAM)**
+
+* [BNDinjury_Fig4.pdf](BNDinjury_Fig4.html) - the code for the production of figure 4 results and the results paragraph in the paper.
+
+# How to reproduce the paper results
+
+[Back to Introduction](#introduction)
+
+The results regarding the population dynamics component in the paper can be recreated by the reader by running the code provided below. Having the code also facilitates extending and using the code under different scenarios, species and locations. This is considered the most convenient way to share the results, since all the outputs would be too large to share in the github repository.
+
+```{r , eval = FALSE, echo = TRUE}
+#this runs all the simulations and produces outputs for all species
+source("Functions/reqfuns.R")         # most functions are here
+source("Functions/SilerFuns.R")       # Siler model functions are here
+source("Functions/runSims.R")         # To run the simulations for all species
+#define the number of iterations to run
+ns <- 5
+# define the number of years each iteration is run for
+ny <- 150
+#run simulations
+runSims(Sp = "Ttru", nsims = ns, nyears = ny)
+```
+
+The folder structure and files required to successfully run the code is in the above github repository (under folder "FolderArchitecture2runCode"). The recommended procedure is to download this entire folder into a local folder and then run `RunAllSims.R`.
+
+The consequence of running this code will be to populate the right folder inside `InOutBySp` with the R workspace holding the results 
