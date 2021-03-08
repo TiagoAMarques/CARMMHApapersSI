@@ -9,12 +9,11 @@ There are two papers:
 1. A bottlenose dolphin paper focused on Barataria Bay
 2. A pelagic paper focusing on 15 taxonomic units
 
-Here we describe how you can navigate through this material. We note upfront that while there are two different papers, the underlying population dynamics simulation code that allows us to simulate populations of animals in the presence of oil and in the absence of oil is common to  both papers. Hence, the results for both papers can actually be obtained by running the same code. If you are only interested in the results for a single papers that can easily be accomplished too, as described below.
+Here we describe how you can navigate through this material. We note upfront that while there are two different papers, the underlying population dynamics simulation code that allows us to simulate populations of animals in the presence of oil and in the absence of oil is common to  both papers. Hence, the results for both papers can actually be obtained by running the same code. If you are only interested in the results for a single paper that can easily be accomplished too, as described below.
 
-The master file that allows you to undersatnd the files required to recreate the 
-results for the bottlenose dolphin paper focused on Barataria Bay is:
+The master file that allows you to understand the files required to recreate the results for the bottlenose dolphin paper focused on Barataria Bay is:
 
-Needs to be created yet :) 
+Needs to be created yet :), in close coordination with Lori
 
 The master file that allows you to understand the files required to recreate the results for the pelagic paper is:
 
