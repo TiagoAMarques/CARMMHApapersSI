@@ -903,9 +903,9 @@ Table3YTR <-  paste0(round(injuryCI$YTRmed,1), " (",round(injuryCI$YTRl,1)," ,",
 # These are outputed as 3 separate tables as 
 # that facilitates copy-pasting into
 # the main paper word document
-write.table(Table3LCY[,-16],"Table3LCY.txt",sep="\t",row.names = FALSE,quote = FALSE,col.names = FALSE)
-write.table(Table3MPD[,-16],"Table3MPD.txt",sep="\t",row.names = FALSE,quote = FALSE,col.names = FALSE)
-write.table(Table3YTR[,-16],"Table3YTR.txt",sep="\t",row.names = FALSE,quote = FALSE,col.names = FALSE)
+write.table(Table3LCY[-16],"Table3LCY.txt",sep="\t",row.names = FALSE,quote = FALSE,col.names = FALSE)
+write.table(Table3MPD[-16],"Table3MPD.txt",sep="\t",row.names = FALSE,quote = FALSE,col.names = FALSE)
+write.table(Table3YTR[-16],"Table3YTR.txt",sep="\t",row.names = FALSE,quote = FALSE,col.names = FALSE)
 ```
 
 
