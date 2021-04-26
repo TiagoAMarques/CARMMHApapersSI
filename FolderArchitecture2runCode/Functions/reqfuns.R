@@ -1,6 +1,13 @@
 # Author: TAM
 
 # This file includes several required functions
+
+##LT: I don't understand your naming convenstion here -- sometimes you capitalize the second wor
+##LT: and sometimes you don't
+##LT: Anyway, I've left as is
+
+##TAM: the problem is expecting a sensible coherent naming convention... my bad!
+
 # 1. getbeta    - computes the density dependent fecundity beta paramter
 # 
 # 2. ft         - computes the fecundity as a function of population size and other 
@@ -23,7 +30,10 @@
 # 8. getStableF0- get the F0 that leads to a constant population
 #
 # 9. getInjury  - using the object produced by a simulation run, compute the injury metrics 
-
+#
+# 10. getfilename - a bespoke function to make code shorter when defining file names used inside runPopSims
+#
+# 11. getBetaDistPars - returns beta distribution alpha and beta parameters given input p and var(p)
 
 # 1. Function getbeta -------------------------------------
 getbeta <- function(Fmax, rho, Fnom, Nnom) {
@@ -62,7 +72,7 @@ getRedFac <- function(y1, ny2r2n = 15, ny = 150) {
 
 # Creating the transition matrix
 # inputs required: all that affects fecundity and survival
-getM <- function(na, dimm, femalesur, malesur, srf, N, ddfr, frf, a1stR, alasR) {
+getM <- function(na, dimm, femalesur, malesur, srf, ddfr, frf, a1stR, alasR) {
   
   # given all the required inputs, this function structures the data to 
   # get a suitable transition matrix
@@ -77,11 +87,11 @@ getM <- function(na, dimm, femalesur, malesur, srf, N, ddfr, frf, a1stR, alasR) 
   # srf       - survival reduction factor
   # 
   # Fecundity:
-  # N     - population size - which will impact density dependent fecundity
   # ddfr  - density dependent fecundity rate
   # frf   - fecundity reduction factor
   # a1stR - the age of first reproduction 8 means that females with 0 to 7
   #         years old do not reproduce
+##LT: Needs resolved and comment needs ammending  
   #         Looking at Lori's code, it seems like the value used was 7
   #         But that would imply reproduction starts at 7
   # alasR - the age of last reproduction
@@ -92,10 +102,9 @@ getM <- function(na, dimm, femalesur, malesur, srf, N, ddfr, frf, a1stR, alasR) 
   TransM <- matrix(0, nrow = dimm, ncol = dimm)
   
   # values for fecundity --------------
-  ddfrv                 <- rep(ddfr, na) # vector of unexposed females fecundities
-  ddfrv[1:a1stR]        <- 0 # females younger than a1stR have fecundity 0
-  #OLD STUFF, when there was senescence in fecundity
-  #ddfrv[(alasR + 2):na] <- 0 # females with alasR years or older have fecundity 0
+
+  ddfrv <- rep(ddfr, na) # vector of unexposed females fecundities
+  ddfrv[1:a1stR] <- 0 # females younger than a1stR have fecundity 0
   # exposed that recover - impact by fecundity reduction factor
   ddfrver <- ddfrv * frf
   # exposed that do not recover - impact by fecundity reduction factor
@@ -270,13 +279,11 @@ getSpData <- function(sp, file = "InputFiles/SpeciesDefinitionFile4offshore.xlsx
     #T.init = as.numeric(Spinfo[,3:(3+15)]),
     #Gestation duration
     gd = Spinfo$gd,
-    #----------------------------------------------------
-    #propotion of exposed animals that recover
+    #proportion of exposed animals that recover
     prl = Spinfo$prl,
     pru = Spinfo$pru,
     pra = Spinfo$pra,
     prb = Spinfo$prb,
-    #----------------------------------------------------
     #Survival reduction factor
     srl = Spinfo$srl,
     sru = Spinfo$sru,
@@ -288,7 +295,6 @@ getSpData <- function(sp, file = "InputFiles/SpeciesDefinitionFile4offshore.xlsx
     mc = Spinfo$mc,
     #years it takes to get back to baseline after constant
     yrbs = Spinfo$yrbs,
-    #----------------------------------------------------
     #baseline reproduction
     meanbrs = Spinfo$meanbrs,
     sdbrs = Spinfo$sdbrs,
@@ -326,19 +332,19 @@ plotIP <- function(IP, EP, type = 1){
   #       2: pop size versus proportion exposed
   require(ggplot2)
   require(gridExtra)
-if(type==1){  
-  hist_top <- ggplot()+geom_histogram(aes(IP))+xlab("Total stock")
-  empty <- ggplot()+geom_point(aes(1, 1), colour = "white")+
-    theme(axis.ticks = element_blank(), 
-          panel.background = element_blank(), 
-          axis.text.x = element_blank(), axis.text.y = element_blank(),           
-          axis.title.x = element_blank(), axis.title.y = element_blank())
-  
-  scatter <- ggplot()+geom_point(aes(IP, EP))
-  hist_right <- ggplot()+geom_histogram(aes(EP))+coord_flip()+xlab("Exposed animals")
-  grid.arrange(hist_top, empty, scatter, hist_right, ncol = 2, nrow = 2, widths = c(4, 1), heights = c(1, 4))
-}
-if(type==2){  
+  if(type==1){  
+    hist_top <- ggplot()+geom_histogram(aes(IP))+xlab("Total stock")
+    empty <- ggplot()+geom_point(aes(1, 1), colour = "white")+
+      theme(axis.ticks = element_blank(), 
+            panel.background = element_blank(), 
+            axis.text.x = element_blank(), axis.text.y = element_blank(),           
+            axis.title.x = element_blank(), axis.title.y = element_blank())
+    
+    scatter <- ggplot()+geom_point(aes(IP, EP))
+    hist_right <- ggplot()+geom_histogram(aes(EP))+coord_flip()+xlab("Exposed animals")
+    grid.arrange(hist_top, empty, scatter, hist_right, ncol = 2, nrow = 2, widths = c(4, 1), heights = c(1, 4))
+  }
+  if(type==2){  
     pExp <- EP/IP
     hist_top <- ggplot()+geom_histogram(aes(IP))+xlab("Total stock")
     empty <- ggplot()+geom_point(aes(1, 1), colour = "white")+
@@ -351,7 +357,7 @@ if(type==2){
     hist_right <- ggplot()+geom_histogram(aes(pExp))+coord_flip()+xlab("Proportion Exposed animals")
     grid.arrange(hist_top, empty, scatter, hist_right, ncol = 2, nrow = 2, widths = c(4, 1), heights = c(1, 4))
   }  
-  }
+}
 
 # 8. Function getStableF0 -------------------------------------
 getStableF0 <- function(F0, ns1, nc1, na1, femalesur1, malesur1, N0sim1, a1stRsim1){
@@ -370,79 +376,104 @@ getStableF0 <- function(F0, ns1, nc1, na1, femalesur1, malesur1, N0sim1, a1stRsi
   return(target)
 }
 
-# 9. getInjury  - using the object produced by a simulation run, compute the injury metrics 
+# 9. Function getInjury  -------------------------------------
 
 getInjury <- function(SI, p4YTR = 0.95, plot = TRUE, show.plot = TRUE, median = TRUE){
-# using the object produced by a simulation run, compute the injury metrics 
-# 1. Lost Cetacean Years, the difference between the baseline and injured 
-#       population sizes, summed over the entire modeled time period
-# 2. Years to recovery (YTR), the number of years required before the 
-#       injured population trajectory reaches 95% of the baseline population trajectory; 
-# 3. maximum proportional decrease (MPD), the difference between the 2 population 
-#       trajectories when the injured trajectory is at its lowest point, divided by the baseline
-#Inputs: 
-#       SI:         the simulation object
-#       p4YTR:      1-p4YTR is the proportion of the recovery required to assume recovered
-#       plot:       defaults to true, plot is produced
-#       show.plot:  defaults to true, plot is shown in R. 
-#                       If FALSE, plot is printed as file in corresponding Sp folder
-#       median:     defaults to true, if FALSE means are presented  
-#  
-#Outputs:
-#       A data.frame with   
-#       LCY
-#       YTR
-#       MPD  
-#       and (by default) an optional injury results plot is produced 
-nsims <- dim(SI)[3]
-nyears<- dim(SI)[2]
-LCYs <- YTRs <- MPDs<- numeric(nsims)  
-for(i in 1:nsims){
-  #for each simulation
-  #get the differences in N, per year
-  diff.Ns <- colSums(SI[, , i, 2])-colSums(SI[, , i, 1])
-  #and get the initial population size
-  N0 <- sum(SI[, 1, i, 1])
-  lim4YTR<-(1-p4YTR)*colSums(SI[, , i, 2])
-  # Lost Cetacean Years
-  LCYs[i] <- sum(diff.Ns)
-  # Years to recovery
-  p <- nyears
-  while (diff.Ns[p]<lim4YTR[p]){
-    p <- p-1
-    #if p = 0 it means that even in year 0 the population did not go below the % difference
-    # of (1-p4YTR) times the baseline population
-    if(p==0) break
+  # using the object produced by a simulation run, compute the injury metrics 
+  # 1. Lost Cetacean Years, the difference between the baseline and injured 
+  #       population sizes, summed over the entire modeled time period
+  # 2. Years to recovery (YTR), the number of years required before the 
+  #       injured population trajectory reaches 95% of the baseline population trajectory; 
+  # 3. maximum proportional decrease (MPD), the difference between the 2 population 
+  #       trajectories when the injured trajectory is at its lowest point, divided by the baseline
+  #Inputs: 
+  #       SI:         the simulation object
+  #       p4YTR:      1-p4YTR is the proportion of the recovery required to assume recovered
+  #       plot:       defaults to true, plot is produced
+  #       show.plot:  defaults to true, plot is shown in R. 
+  #                       If FALSE, plot is printed as file in corresponding Sp folder
+  #       median:     defaults to true, if FALSE means are presented  
+  #  
+  #Outputs:
+  #       A data.frame with   
+  #       LCY
+  #       YTR
+  #       MPD  
+  #       and (by default) an optional injury results plot is produced 
+  nsims <- dim(SI)[3]
+  nyears<- dim(SI)[2]
+  LCYs <- YTRs <- MPDs<- numeric(nsims)  
+  for(i in 1:nsims){
+    #for each simulation
+    #get the differences in N, per year
+    diff.Ns <- colSums(SI[, , i, 2])-colSums(SI[, , i, 1])
+    #and get the initial population size
+    N0 <- sum(SI[, 1, i, 1])
+    lim4YTR<-(1-p4YTR)*colSums(SI[, , i, 2])
+    # Lost Cetacean Years
+    LCYs[i] <- sum(diff.Ns)
+    # this line is executed if something went wrong in the simulation
+    # and there is no clear reason for it to happen but I saw it once 
+    # during sensitivity analysis
+    # when a population went extinct and the code would otherwise break
+    if(is.nan(LCYs[i])) next 
+    # Years to recovery
+    p <- nyears
+    while (diff.Ns[p]<lim4YTR[p]){
+      p <- p-1
+      #if p = 0 it means that even in year 0 the population did not go below the % difference
+      # of (1-p4YTR) times the baseline population
+      if(p==0) break
+    }
+    YTRs[i] <- p
+    #maximum proportional decrease
+    MPDs[i] <- max(diff.Ns/colSums(SI[, , i, 2]))*100
   }
-  YTRs[i] <- p
-  #maximum proportional decrease
-  MPDs[i] <- max(diff.Ns/colSums(SI[, , i, 2]))*100
-}
-if(plot)
+  if(plot)
   {
-  # Note to self: Not a great way of defining the path to save the image in
-  # as it reads path from the workspace!
-  if(show.plot==FALSE) png(filename = paste0("InOutBySp/", SpInfo$folder, "/", Sp, "Injury", nsims, ".png"), width = 3*480,  height = 2*480)
-      par(mfrow = c(1, 3), mar = c(4, 3, 4, 1))
-      mLCY <- round(mean(LCYs), 1)
-      mdLCY <- round(median(LCYs), 1)
-      sdLCY <- round(sd(LCYs), 1)
-      hist(LCYs, main = paste0(ifelse(median, "Median", "Mean"), "LCY=", ifelse(median, mdLCY, mLCY), "(", sdLCY, ")"))
-      abline(v = mLCY, lty = 2)
-      abline(v = quantile(LCYs, probs = c(0.025, 0.5, 0.975)), lty = 2, col = c(4, 3, 4))
-      mYTR <- round(mean(YTRs), 1)
-      sdYTR <- round(sd(YTRs), 1)
-      mdYTR <- round(median(YTRs), 1)
-      hist(YTRs, main = paste0(ifelse(median, "Median", "Mean"), "YTR=", ifelse(median, mdYTR, mYTR), "(", sdYTR, ")"))
-      abline(v = mYTR, lty = 2)
-      abline(v = quantile(YTRs, probs = c(0.025, 0.5, 0.975)), lty = 2, col = c(4, 3, 4))
-      mMPD <- round(mean(MPDs), 1)
-      sdMPD <- round(sd(MPDs), 1)
-      mdMPD <- round(median(MPDs), 1)
-      hist(MPDs, main = paste0(ifelse(median, "Median", "Mean"), "MPD=", ifelse(median, mdMPD, mMPD), "(", sdMPD, ")"))
-      abline(v = mMPD, lty = 2)
-      abline(v = quantile(MPDs, probs = c(0.025, 0.5, 0.975)), lty = 2, col = c(4, 3, 4))
-  if(show.plot==FALSE)  dev.off()
+    # Note to self: Not a great way of defining the path to save the image in
+    # as it reads path from the workspace!
+    if(show.plot==FALSE) png(filename = paste0("InOutBySp/", SpInfo$folder, "/", Sp, "Injury", nsims, ".png"), width = 3*480,  height = 2*480)
+    par(mfrow = c(1, 3), mar = c(4, 3, 4, 1))
+    mLCY <- round(mean(LCYs), 1)
+    mdLCY <- round(median(LCYs), 1)
+    sdLCY <- round(sd(LCYs), 1)
+    hist(LCYs, main = paste0(ifelse(median, "Median", "Mean"), "LCY=", ifelse(median, mdLCY, mLCY), "(", sdLCY, ")"))
+    abline(v = mLCY, lty = 2)
+    abline(v = quantile(LCYs, probs = c(0.025, 0.5, 0.975),na.rm=TRUE), lty = 2, col = c(4, 3, 4))
+    mYTR <- round(mean(YTRs), 1)
+    sdYTR <- round(sd(YTRs), 1)
+    mdYTR <- round(median(YTRs), 1)
+    hist(YTRs, main = paste0(ifelse(median, "Median", "Mean"), "YTR=", ifelse(median, mdYTR, mYTR), "(", sdYTR, ")"))
+    abline(v = mYTR, lty = 2)
+    abline(v = quantile(YTRs, probs = c(0.025, 0.5, 0.975),na.rm=TRUE), lty = 2, col = c(4, 3, 4))
+    mMPD <- round(mean(MPDs), 1)
+    sdMPD <- round(sd(MPDs), 1)
+    mdMPD <- round(median(MPDs), 1)
+    hist(MPDs, main = paste0(ifelse(median, "Median", "Mean"), "MPD=", ifelse(median, mdMPD, mMPD), "(", sdMPD, ")"))
+    abline(v = mMPD, lty = 2)
+    abline(v = quantile(MPDs, probs = c(0.025, 0.5, 0.975),na.rm=TRUE), lty = 2, col = c(4, 3, 4))
+    if(show.plot==FALSE)  dev.off()
+  }
+  return(data.frame(LCY = LCYs, YTR = YTRs, MPD = MPDs))
 }
-return(data.frame(LCY = LCYs, YTR = YTRs, MPD = MPDs))
+
+# 10. Function getfilename  -------------------------------------
+getfilename <- function(a1, a2, a3, a4) {
+  return(paste0(a1, a2, a3, a4))
+}
+
+# 11. 
+getBetaDistPars <- function (p, var.p){
+  #Returns the alpha and beta parameters from a beta distribution given input mean (p) and variance (var.p).
+  #Inputs:
+  # p - mean of beta distribution
+  # var.p - variance of beta distribution
+  #Outputs: - named list containing
+  # alpha - alpha parameter
+  # beta - beta parameter
+  alpha <- ((1 - p) / var.p - 1 / p) * p^2
+  beta <- alpha * (1 / p - 1)
+  if (! ((alpha >= 0) & (beta >= 0))) stop ("Values for p and var.p cannot produce a valid beta distribution")
+  return(list(alpha = alpha, beta = beta))  
 }
