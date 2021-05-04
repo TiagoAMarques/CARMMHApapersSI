@@ -321,7 +321,7 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
   meana1R <- with(Ttru, sha1str * sca1str)
   if (type != "Sim") {
     # if running a sensitivity analysis
-    if(parS != "a1R"){
+    if(parS != "a1r"){
       # if doing sensitivity analysis for other parameter not a1r just repeat the mean a1r nsims times
       a1stRsims <- rep(meana1R, nsims)
     } else {
@@ -395,7 +395,8 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
                     reality = c("spill", "nospill")))
   #--------------------------------------------------------------------------
   pars2save <- data.frame(sim = 1:nsims, a1r = NA, N0 = NA, pe = NA, per = NA, Fmax = NA,
-  Fnom = NA, rho = NA, br = NA, por = NA, spos = NA, ascS = NA, BS = NA, SR = NA, BrTt = NA, PorTt = NA)
+  Fnom = NA, rho = NA, br = NA, por = NA, spos = NA, ascS = NA, BS = NA, SR = NA, BrTt = NA, 
+  PorTt = NA, y2R = NA, srTtru = NA, fecRed = NA)
   #--------------------------------------------------------------------------
   # Simulation implementation
   #--------------------------------------------------------------------------
@@ -512,6 +513,7 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
     
     #------------------------------------------------------------------------------
     # Survival reduction - for the current Sp
+    # note if BND this is changed later
     # if a regular Sim or SR is the parameter being evaluated in a sensitivity analysis
     srsim <- srsims[i]
     if (type != "Sim") {
@@ -528,7 +530,7 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
         }
       }
     }
-    pars2save$SR[i] <- srsim
+    
     
     #------------------------------------------------------------
     # Fecundity
@@ -595,6 +597,7 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
     
     # obtain sims i age at first reproduction
     a1stRsim <- a1stRsims[i]
+    pars2save$a1r[i] <- a1stRsim
     
     # br Baseline reproductive success rate
     # if a regular Sim or br is the parameter being evaluated in a sensitivity analysis
@@ -642,21 +645,8 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
     
     if (type != "Sim") {
       # if running a sensitivity analysis
-      if(parS != "BS"){
-        # if doing sensitivity analysis just use the mean
-        # Do the same for BND
-        # note dimm = number of sexes * number of conditions * number of age classes
-        M0BND <- getM(na = naBND, dimm = ns * nc * naBND, femalesur = rowMeans(pxFs), malesur = rowMeans(pxMs), 
-                      srf = 1, ddfr = mean(FnomsimsTtru), frf = 1, a1stR = mean(a1stRsimsTtru), alasR = naBND)
-        #------------------------------------------------------------
-        # get nominal distribution in age and sex class
-        ev0 <- eigen(M0BND)
-        distNominal <- Re(ev0$vectors[, 1]) / sum(Re(ev0$vectors[, 1]))
-        
-        # get population averaged survival pre-oil spill
-        # see file "survivalReduction" for details
-        # note we use the index iS even though there's no link between the pmarked and the siler model, but there's both 4000 iterations in each
-        # and so that saves having to set a new index
+      if(parS != "PM"){
+        # if doing sensitivity analysis just use the mean P(marked|age)
         qijs <- c(distNominal[1:61] * mpredictions, distNominal[62:122] * mpredictions) / sum(c(distNominal[1:61] * mpredictions, distNominal[62:122] * mpredictions))
         # population baseline, i.e. pre oil spill, average survival consistent with SCR study
         meanS <- sum(rowMeans(pxMF) * qijs)
@@ -694,6 +684,7 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
     
     # survival reduction factor - to be used to scale fecundity reduction later
     srsimTtru <- Spostspill / meanS
+    pars2save$srTtru[i] <- srsimTtru
     # constrain survival reduction - this could be changed to sample values of Spostspill that are lower than meanS
     if (srsimTtru > 1) srsimTtru <- 1
 
@@ -703,7 +694,7 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
       # sent by LT to TAM on the Tue 6/2/2020 1:21 AM
       # solve for the fecundity that would lead to a constant population
       Fnomsim <- uniroot(getStableF0, interval = c(0.01, 1), ns1 = ns, nc1 = nc, na1 = na, femalesur1 = femalesur, 
-                    malesur1 = malesur, N0sim1 = N0sim, a1stRsim1 = a1stRsim)$root
+                    malesur1 = malesur, a1stRsim1 = a1stRsim)$root
       # get transition matrix
       M0 <- getM(na = na, dimm = ns * nc * na, femalesur = femalesur, malesur = malesur, 
                  srf = 1, ddfr = Fnomsim, frf = 1, a1stR = a1stRsim, alasR = na)
@@ -742,14 +733,17 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
     # average taking account of males and females
     mt2l <- mt2lFEM * propFEMALE + mt2lMAL * propMALE
     # _____________________________
+    # years that an animal that recovers takes to recover to baseline survival levels
     yrbssim <- round(mt2l)
+    pars2save$y2R[i] <- yrbssim
     #------------------------------------------------------------
 
     # if we are in a Ttru sim, need to replace survival reduction with Ttru value
     if (Sp %in% BB_BND_Sp) {
       srsim <- srsimTtru
     }
-
+    pars2save$SR[i] <- srsim
+    
     # yearly reduction factor for survival
     rfssim <- getRedFac(y1 = srsim, ny2r2n = yrbssim, ny = nyears)
 
@@ -779,7 +773,7 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
     # by multiplying the species survival reduction
     # by the ratio of the fecundity to survival reductions in Ttru
     # not to be confused with the scaling of survival for different species
-    if (Sp %in% BB_BND_Sp) {
+    if (!(Sp %in% BB_BND_Sp)) {
       
       # BrTt Baseline reproductive success rate for Ttru
       # if a regular Sim or BrTt is the parameter being evaluated in a sensitivity analysis
@@ -822,8 +816,10 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
       fecRedTtru <- 1 - TtrupRepPostsim / TtrupRepbasesim
       fecRed <- srsim * fecRedTtru / srsimTtru
     }
+    pars2save$fecRed[i] <- fecRed
 
     rrfsim <- getRedFac(y1 = fecRed, ny2r2n = yrbssim, ny = nyears)
+    
 
     #-----------------------------------------------------------
     # Initial population numbers per class
