@@ -360,14 +360,13 @@ plotIP <- function(IP, EP, type = 1){
 }
 
 # 8. Function getStableF0 -------------------------------------
-getStableF0 <- function(F0, ns1, nc1, na1, femalesur1, malesur1, N0sim1, a1stRsim1){
+getStableF0 <- function(F0, ns1, nc1, na1, femalesur1, malesur1, a1stRsim1){
   #a new function that takes the parameters in explicitly
   M0 <- getM(na        = na1, 
              dimm      = ns1 * nc1 * na1,
              femalesur = femalesur1,
              malesur   = malesur1,
              srf       = 1,
-             N         = N0sim1,
              ddfr      = F0,
              frf       = 1,
              a1stR     = a1stRsim1,
