@@ -17,6 +17,6 @@ Needs to be created yet :), in close coordination with Lori
 
 The master file that allows you to understand the files required to recreate the results for the pelagic paper is:
 
-https://github.com/TiagoAMarques/CARMMHApapersSI/ElectronicSupplements.html
+https://github.com/TiagoAMarques/CARMMHApapersSI/FolderArchitecture2runCode/ElectronicSupplements.html
 
 This is currently "Work In Progress". If you are reading it and are not in the CARMMHA team, bear with us as this is not live yet!
