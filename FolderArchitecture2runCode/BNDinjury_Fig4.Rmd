@@ -63,7 +63,10 @@ as well as the object that records the simulations over time from our paper. We 
 
 ```{r}
 #note this loads a number of objects, including "simres" and "injury"
-load("InOutBySp/Bottlenose_dolphin_BB/Ttrusimres1000.RData")
+#load("InOutBySp/Bottlenose_dolphin_BB/Ttrusimres1000.RData")
+#note this loads a number of objects, including "simres" and "injury"
+load("InOutBySp/Bottlenose_dolphin_BB/Ttrusimres9999Sim.RData")
+#load("InOutBySp/Bottlenose_dolphin_BB/Ttrusimres9998Sim.RData")
 ```
 
 ## Data wrangling
@@ -142,8 +145,9 @@ data11<-cbind(data1,pra)
 
 
 data111<-  data11 %>% 
-  pivot_longer(cols=X1:X1000 ,
+  pivot_longer(starts_with("X"),
                names_to = "observ", 
+               names_transform = list(week = readr::parse_number),
                values_to = "predict", 
                values_drop_na = TRUE) %>% 
   arrange(year,population,nooil,ymax,ymin,oil,observ,predict)
@@ -162,8 +166,9 @@ pra<- data.frame(t(poptraj))
 data22<-cbind(data2,pra)
 
 data222<-  data22 %>% 
-  pivot_longer(cols=X1:X1000 ,
+  pivot_longer(starts_with("X"),
                names_to = "observ", 
+               names_transform = list(week = readr::parse_number),
                values_to = "predict", 
                values_drop_na = TRUE) %>% 
   arrange(year,population,withoil,ymax,ymin,oil,observ,predict)
@@ -174,6 +179,42 @@ data0$diff<-data0$ymax-data0$ymin
 
 data0$color<-with(data0, ifelse(oil =="nospill", "pink2",
                                       ifelse(oil == "spill","lightblue", NA)))
+
+datt<-data0[data0$oil=="nospill",]
+datt$nospill<- datt$predict
+
+datt1<-data0[data0$oil=="spill",]
+datt1$spill<- datt1$predict
+
+datt10<-datt1[,c(1,6,12)] 
+datt0<-data.frame(datt[,c(12)])
+colnames(datt0)<-"nospill"
+data00<-cbind(datt10,datt0)
+
+data00$diff<-data00$nospill-data00$spill
+
+dattt1<-data00%>%
+group_by(year)%>% 
+summarise(Mean=mean(spill), Max=max(spill), Min=min(spill), Median=median(spill), Std=sd(spill),quantile975=quantile(spill,probs=0.975),quantile025=quantile(spill,probs=0.025))
+
+dattt1<-data00%>%
+group_by(year)%>% 
+summarise(Mean=mean(spill), Max=max(spill), Min=min(spill), Median=median(spill), Std=sd(spill),quantile975=quantile(spill,probs=0.975),quantile025=quantile(spill,probs=0.025),oil="spill")
+
+dattt2<-data00%>%
+group_by(year)%>% 
+summarise(Mean=mean(nospill), Max=max(nospill), Min=min(nospill), Median=median(nospill), Std=sd(nospill),quantile975=quantile(nospill,probs=0.975),quantile025=quantile(nospill,probs=0.025),oil="nospill")
+
+dattt2$ymax<- dattt2$Median
+dattt2$ymin<- dattt1$Median
+dattt1$ymin<- dattt1$Median
+dattt1$ymax<- dattt2$Median
+
+dattt1$population<- dattt1$Median
+dattt2$population<- dattt2$Median
+
+data4<- rbind(dattt2,dattt1)
+data4$diff<- data4$ymax-data4$ymin
 ```
 
 ## Making the plot
@@ -183,7 +224,7 @@ data0$color<-with(data0, ifelse(oil =="nospill", "pink2",
 For initial population size
 
 ```{r, fig.width=15,fig.height=10}
-numberplot<-ggplot(N_boot, aes(x=x))+geom_histogram(aes(y=..count..),bins=17,colour="black",alpha=0.6)+coord_flip()+ geom_vline(xintercept=mean(N_boot$x), linetype="dashed", 
+numberplot<-ggplot(N_boot, aes(x=x))+geom_histogram(aes(y=..count..),bins=17,colour="black",alpha=0.6)+coord_flip()+ geom_vline(xintercept=median(N_boot$x), linetype="dashed", 
                 color = "red", size=1.2)+xlim(1000,4500)+xlab("Population size")+theme_bw()
 ```
 
@@ -198,19 +239,34 @@ baselsurv<-ggplot(survdata, aes(x=X1,y=oil))+geom_boxplot(aes(fill=oil),color="b
 For population trajectories
 
 ```{r, fig.width=15,fig.height=10}
-bestplot1<-ggplot(data,aes(x=year,y=population,color=oil))+ 
-  geom_ribbon(aes(ymin = ymin,ymax=ymax), fill = "red", alpha = .3,data = . %>% filter(year<= 20))+ 
-  geom_ribbon(aes(ymin = ymin,ymax=ymax), fill = "blue", alpha = .3,data = . %>% filter(ymin>2792.644 & year> 19))+
-  geom_segment(aes(x=10,xend=10,y=1957.725,yend=3258.388),colour="black")+
+
+YTR<-median(injury$YTR)
+YTR
+# for plot
+maxval<-unique(max(data4$diff))
+
+data4$yearMPD<-ifelse(data4$diff>=maxval, data4$year,NA)
+
+data4$y<-ifelse(data4$diff>=maxval, data4$ymin,NA)
+
+data4$yend<-ifelse(data4$diff>=maxval, data4$ymax,NA)
+
+MPD<-unique(data4$yearMPD[!is.na(data4$yearMPD)])
+MPD
+
+bestplot1<-ggplot(data4,aes(x=year,y=population,color=oil))+ 
+  geom_ribbon(aes(ymin = ymin,ymax=ymax), fill = "red", alpha = .3,data = . %>% filter(year<= YTR))+ 
+  geom_ribbon(aes(ymin = ymin,ymax=ymax), fill = "blue", alpha = .3,data = . %>% filter(year>=YTR))+
+  geom_segment(aes(x=MPD,xend=MPD,y=data4$y,yend=data4$yend),colour="black")+
   geom_line(size=1.4)+
   theme_bw()+
-  geom_vline(xintercept=20)+
+  geom_vline(xintercept=YTR)+
   labs(colour="")+
   scale_color_manual(values=c("darkblue","brown3"))+
   ylab("Predicted population size")+
   xlab("Years since spill")+
   ylim(1000,4500)+ 
-  annotate("segment", xend=20, x= 34.5, y= 4100, yend= 3200, arrow = arrow(type="closed", length = unit(0.1, "inches")))+ 
+  annotate("segment", xend=YTR, x= 34.5, y= 4100, yend= 3200, arrow = arrow(type="closed", length = unit(0.1, "inches")))+ 
   annotate('label', 
            label = 'atop(atop("", bold("LTR")), atop("Number of years for the population to", "recover with 95% baseline trajectory"))', 
            y = 4200, x = 34.5, parse = T)+ 
@@ -221,20 +277,70 @@ bestplot1<-ggplot(data,aes(x=year,y=population,color=oil))+
   annotate('label', 
            label = 'atop(atop("", bold("MPD")), atop("Largest proportional", "decrease"))', 
            y = 4300, x = 7, parse = T)+
-  annotate("segment", xend=10, x= 7, y= 4050, yend= 3200, arrow = arrow(type="closed", length = unit(0.1, "inches")))+ theme(legend.position = c(0.92, 0.2))+xlim(0,50)
+  annotate("segment", xend=MPD, x= 7, y= 4050, yend= 3200, arrow = arrow(type="closed", length = unit(0.1, "inches")))+ theme(legend.position = c(0.92, 0.2))+xlim(0,50)
 ```
 
-All in one, i.e. figure 4 in the manuscript
+All in one, i.e. 
 
 ```{r, fig.width=15,fig.height=10,message=FALSE,warning=FALSE}
 layout_matrix <- matrix(c(1, 1, 2, 2, 4, 3, 3, 4), nrow = 2, byrow = TRUE)
 grid.arrange(numberplot,baselsurv,bestplot1, layout_matrix = matrix(c(1,3,2,3), nrow = 2)) 
 ```
 
+or simply the population trajectories, with added estimates from SECR population size, which corresponds to figure 4 in the manuscript
+
+```{r, fig.width=15,fig.height=10,message=FALSE,warning=FALSE}
+bas2019<- read_csv("InOutBySp/Bottlenose_dolphin_BB/N_boot2019.csv")
+N_boot <- read_csv("InOutBySp/Bottlenose_dolphin_BB/N_boot.csv")
+dattat1<-N_boot%>%
+summarise(Mean=mean(x), Max=max(x), Min=min(x), Median=median(x), Std=sd(x),quantile975=quantile(x,probs=0.975),quantile025=quantile(x,probs=0.025))
+
+dattat<-bas2019%>%
+summarise(Mean=mean(x), Max=max(x), Min=min(x), Median=median(x), Std=sd(x),quantile975=quantile(x,probs=0.975),quantile025=quantile(x,probs=0.025))
+
+
+ ggplot() + 
+  #geom_ribbon(data = subset(data4,year<= YTR),aes(ymin = ymin,ymax=ymax,x=year), fill = "red", alpha = .4)+ 
+  #geom_ribbon(data = subset(data4,year>= YTR),aes(ymin = ymin,ymax=ymax,x=year), fill = "blue", alpha = .4)+
+annotate("segment",x=MPD-1,xend=MPD-1,yend=data4$y,y=data4$yend,colour="black",linetype = "dashed", arrow = arrow(type="closed", length = unit(0.1, "inches")))+
+  geom_line(aes(x=data4$year-1,y=data4$population,color=data4$oil,lwd=2),size=1.4)+
+  theme_bw()+
+ #   annotate("segment", yend = 1000, y = 4500, x = YTR, xend = YTR,colour = "black", arrow = arrow(type="closed", length = unit(0.1, "inches")),linetype="dashed") +
+  geom_vline(xintercept=YTR-1,linetype="dashed")+
+  labs(colour="")+
+  scale_color_manual(values=c("darkblue","brown3"))+
+  ylab("Population size")+
+  xlab("Years since spill")+
+  #annotate("segment", xend=YTR, x= 34.5, y= 4100, yend= 3200, arrow = arrow(type="open", length = unit(0.1, "inches")))+ 
+  #annotate('label', 
+        #   label = 'atop(atop("", bold("YTR")), atop("Number of years for the population to", "recover with 95% baseline trajectory"))', 
+       #    y = 4200, x = 34.5, parse = T)+ 
+  #annotate('label', 
+   #        label = 'atop(atop("", "Lost"), atop("cetacean", "years"))', 
+    #       y = 1800, x = 30, parse = T)+
+  #annotate("segment", xend=12.5, x=29, y= 1900, yend= 2800, arrow = arrow(type="open", length = unit(0.1, "inches"))) + 
+  #annotate('label', 
+   #        label = 'atop(atop("", bold("MPD")), atop("Largest proportional", "decrease"))', 
+    #       y = 4300, x = 7, parse = T)+
+  #annotate("segment", xend=MPD, x= 7, y= 4050, yend= 2500, arrow = arrow(type="open", length = unit(0.1, "inches")))+
+  theme(legend.position = c(0.92, 0.2))+xlim(0,50)+   geom_ribbon(data = subset(data4,oil=="spill"),aes(x=year-1,y=Median,ymin =quantile025,ymax=quantile975),fill="red", alpha = .3)+
+  geom_ribbon(data = subset(data4,oil=="nospill"),aes(x=year-1,y=Median,ymin =quantile025,ymax=quantile975),fill="blue", alpha = .3)+
+   #to change font size on labels and axis
+  theme(axis.text.x = element_text(size = 20),
+        axis.text.y = element_text(size = 20),  
+        axis.title.x = element_text(size = 20),
+        axis.title.y = element_text(size = 20),
+        legend.text=element_text(size=20)) +
+  geom_pointrange(data=dattat, aes(x=9,
+              y=Median,ymin=quantile025,ymax=quantile975),size=1.5) + 
+ geom_pointrange(data=dattat1, aes(x=0,
+               y=Median,ymin=quantile025,ymax=quantile975),size=1.5)
+```
+
 The results paragraph in the paper is:
 
-The initial population size was estimated to be `r round(mean(N_boot$x))` individuals (95% credible intervals of `r round(quantile(N_boot$x,0.025))`;`r round(quantile(N_boot$x,0.975))`) (figure 4, top left panel). The mean of the survival pre oil spill was `r round(mean(BaselineSurvival$X1),3)` (95% credible intervals of `r round(quantile(BaselineSurvival$X1,prob=0.025),3)`;`r round(quantile(BaselineSurvival$X1,prob=0.975),3)`) while the mean of the survival post oil spill was `r round(mean(PostOilSurv$X1),3)` (95% credible intervals of `r round(quantile(PostOilSurv$X1,prob=0.025),3)`;`r round(quantile(PostOilSurv$X1,prob=0.975),3)`), leading to an average reduction in survival post-oil spill of `r round(mean(PostOilSurv$X1/BaselineSurvival$X1),3)` (95% credible intervals of `r round(quantile(PostOilSurv$X1/BaselineSurvival$X1,prob=0.025),3)`;`r round(quantile(PostOilSurv$X1/BaselineSurvival$X1,prob=0.975),3)`). The average population trajectory under the presence of the oil spill and assuming the oil spill never happened are shown in Figure 4 (bottom panel). There were  `r  round(median(injury$LCY))`  median LCY (95% percentile CI `r round(quantile(injury$LCY, probs=0.025),0)`-`r round(quantile(injury$LCY, probs=0.975),0)`), the maximum proportional decrease was `r  round(median(injury$MPD),1)` % (95% percentile CI `r round(quantile(injury$MPD, probs=0.025),1)`-`r round(quantile(injury$MPD, probs=0.975),1)`) and it took a median of `r  round(median(injury$YTR),1)` (95% percentile CI `r round(quantile(injury$YTR, probs=0.025),1)`-`r round(quantile(injury$YTR, probs=0.975),1)`) years for 95 % recovery.
+The mean initial population size was `r round(mean(N_boot$x))` (95% credible intervals of `r round(quantile(N_boot$x,0.025))`;`r round(quantile(N_boot$x,0.975))`) (figure 4, top left panel). The mean of the survival pre oil spill was `r round(mean(BaselineSurvival$X1),3)` (95% credible intervals of `r round(quantile(BaselineSurvival$X1,prob=0.025),3)`;`r round(quantile(BaselineSurvival$X1,prob=0.975),3)`) while the mean of the survival post oil spill was `r round(mean(PostOilSurv$X1),3)` (95% credible intervals of `r round(quantile(PostOilSurv$X1,prob=0.025),3)`;`r round(quantile(PostOilSurv$X1,prob=0.975),3)`), leading to an average reduction in survival post-oil spill of `r round(mean(PostOilSurv$X1/BaselineSurvival$X1),3)` (95% credible intervals of `r round(quantile(PostOilSurv$X1/BaselineSurvival$X1,prob=0.025),3)`;`r round(quantile(PostOilSurv$X1/BaselineSurvival$X1,prob=0.975),3)`). The average population trajectory under the presence of the oil spill and assuming the oil spill never happened are shown in Figure 4 (bottom panel). There were  `r  round(median(injury$LCY))`  median LCY (95% percentile CI `r round(quantile(injury$LCY, probs=0.025),0)`-`r round(quantile(injury$LCY, probs=0.975),0)`), the maximum proportional decrease was `r  round(median(injury$MPD),1)` % (95% percentile CI `r round(quantile(injury$MPD, probs=0.025),1)`-`r round(quantile(injury$MPD, probs=0.975),1)`) and it took a median of `r  round(median(injury$YTR),1)` (95% percentile CI `r round(quantile(injury$YTR, probs=0.025),1)`-`r round(quantile(injury$YTR, probs=0.975),1)`) years for 95 % recovery.
 
 # Aknowledgments
 
-We would like to thank Carolina Marques for the first draft of code and data wrangling that made this plot.
+We would like to thank Carolina Marques for the code and data wrangling that made this plot.

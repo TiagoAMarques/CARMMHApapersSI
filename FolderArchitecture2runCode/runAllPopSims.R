@@ -3,7 +3,7 @@ source("Functions/runPopSims.R")         # To run the simulations for all specie
 #define the species we run simulations for
 
 #define the species we run simulations for
-Sps <- c("Ttru","Bwsp", "Fatt", "Ggri", "Gmac", "Kosp", "Pele", "Pmac", "Satt", "Sbre", "Scly", "Scoe", "Sfro", "Slon", "Ttro", "Ttrs")
+Sps <- c("Bwsp", "Fatt", "Ggri", "Gmac", "Kosp", "Pele", "Pmac", "Satt", "Sbre", "Scly", "Scoe", "Sfro", "Slon", "Ttro", "Ttrs")
 
 #define the number of iterations to run
 ns <- 9999

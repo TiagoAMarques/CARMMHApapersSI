@@ -1,0 +1,139 @@
+---
+title: "Electronic supplements for CARMMHA's Barataria Bay bottlenose dolphin injury paper"
+author: ""
+date: \today
+output:
+  html_document: default
+  pdf_document: default
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+```
+
+# Preamble
+
+***This will be a general preable common to several documents included as Electronic Supplements to CARMMHA's BB BND injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc.***
+
+This is an Electronic Supplement to the paper submited to Conservation Letters on the ??-??-???? by L.H. Schwacke, T.A. Marques, C. Booth, C. Smith, F. Gomez, B. Balmer, A. Barratclough, S. De Guise, L. Garrison, K. Colegrove, J. Morey, K. D. Mullin, B. M. Quigley, P. Rosel, T. Rowles, R. Takeshita,  F. Townsend, T. Speakman, R. Wells, E. Zolman, L. Thomas, entitled "Why bottlenose dolphin populations have still not recovered a decade after the Deepwater Horizon oil spill"
+
+The master file with supplementary material is here: [Electronic Supplements master file](ElectronicSupplements.html).
+
+# Introduction
+
+This file is named "BND_ElectronicSupplements.pdf". This document is a master file that presents a full list of [Electronic Supplements available](#list-of-electronic-supplements). 
+
+All these files are created as dynamic reports using RMarkdown. Given these being RMarkdown you might be reading this as a pdf, as a html or as a word, depending on how the corresponding .Rmd was compiled. The original .Rmd files are provided in the original github repository:
+
+https://github.com/TiagoAMarques/CARMMHApapersSI
+
+The above repository also includes all the code required for readers to reproduce independently the paper results. [Below](#how-to-reproduce-the-paper-results) is a quick description of how all the results in the paper might be recreated by the reader, within a framework of reproducible research.
+
+This means also that it should be straightforward for a reader to update the results with new information, be it new data that becomes available or different assumptions about population, allowing to explore both the consequences of new knowledge or the impact of the assumptions we made on the results presented.
+
+```{r fig1,eval=FALSE,echo=FALSE,fig.width=3,fig.align="center",fig.cap="\\label{fig:fig1}Artwork by @allison_horst at available at https://github.com/allisonhorst/stats-illustrations. This image illustrates the concept of reproducible research and is a tribute to Allison's work on combining art and science."}
+# All defaults
+include_graphics("figs/reproducibility_court.png")
+```
+
+![Artwork by @allison_horst at available at https://github.com/allisonhorst/stats-illustrations. This image illustrates the concept of reproducible research and is a tribute to Allison's work on combining art and science.](figs/reproducibility_court.png){width=50%}
+
+
+
+# List of Electronic Supplements
+
+[Back to Introduction](#introduction)
+
+The other Electronic Supplements files names and brief content descriptions follow:
+
+* [ElectronicSupplement1_EE.pdf](ElectronicSupplement1_EE.html) – Supplementary material about the expert elicitation exercises;
+
+* [IniPopSizes.pdf](IniPopSizes.html) – Supplementary material about the initial population sizes and proportion of animals exposed to oil. Includes point estimates of the spatial models used to estimate the stock size, the oil footprint considered to have an impact on survival, and hence the delineation of the area including the proportion exposed for each of the species considered; Note that the initial population sizes and proportion exposed are provided as data. The reason we do not provide the code that allows the user to reproduce the objects is because the model and objects used to do so are not ours to distribute. For all taxonomic units not Barataria Bay BND these come from models reported by Roberts et al. (2015). For BB BND these come from a dedicated SECR analysis (Glennie et al., in preparation). This supplamentary material also includes the code required to generate the paper tables 1 and 2 as well as a table used in getInjury.Rmd.
+
+* [ComparingSurvivalsAcrossStocks.pdf](ComparingSurvivalsAcrossStocks.html) – Supplementary material about the stock specific survival probabilities given the scaling by gestation duration. Includes code to work with files containing the Siler model posterior parameters and for obtaining the proportion of animals alive at a given age and age specific survival for *Tursiops truncatus*;
+
+* [SurvivalReduction.pdf](SurvivalReduction.html) – Supplementary material about how we obtain the survival reduction factor. This combines baseline survival probability with post oil survival probability obtained by SCR. For the baseline survival probability we describe the analysis that integrates the different components required . The survival post oil spill for Barataria Bay bottlenose dolphins is obtained in a separate paper, Glennie et al (2021).
+
+* [AgeOf1stReproduction.pdf](AgeOf1stReproduction.html) - Supplementary material with details about how we obtained the age at first reproduction for *Tursiops truncatus*;
+
+* [BNDinjury_Fig4.Rmd](BNDinjury_Fig4.html) - obtaining the injury measures presented on the paper;
+
+* [BNDModelEvaluation.pdf](BNDModelEvaluation.html) - the code for the production of all the sensitivity analysis ;
+
+# How to reproduce the paper results
+
+[Back to Introduction](#introduction)
+
+All the results in the paper can be recreated by the reader by running the code provided. Having the code also facilitates extending and using the code under different scenarios, species and locations. This is considered the most convenient way to share the results, since all the outputs would be too large to share in the github repository.
+
+## All the results
+
+The results shown in the paper tables are produced by different bits of code from the supplementary material. To get the paper results you need to run two files:
+
+* run_BND_Ttru_PopSims.R - to get the main results. This is the code output next for readability
+
+```{r , eval = FALSE, echo = TRUE}
+#this runs all the simulations and produces outputs for Ttru BND species
+source("Functions/runPopSims.R")        
+#define the number of iterations to run
+ns <- 9999
+# define the number of years each iteration is run for
+ny <- 75
+runPopSims(Sp = "Ttru", nsims = ns, nyears = ny, seed = 7134672)
+```
+
+
+* Run_BND_Ttru_PopSimsSensitivity.R - to run the sensitivity analysis. This is the code output here for readability
+
+```{r , eval = FALSE, echo = TRUE}
+#this runs all the simulations and produces outputs for BND Ttru
+source("Functions/reqfuns.R")         # auxiliary functions are here
+source("Functions/SilerFuns.R")       # Siler model functions are here
+source("Functions/runPopSims.R")      # the main simulation function
+
+# ------------
+# define the parameters that we evaluate sensitivity for
+# "a1r" - age at first reproduction - uses mean of Gamma if par not "a1r" in runSimsSensitivity
+# "N0" - initial population size - uses mean of realizations if par not "N0" in runSimsSensitivity
+# "per" - proportion exposed that recovers - uses mean of realizations if par not "per" in runSimsSensitivity
+# "Fmax" - Maximum fecundity - uses mean of realizations if par not "Fmax" in runSimsSensitivity
+# "Fnom" - Nominal Fecundity - uses mean of realizations if par not "Fnom" in runSimsSensitivity
+# "rho" - density dependence parameter - uses mean of realizations if par not "rho" in runSimsSensitivity
+# "br" - baseline reproduction - uses mean of realizations if par not "br" in runSimsSensitivity
+# "por" - post spill reproductive success rate - uses mean of realizations if par not "por" in runSimsSensitivity
+# "spos" - post oil spill survival  - uses mean of realizations if par not "spos" in runSimsSensitivity (SR for non Ttru)
+# "ascS" -  age sex class survival -  uses mean of realizations of survival curves if par not "ascS" in runSimsSensitivity
+# "PM" - proportion marked  -  uses mean of realizations of P(marked|age) if par not "PM" in runSimsSensitivity
+# ---------------
+# While pe is always 1 for Ttru, it is nonetheless evaluated, as a control: no variability is expected
+# "pe" - proportion exposed - uses mean of realizations if par not "N0" in runSimsSensitivity
+# ---------------
+
+#list of parameters
+parS <- c("a1r","N0","pe","per","Fmax","Fnom","rho","br","por","spos","ascS","PM")
+
+#define the number of iterations to run
+ns <- 500
+# define the number of years each iteration is run for
+ny <- 75
+# For each parameter we want to evaluate sensitivity for, see list above  
+
+for (j in parS) {
+  runPopSims(Sp = "Ttru", type = "Sens", nsims = ns, nyears = ny, par =j)
+}
+```
+
+
+The folder structure and all files required to successfully run the code is in the above github repository (under folder "FolderArchitecture2runCode"). The recommended procedure is to download this entire folder into a local folder and then run the above files.
+
+At a bare minimum running the code requires the following folders and the material provided in them:
+
+* "InputFiles": this folder includes a number of files that are treated as data, iputs required to run the code, including the key file `SpeciesDefinitionFile4offshore.xlsx` that contains all the details for all the different taxonomic units
+
+* "InOutBySp\Bottlenose_dolphin_BB":  a folder that also contains a specific set of subfolders with inputs per species, namely "N_boot.csv" and "N_boot_in_oil.csv", a distribution of initial population sizes of both all animals and exposed animals. This is also the folder where results for each taxonomic unit are outputed into
+
+* "Functions": folder containing all the R code including functions required to run the simulations
+
+Note that the code could take a considerable amount of time to run. The consequence of running said chunk will be to populate the folder `InOutBySp\Bottlenose_dolphin_BB` with the R workspaces holding the results that the rest of the code in [BNDinjury_Fig4.Rmd](BNDinjury_Fig4.pdf) and [BNDModelEvaluation.Rmd](BNDModelEvaluation.pdf) uses to produce the tables with injury metrics.

@@ -1,10 +1,7 @@
-#this runs all the simulations and produces outputs for all species
+#this runs all the simulations and produces outputs for BND Ttru
 source("Functions/reqfuns.R")         # auxiliary functions are here
 source("Functions/SilerFuns.R")       # Siler model functions are here
 source("Functions/runPopSims.R")      # the main simulation function
-
-#define the species we run simulations for
-Sps <- c("Bwsp", "Fatt", "Ggri", "Gmac", "Kosp", "Pele", "Pmac", "Satt", "Sbre", "Scly", "Scoe", "Sfro", "Slon", "Ttro", "Ttrs")
 
 # ------------
 # define the parameters that we evaluate sensitivity for
@@ -23,23 +20,16 @@ Sps <- c("Bwsp", "Fatt", "Ggri", "Gmac", "Kosp", "Pele", "Pmac", "Satt", "Sbre",
 # While pe is always 1 for Ttru, it is nonetheless evaluated, as a control: no variability is expected
 # "pe" - proportion exposed - uses mean of realizations if par not "N0" in runSimsSensitivity
 # ---------------
-# Remaining parameters are only evaluated for NON-Ttru: see if statement below
-# "BrTt" - Baseline reproductive success rate for Ttru
-# "PorTt" - post spill reproductive success rate for Ttru
-# "SR" - survival reduction -  uses mean of realizations if par not "SR" in runSimsSensitivity
-# ---------------
 
 #list of parameters
-parS <- c("a1r","N0","pe","per","Fmax","Fnom","rho","br","por","spos","ascS","PM","SR","BrTt","PorTt")
+parS <- c("a1r","N0","pe","per","Fmax","Fnom","rho","br","por","spos","ascS","PM")
 
 #define the number of iterations to run
 ns <- 500
 # define the number of years each iteration is run for
 ny <- 75
-# For each species, note Ttru comes first
-for (i in Sps){
 # For each parameter we want to evaluate sensitivity for, see list above  
+
 for (j in parS) {
-    runPopSims(Sp = i, type = "Sens", nsims = ns, nyears = ny, par =j)
-  }
+  runPopSims(Sp = "Ttru", type = "Sens", nsims = ns, nyears = ny, par =j)
 }

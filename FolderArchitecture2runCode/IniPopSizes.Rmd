@@ -26,7 +26,7 @@ These population sizes were obtained from the models of
 
 Roberts, J. J.; Best, B. D.; Mannocci, L.; Fujioka, E.; Halpin, P. N.; Palka, D. L.; Garrison, L. P.; Mullin, K. D.; Cole, T. V. N.; Khan, C. B.; McLellan, W. A.; Pabst, D. A. & Lockhart, G. G. (2016) Habitat-based cetacean density models for the U.S. Atlantic and Gulf of Mexico. Scientific Reports 6: 22615 
 
-To obtain the number of animals exposed to oil (and hence the proportion of the population exposed to oil) the estimated fraction of the population based on the density surfaces that was contained in the area considered to be affected by oil was quatified. Said area is shown in the image below
+To obtain the number of animals exposed to oil (and hence the proportion of the population exposed to oil) the estimated fraction of the population based on the density surfaces that was contained in the area considered to be affected by oil was quantified. Said area is shown in the image below
 
 ```{r, fig.align = 'center', fig.width = 10}
 include_graphics(path = "figs/Figure1.JPG")

@@ -157,6 +157,31 @@ ggplot(data=pxMF, aes(x=ages, y=mean, ymin=q025, ymax=q975, fill=sex, linetype=s
  xlab("Age") + 
  ylab("Age specific Survival")
 ```
+It is relevant to appreciate that the survival curves across iterations will tend to cross, and therefore we cannot really talk about higher survival probabilities across the board for a single iteration, the survival might be higher in iteration i for younger animals but higher for older animals. This is illustrated in the image below, where a couple of iterations are highlighted (in green and blue) against all the iterations.
+
+```{r, fig.width = 10,fig.height=6}
+par(mfrow=c(1,2))
+set.seed(123)
+#get the funtion
+plot(c(0,72),c(0,1),type="n",main="Female survival",xlab="Age (in years)",ylab="Survival")
+for(i in 2:(nrow(pf)-4)){
+    lines(1:71,pxFs2[,i])
+}
+
+lines(1:71,pxFs2[,23],lwd=3,col="green")
+
+lines(1:71,pxFs2[,32],lwd=3,col="blue")
+
+plot(c(0,72),c(0,1),type="n",main="Male survival",xlab="Age (in years)",ylab="Survival")
+for(i in 2:(nrow(pf)-4)){
+  lines(1:71,pxMs2[,i])
+}
+
+lines(1:71,pxMs2[,23],lwd=3,col="green")
+
+lines(1:71,pxMs2[,32],lwd=3,col="blue")
+```
+
 
 # Comparing all species
 
