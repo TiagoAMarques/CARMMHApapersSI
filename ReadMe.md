@@ -13,10 +13,8 @@ Here we describe how you can navigate through this material. We note upfront tha
 
 The master file that allows you to understand the files required to recreate the results for the bottlenose dolphin paper focused on Barataria Bay is:
 
-Needs to be created yet :), in close coordination with Lori
+[Pelagic paper master file](https://htmlpreview.github.io/?https://github.com/TiagoAMarques/CARMMHApapersSI/blob/a7f236a0152d88df8c755c1cca04cee425e42499/FolderArchitecture2runCode/BND_ElectronicSupplements.html)
 
 The master file that allows you to understand the files required to recreate the results for the pelagic paper is:
 
 [Pelagic paper master file](https://htmlpreview.github.io/?https://github.com/TiagoAMarques/CARMMHApapersSI/blob/f608690e597f2bd26a8b5258592d643cc0ce15c7/FolderArchitecture2runCode/ElectronicSupplements.html)
-
-This is currently "Work In Progress". If you are reading it and are not in the CARMMHA team, bear with us as this is not live yet!
