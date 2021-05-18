@@ -131,3 +131,8 @@ At a bare minimum running the code requires the following folders and the materi
 * `Functions`: folder containing all the R code including functions required to run the simulations
 
 Note that the code could take a considerable amount of time to run. The consequence of running said chunk will be to populate the folder `InOutBySp\Bottlenose_dolphin_BB` with the R workspaces holding the results that the rest of the code in [BNDinjury_Fig4.Rmd](BNDinjury_Fig4.pdf) and [BNDModelEvaluation.Rmd](BNDModelEvaluation.pdf) uses to produce the tables with injury metrics.
+
+# References
+
+Glennie, R., L. Thomas, T. Speakman, L. Garrison, R. Takeshita and L.H. Schwacke. Manuscript in preparation. Estimating spatially-varying density and time-varying deographics with open population spatial capture-recapture: a photograhic ID case study on bottlenose dolphins in Barataria Bay, USA.
+

@@ -192,10 +192,8 @@ pre code {
 <p><a href="#introduction">Back to Introduction</a></p>
 <p>Other key files names and brief content descriptions follow:</p>
 <ul>
-<li><p><a href="ElectronicSupplement1_EE.html">ElectronicSupplement1_EE.pdf</a> – Supplementary material about the expert elicitation exercises;</p></li>
-<li><p><a href="IniPopSizes.html">IniPopSizes.pdf</a> – Supplementary material about the initial population sizes and proportion of animals exposed to oil. Includes point estimates of the spatial models used to estimate the stock size, the oil footprint considered to have an impact on survival, and hence the delineation of the area including the proportion exposed for each of the species considered; Note that the initial population sizes and proportion exposed are provided as data. The reason we do not provide the code that allows the user to reproduce the objects is because the model and objects used to do so are not ours to distribute. For all taxonomic units not Barataria Bay BND these come from models reported by Roberts et al. (2015). For BB BND these come from a dedicated SECR analysis (Glennie et al., in preparation). This supplamentary material also includes the code required to generate the paper tables 1 and 2 as well as a table used in getInjury.Rmd.</p></li>
-<li><p><a href="ComparingSurvivalsAcrossStocks.html">ComparingSurvivalsAcrossStocks.pdf</a> – Supplementary material about the stock specific survival probabilities given the scaling by gestation duration. Includes code to work with files containing the Siler model posterior parameters and for obtaining the proportion of animals alive at a given age and age specific survival for <em>Tursiops truncatus</em>;</p></li>
-<li><p><a href="SurvivalReduction.html">SurvivalReduction.pdf</a> – Supplementary material about how we obtain the survival reduction factor. This combines baseline survival probability with post oil survival probability obtained by SCR. For the baseline survival probability we describe the analysis that integrates the different components required . The survival post oil spill for Barataria Bay bottlenose dolphins is obtained in a separate paper, Glennie et al (2021).</p></li>
+<li><p><a href="BND_InitialPopulation.html">BND_InitialPopulation.pdf</a> – Initial population size distribution and baseline survival. These are taken as data inputs, and the deatil analysis that describes how these were obtained is part of a separate dedicated effort where a spatially explicit capture recapture model was implemented (Glennie et al.,2021).</p></li>
+<li><p><a href="SurvivalReduction.html">SurvivalReduction.pdf</a> – Supplementary material about how we obtain the survival reduction factor. This combines baseline survival probability with post oil survival probability obtained by SCR. For the baseline survival probability we describe the analysis that integrates the different components required. The survival post oil spill for Barataria Bay bottlenose dolphins is obtained in a separate paper, Glennie et al (2021).</p></li>
 <li><p><a href="AgeOf1stReproduction.html">AgeOf1stReproduction.pdf</a> - Supplementary material with details about how we obtained the age at first reproduction for <em>Tursiops truncatus</em>;</p></li>
 <li><p><a href="BNDinjury_Fig4.html">BNDinjury_Fig4.Rmd</a> - obtaining the injury measures presented on the paper;</p></li>
 <li><p><a href="BNDModelEvaluation.html">BNDModelEvaluation.pdf</a> - the code for the production of all the sensitivity analysis ;</p></li>
@@ -265,6 +263,10 @@ for (j in parS) {
 </ul>
 <p>Note that the code could take a considerable amount of time to run. The consequence of running said chunk will be to populate the folder <code>InOutBySp\Bottlenose_dolphin_BB</code> with the R workspaces holding the results that the rest of the code in <a href="BNDinjury_Fig4.pdf">BNDinjury_Fig4.Rmd</a> and <a href="BNDModelEvaluation.pdf">BNDModelEvaluation.Rmd</a> uses to produce the tables with injury metrics.</p>
 </div>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<p>Glennie, R., L. Thomas, T. Speakman, L. Garrison, R. Takeshita and L.H. Schwacke. Manuscript in preparation. Estimating spatially-varying density and time-varying deographics with open population spatial capture-recapture: a photograhic ID case study on bottlenose dolphins in Barataria Bay, USA.</p>
 </div>
 
 
