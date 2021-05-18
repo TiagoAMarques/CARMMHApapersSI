@@ -1,7 +1,7 @@
 ---
 title: 'Model evaluation: sensitivity and elasticity analysis'
-author: "Tiago A. Marques"
-date: "7/20/2020"
+author: ""
+date: \today
 output: html_document
 ---
 
@@ -18,7 +18,7 @@ library(mgcv)
 
 This is an Electronic Supplement to the paper submited to Conservation Letters on the ??-??-???? by L.H. Schwacke, T.A. Marques, C. Booth, C. Smith, F. Gomez, B. Balmer, A. Barratclough, S. De Guise, L. Garrison, K. Colegrove, J. Morey, K. D. Mullin, B. M. Quigley, P. Rosel, T. Rowles, R. Takeshita,  F. Townsend, T. Speakman, R. Wells, E. Zolman, L. Thomas, entitled "Why bottlenose dolphin populations have still not recovered a decade after the Deepwater Horizon oil spill"
 
-The master file with supplementary material is here: [Electronic Supplements master file](ElectronicSupplements.html).
+The master file with supplementary material is here: [BND Electronic Supplements master file](BND_ElectronicSupplements.html).
 
 
 # Introduction
