@@ -23,7 +23,11 @@ The master file with supplementary material is here: [Electronic Supplements mas
 
 # Introduction
 
-This document briefly describes the inital population size and the the baseline survival. It simply reads in the distributions that we use as data. For how these distributions are generated please see the dedicated study by Glennie et al. 2020. 
+This document briefly describes the inital population size and the the post oil population averaged survival. 
+
+It simply reads in and then displays the distributions that we use as data.
+
+For how these distributions are generated please see the dedicated study by Glennie et al. 2020. 
 
 # Population size
 
@@ -34,11 +38,11 @@ This document briefly describes the inital population size and the the baseline 
   Nstart <- as.vector(Nstart)
 ```
 
-The mean initial population size considering `r length(Nstart)` available samples from the posterior of the SECR model ranged between `r min(Nstart)` and `r max(Nstart)`. The mean population size was `r mean(Nstart)` and the median `r median(Nstart)` with a 95% credible interval of (`r quantile(Nstart,0.025)` ,`r  quantile(Nstart,0.025)`). We can plot the distribution of the estimates (removing estimates above double the mean for better visualization)
+The mean initial population size considering `r length(Nstart)` available samples from the posterior of the SECR model ranged between `r min(Nstart)` and `r max(Nstart)`. The mean population size was `r mean(Nstart)` and the median `r median(Nstart)` with a 95% credible interval of (`r quantile(Nstart,0.025)` ,`r  quantile(Nstart,0.025)`). We can plot the distribution of the abundance estimates (removing estimates above double the mean for better visualization)
 
 ```{r}
 index<-Nstart<2*mean(Nstart)
-hist(Nstart[index],main="Initial population size")
+hist(Nstart[index],main="Initial population size",xlab="Abundance")
 ```
 
 # Post oil survival
@@ -49,10 +53,11 @@ SpostOilBB <- as.numeric(SpostOilBB$S)
 ```
 
 
-The mean initial population size considering `r length(SpostOilBB)` available samples from the posterior of the SECR model ranged between `r min(SpostOilBB)` and `r max(SpostOilBB)`. The mean population size was `r mean(SpostOilBB)` and the median `r median(SpostOilBB)` with a 95% credible interval of (`r quantile(SpostOilBB,0.025)` ,`r  quantile(SpostOilBB,0.025)`). We can plot the distribution of the estimates (removing estimates above double the mean for better visualization)
-
+The population average survival considering `r length(SpostOilBB)` available samples from the posterior of the SECR model ranged between `r min(SpostOilBB)` and `r max(SpostOilBB)`. The mean survival was `r mean(SpostOilBB)` and the median `r median(SpostOilBB)` with a 95% credible interval of (`r quantile(SpostOilBB,0.025)` ,`r  quantile(SpostOilBB,0.025)`). We can plot the distribution of the survival post oil spill estimates 
 ```{r}
-hist(SpostOilBB,main="Post oil survival")
+hist(SpostOilBB,main="Post oil survival",xlab="Survival probability")
 ```
 
 # References
+
+Glennie, R., L. Thomas, T. Speakman, L. Garrison, R. Takeshita and L.H. Schwacke. Manuscript in preparation. Estimating spatially-varying density and time-varying deographics with open population spatial capture-recapture: a photograhic ID case study on bottlenose dolphins in Barataria Bay, USA.

@@ -172,8 +172,8 @@ pre code {
 <div id="preamble" class="section level1">
 <h1>Preamble</h1>
 <p><strong><em>This will be a general preable common to several documents included as Electronic Supplements to CARMMHA’s BB BND injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc.</em></strong></p>
-<p>This is an Electronic Supplement to the paper submited to Conservation Letters on the ??-??-???? by L.H. Schwacke, T.A. Marques, C. Booth, C. Smith, F. Gomez, B. Balmer, A. Barratclough, S. De Guise, L. Garrison, K. Colegrove, J. Morey, K. D. Mullin, B. M. Quigley, P. Rosel, T. Rowles, R. Takeshita, F. Townsend, T. Speakman, R. Wells, E. Zolman, L. Thomas, entitled “Why bottlenose dolphin populations have still not recovered a decade after the Deepwater Horizon oil spill”</p>
-<p>The master file with supplementary material is here: <a href="ElectronicSupplements.html">Electronic Supplements master file</a>.</p>
+<p>This is an Electronic Supplement to the paper submitted to Conservation Letters on the ??-??-???? by L.H. Schwacke, T.A. Marques, C. Booth, C. Smith, F. Gomez, B. Balmer, A. Barratclough, S. De Guise, L. Garrison, K. Colegrove, J. Morey, K. D. Mullin, B. M. Quigley, P. Rosel, T. Rowles, R. Takeshita, F. Townsend, T. Speakman, R. Wells, E. Zolman, L. Thomas, entitled “Why bottlenose dolphin populations have still not recovered a decade after the Deepwater Horizon oil spill”</p>
+<p>The master file with supplementary material is here: <a href="BND_ElectronicSupplements.html">BND_Electronic Supplements master file</a>.</p>
 </div>
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
@@ -187,10 +187,10 @@ pre code {
 <p class="caption">Artwork by <span class="citation">@allison_horst</span> at available at <a href="https://github.com/allisonhorst/stats-illustrations" class="uri">https://github.com/allisonhorst/stats-illustrations</a>. This image illustrates the concept of reproducible research and is a tribute to Allison’s work on combining art and science.</p>
 </div>
 </div>
-<div id="list-of-electronic-supplements" class="section level1">
-<h1>List of Electronic Supplements</h1>
+<div id="list-of-key-documents-on-this-repository" class="section level1">
+<h1>List of key documents on this repository</h1>
 <p><a href="#introduction">Back to Introduction</a></p>
-<p>The other Electronic Supplements files names and brief content descriptions follow:</p>
+<p>Other key files names and brief content descriptions follow:</p>
 <ul>
 <li><p><a href="ElectronicSupplement1_EE.html">ElectronicSupplement1_EE.pdf</a> – Supplementary material about the expert elicitation exercises;</p></li>
 <li><p><a href="IniPopSizes.html">IniPopSizes.pdf</a> – Supplementary material about the initial population sizes and proportion of animals exposed to oil. Includes point estimates of the spatial models used to estimate the stock size, the oil footprint considered to have an impact on survival, and hence the delineation of the area including the proportion exposed for each of the species considered; Note that the initial population sizes and proportion exposed are provided as data. The reason we do not provide the code that allows the user to reproduce the objects is because the model and objects used to do so are not ours to distribute. For all taxonomic units not Barataria Bay BND these come from models reported by Roberts et al. (2015). For BB BND these come from a dedicated SECR analysis (Glennie et al., in preparation). This supplamentary material also includes the code required to generate the paper tables 1 and 2 as well as a table used in getInjury.Rmd.</p></li>
@@ -209,7 +209,7 @@ pre code {
 <h2>All the results</h2>
 <p>The results shown in the paper tables are produced by different bits of code from the supplementary material. To get the paper results you need to run two files:</p>
 <ul>
-<li>run_BND_Ttru_PopSims.R - to get the main results. This is the code output next for readability</li>
+<li><code>run_BND_Ttru_PopSims.R</code> - to get the main results. This is the code output next for readability</li>
 </ul>
 <pre class="r"><code>#this runs all the simulations and produces outputs for Ttru BND species
 source(&quot;Functions/runPopSims.R&quot;)        
@@ -219,7 +219,7 @@ ns &lt;- 9999
 ny &lt;- 75
 runPopSims(Sp = &quot;Ttru&quot;, nsims = ns, nyears = ny, seed = 7134672)</code></pre>
 <ul>
-<li>Run_BND_Ttru_PopSimsSensitivity.R - to run the sensitivity analysis. This is the code output here for readability</li>
+<li><code>Run_BND_Ttru_PopSimsSensitivity.R</code> - to run the sensitivity analysis. This is the code output here for readability</li>
 </ul>
 <pre class="r"><code>#this runs all the simulations and produces outputs for BND Ttru
 source(&quot;Functions/reqfuns.R&quot;)         # auxiliary functions are here
@@ -256,12 +256,12 @@ ny &lt;- 75
 for (j in parS) {
   runPopSims(Sp = &quot;Ttru&quot;, type = &quot;Sens&quot;, nsims = ns, nyears = ny, par =j)
 }</code></pre>
-<p>The folder structure and all files required to successfully run the code is in the above github repository (under folder “FolderArchitecture2runCode”). The recommended procedure is to download this entire folder into a local folder and then run the above files.</p>
+<p>The folder structure and all files required to successfully run the code is in the above github repository (under folder <code>FolderArchitecture2runCode</code>). The recommended procedure is to download this entire folder into a local folder and then run the above files.</p>
 <p>At a bare minimum running the code requires the following folders and the material provided in them:</p>
 <ul>
-<li><p>“InputFiles”: this folder includes a number of files that are treated as data, iputs required to run the code, including the key file <code>SpeciesDefinitionFile4offshore.xlsx</code> that contains all the details for all the different taxonomic units</p></li>
-<li><p>&quot;InOutBySp_dolphin_BB“: a folder that also contains a specific set of subfolders with inputs per species, namely”N_boot.csv&quot; and “N_boot_in_oil.csv”, a distribution of initial population sizes of both all animals and exposed animals. This is also the folder where results for each taxonomic unit are outputed into</p></li>
-<li><p>“Functions”: folder containing all the R code including functions required to run the simulations</p></li>
+<li><p><code>InputFiles</code>: this folder includes a number of files that are treated as data, inputs required to run the code, including the key file <code>SpeciesDefinitionFile4offshore.xlsx</code> that contains parameters for all the different taxonomic units in CARMMHA project, including the Barataria Bay bottlenose dolphins.</p></li>
+<li><p><code>InOutBySp\Bottlenose_dolphin_BB</code>: a folder that also contains species specific input files, namely “N_boot.csv” and “N_boot_in_oil.csv”, a distribution of initial population sizes of both all animals and exposed animals. This is also the folder where results are outputed to by default.</p></li>
+<li><p><code>Functions</code>: folder containing all the R code including functions required to run the simulations</p></li>
 </ul>
 <p>Note that the code could take a considerable amount of time to run. The consequence of running said chunk will be to populate the folder <code>InOutBySp\Bottlenose_dolphin_BB</code> with the R workspaces holding the results that the rest of the code in <a href="BNDinjury_Fig4.pdf">BNDinjury_Fig4.Rmd</a> and <a href="BNDModelEvaluation.pdf">BNDModelEvaluation.Rmd</a> uses to produce the tables with injury metrics.</p>
 </div>

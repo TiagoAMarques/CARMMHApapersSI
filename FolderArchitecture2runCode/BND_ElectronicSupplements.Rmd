@@ -17,9 +17,9 @@ library(knitr)
 
 ***This will be a general preable common to several documents included as Electronic Supplements to CARMMHA's BB BND injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc.***
 
-This is an Electronic Supplement to the paper submited to Conservation Letters on the ??-??-???? by L.H. Schwacke, T.A. Marques, C. Booth, C. Smith, F. Gomez, B. Balmer, A. Barratclough, S. De Guise, L. Garrison, K. Colegrove, J. Morey, K. D. Mullin, B. M. Quigley, P. Rosel, T. Rowles, R. Takeshita,  F. Townsend, T. Speakman, R. Wells, E. Zolman, L. Thomas, entitled "Why bottlenose dolphin populations have still not recovered a decade after the Deepwater Horizon oil spill"
+This is an Electronic Supplement to the paper submitted to Conservation Letters on the ??-??-???? by L.H. Schwacke, T.A. Marques, C. Booth, C. Smith, F. Gomez, B. Balmer, A. Barratclough, S. De Guise, L. Garrison, K. Colegrove, J. Morey, K. D. Mullin, B. M. Quigley, P. Rosel, T. Rowles, R. Takeshita,  F. Townsend, T. Speakman, R. Wells, E. Zolman, L. Thomas, entitled "Why bottlenose dolphin populations have still not recovered a decade after the Deepwater Horizon oil spill"
 
-The master file with supplementary material is here: [Electronic Supplements master file](ElectronicSupplements.html).
+The master file with supplementary material is here: [BND_Electronic Supplements master file](BND_ElectronicSupplements.html).
 
 # Introduction
 
@@ -40,21 +40,15 @@ include_graphics("figs/reproducibility_court.png")
 
 ![Artwork by @allison_horst at available at https://github.com/allisonhorst/stats-illustrations. This image illustrates the concept of reproducible research and is a tribute to Allison's work on combining art and science.](figs/reproducibility_court.png){width=50%}
 
-
-
-# List of Electronic Supplements
+# List of key documents on this repository
 
 [Back to Introduction](#introduction)
 
-The other Electronic Supplements files names and brief content descriptions follow:
+Other key files names and brief content descriptions follow:
 
-* [ElectronicSupplement1_EE.pdf](ElectronicSupplement1_EE.html) – Supplementary material about the expert elicitation exercises;
+* [BND_InitialPopulation.pdf](BND_InitialPopulation.html) – Initial population size distribution and baseline survival. These are taken as data inputs, and the deatil analysis that describes how these were obtained is part of a separate dedicated effort where a spatially explicit capture recapture model was implemented (Glennie et al.,2021).
 
-* [IniPopSizes.pdf](IniPopSizes.html) – Supplementary material about the initial population sizes and proportion of animals exposed to oil. Includes point estimates of the spatial models used to estimate the stock size, the oil footprint considered to have an impact on survival, and hence the delineation of the area including the proportion exposed for each of the species considered; Note that the initial population sizes and proportion exposed are provided as data. The reason we do not provide the code that allows the user to reproduce the objects is because the model and objects used to do so are not ours to distribute. For all taxonomic units not Barataria Bay BND these come from models reported by Roberts et al. (2015). For BB BND these come from a dedicated SECR analysis (Glennie et al., in preparation). This supplamentary material also includes the code required to generate the paper tables 1 and 2 as well as a table used in getInjury.Rmd.
-
-* [ComparingSurvivalsAcrossStocks.pdf](ComparingSurvivalsAcrossStocks.html) – Supplementary material about the stock specific survival probabilities given the scaling by gestation duration. Includes code to work with files containing the Siler model posterior parameters and for obtaining the proportion of animals alive at a given age and age specific survival for *Tursiops truncatus*;
-
-* [SurvivalReduction.pdf](SurvivalReduction.html) – Supplementary material about how we obtain the survival reduction factor. This combines baseline survival probability with post oil survival probability obtained by SCR. For the baseline survival probability we describe the analysis that integrates the different components required . The survival post oil spill for Barataria Bay bottlenose dolphins is obtained in a separate paper, Glennie et al (2021).
+* [SurvivalReduction.pdf](SurvivalReduction.html) – Supplementary material about how we obtain the survival reduction factor. This combines baseline survival probability with post oil survival probability obtained by SCR. For the baseline survival probability we describe the analysis that integrates the different components required. The survival post oil spill for Barataria Bay bottlenose dolphins is obtained in a separate paper, Glennie et al (2021).
 
 * [AgeOf1stReproduction.pdf](AgeOf1stReproduction.html) - Supplementary material with details about how we obtained the age at first reproduction for *Tursiops truncatus*;
 
@@ -72,7 +66,7 @@ All the results in the paper can be recreated by the reader by running the code 
 
 The results shown in the paper tables are produced by different bits of code from the supplementary material. To get the paper results you need to run two files:
 
-* run_BND_Ttru_PopSims.R - to get the main results. This is the code output next for readability
+* `run_BND_Ttru_PopSims.R` - to get the main results. This is the code output next for readability
 
 ```{r , eval = FALSE, echo = TRUE}
 #this runs all the simulations and produces outputs for Ttru BND species
@@ -85,7 +79,7 @@ runPopSims(Sp = "Ttru", nsims = ns, nyears = ny, seed = 7134672)
 ```
 
 
-* Run_BND_Ttru_PopSimsSensitivity.R - to run the sensitivity analysis. This is the code output here for readability
+* `Run_BND_Ttru_PopSimsSensitivity.R` - to run the sensitivity analysis. This is the code output here for readability
 
 ```{r , eval = FALSE, echo = TRUE}
 #this runs all the simulations and produces outputs for BND Ttru
@@ -126,14 +120,14 @@ for (j in parS) {
 ```
 
 
-The folder structure and all files required to successfully run the code is in the above github repository (under folder "FolderArchitecture2runCode"). The recommended procedure is to download this entire folder into a local folder and then run the above files.
+The folder structure and all files required to successfully run the code is in the above github repository (under folder `FolderArchitecture2runCode`). The recommended procedure is to download this entire folder into a local folder and then run the above files.
 
 At a bare minimum running the code requires the following folders and the material provided in them:
 
-* "InputFiles": this folder includes a number of files that are treated as data, iputs required to run the code, including the key file `SpeciesDefinitionFile4offshore.xlsx` that contains all the details for all the different taxonomic units
+* `InputFiles`: this folder includes a number of files that are treated as data, inputs required to run the code, including the key file `SpeciesDefinitionFile4offshore.xlsx` that contains parameters for all the different taxonomic units in CARMMHA project, including the Barataria Bay bottlenose dolphins.
 
-* "InOutBySp\Bottlenose_dolphin_BB":  a folder that also contains a specific set of subfolders with inputs per species, namely "N_boot.csv" and "N_boot_in_oil.csv", a distribution of initial population sizes of both all animals and exposed animals. This is also the folder where results for each taxonomic unit are outputed into
+* `InOutBySp\Bottlenose_dolphin_BB`:  a folder that also contains species specific input files, namely "N_boot.csv" and "N_boot_in_oil.csv", a distribution of initial population sizes of both all animals and exposed animals. This is also the folder where results are outputed to by default.
 
-* "Functions": folder containing all the R code including functions required to run the simulations
+* `Functions`: folder containing all the R code including functions required to run the simulations
 
 Note that the code could take a considerable amount of time to run. The consequence of running said chunk will be to populate the folder `InOutBySp\Bottlenose_dolphin_BB` with the R workspaces holding the results that the rest of the code in [BNDinjury_Fig4.Rmd](BNDinjury_Fig4.pdf) and [BNDModelEvaluation.Rmd](BNDModelEvaluation.pdf) uses to produce the tables with injury metrics.
