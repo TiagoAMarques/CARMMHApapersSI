@@ -21,6 +21,6 @@ The master file that allows you to understand the files required to recreate the
 
 The master file that allows you to understand the files required to recreate the results for the pelagic paper is:
 
-[Pelagic paper master file](https://htmlpreview.github.io/?https://github.com/TiagoAMarques/CARMMHApapersSI/blob/f608690e597f2bd26a8b5258592d643cc0ce15c7/FolderArchitecture2runCode/ElectronicSupplements.html)
+[Pelagic paper master file](https://htmlpreview.github.io/?https://github.com/TiagoAMarques/CARMMHApapersSI/blob/master/FolderArchitecture2runCode/ElectronicSupplements.html)
 
 Feel free to drop us any comments at tiago.marques at st-andrews.ac.uk
