@@ -1,0 +1,58 @@
+---
+title: 'Initial population size and baseline survival'
+author: "Tiago A. Marques"
+date: "7/20/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(stringr)
+library(mgcv)
+```
+
+
+# Preamble
+
+***This will be a general preable common to several documents included as Electronic Supplements to CARMMHA's BB BND injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc.***
+
+This is an Electronic Supplement to the paper submited to Conservation Letters on the ??-??-???? by L.H. Schwacke, T.A. Marques, C. Booth, C. Smith, F. Gomez, B. Balmer, A. Barratclough, S. De Guise, L. Garrison, K. Colegrove, J. Morey, K. D. Mullin, B. M. Quigley, P. Rosel, T. Rowles, R. Takeshita,  F. Townsend, T. Speakman, R. Wells, E. Zolman, L. Thomas, entitled "Why bottlenose dolphin populations have still not recovered a decade after the Deepwater Horizon oil spill"
+
+The master file with supplementary material is here: [Electronic Supplements master file](ElectronicSupplements.html).
+
+
+# Introduction
+
+This document briefly describes the inital population size and the the baseline survival. It simply reads in the distributions that we use as data. For how these distributions are generated please see the dedicated study by Glennie et al. 2020. 
+
+# Population size
+
+```{r}
+ # Initial population size
+  Nstart <- read.csv(paste0("InOutBySp/Bottlenose_dolphin_BB/N_boot.csv"), header = TRUE)
+  Nstart <- Nstart[, 2]
+  Nstart <- as.vector(Nstart)
+```
+
+The mean initial population size considering `r length(Nstart)` available samples from the posterior of the SECR model ranged between `r min(Nstart)` and `r max(Nstart)`. The mean population size was `r mean(Nstart)` and the median `r median(Nstart)` with a 95% credible interval of (`r quantile(Nstart,0.025)` ,`r  quantile(Nstart,0.025)`). We can plot the distribution of the estimates (removing estimates above double the mean for better visualization)
+
+```{r}
+index<-Nstart<2*mean(Nstart)
+hist(Nstart[index],main="Initial population size")
+```
+
+# Post oil survival
+
+```{r}
+SpostOilBB <- read.csv(file = "InOutBySp/Bottlenose_dolphin_BB/PostOilSurv.csv", header = FALSE, col.names = "S")
+SpostOilBB <- as.numeric(SpostOilBB$S)
+```
+
+
+The mean initial population size considering `r length(SpostOilBB)` available samples from the posterior of the SECR model ranged between `r min(SpostOilBB)` and `r max(SpostOilBB)`. The mean population size was `r mean(SpostOilBB)` and the median `r median(SpostOilBB)` with a 95% credible interval of (`r quantile(SpostOilBB,0.025)` ,`r  quantile(SpostOilBB,0.025)`). We can plot the distribution of the estimates (removing estimates above double the mean for better visualization)
+
+```{r}
+hist(SpostOilBB,main="Post oil survival")
+```
+
+# References
