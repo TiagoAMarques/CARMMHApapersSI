@@ -1,0 +1,454 @@
+---
+title: "Creating Figures 2, 3 and 4"
+author: ""
+date: \today
+output:
+  html_document: default
+  pdf_document: default
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE)
+#to NOT disply scientific notation
+options(scipen=999)
+```
+
+# Preamble
+
+***This will be a general preamble common to several documents included as Electronic Supplements to CARMMHA's BB BND injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc.***
+
+This is an Electronic Supplement to the paper submited to Conservation Letters on the ??-??-???? by L.H. Schwacke, T.A. Marques, C. Booth, C. Smith, F. Gomez, B. Balmer, A. Barratclough, S. De Guise, L. Garrison, K. Colegrove, J. Morey, K. D. Mullin, B. M. Quigley, P. Rosel, T. Rowles, R. Takeshita,  F. Townsend, T. Speakman, R. Wells, E. Zolman, L. Thomas, entitled "Why bottlenose dolphin populations have still not recovered a decade after the Deepwater Horizon oil spill"
+
+The master file with supplementary material is here: [BND Electronic Supplements master file](BND_ElectronicSupplements.html).
+
+# Introduction
+
+In this document we present the code required to reproduce figures 2, 3 and 4 in the BB BND injury paper.
+
+# Creating figure 2
+
+To update the distributions from Schwacke et al 2017, experts were asked: "Given that the value of $\rho$ will affect the shape of the density dependent response of fecundity in the [BSE and coastal bottlenose dolphin/Gulf of Mexico] population, what do you judge to be the most appropriate value for Rho for this species and population?"
+
+The resulting, elicited distribution for bottlenose dolphins BSE was a gamma distribution (blue solid line) and is plotted alongside the distributuion used in Schwake et al 2017 (green dashed line).
+
+```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
+library(latex2exp)  # for tex in plot labels
+
+x <- seq(0.001, 25, length = 1000)
+#Our old distribution
+old.shape <- 6.4
+old.scale <- 1
+q <- dgamma(x, shape = old.shape, scale = old.scale)
+#q3 <- dgamma(x, shape = 5.53, scale = 1/0.745)
+#This is the one we chose, represented in red
+#q2 <- dgamma(x, shape = shape, scale = scale)
+plot(x, q, type = "l", col = "springgreen4", lwd=2, xlim=c(0,28), xlab=expression(paste("Density dependence shape parameter ", rho)), ylab="Probability density",cex.axis=1.5,cex.lab=1.5)
+#lines(x + lower, q2, type = "l", col = "red")
+#lines(x, q3, type = "l", col = "blue", lty = 2)
+
+q3 <- dgamma(x, shape = 5.41, rate = 0.72)
+lines(x + 3, q3, type = "l", lwd=2, lty=5, col = "dodgerblue")
+
+#q4 <- dgamma(x, shape = 5.02, rate = 0.652)
+#lines(x + 3, q4, type = "l", lwd=3, lty=5, col = "dodgerblue")
+
+legend("topright", legend = c("BND - Schwacke, et al 2017", "BND - EE, 2020"), col = c("springgreen4", 
+"dodgerblue"), lty = c(1,5), lwd=2, cex=1, inset = 0.05)
+
+rhos <- (3+rgamma(1000000, shape = 5.41, rate = 0.72))
+text(21,0.1,labels=paste("mean:",round(mean(rhos),2)))
+text(21,0.08,labels=paste("median:",round(median(rhos),2)))
+text(21,0.06,labels=paste0("95% equal-tailed interval: ",round(quantile(rhos,p=0.025),2),",",round(quantile(rhos,p=0.975),2)))
+
+```
+
+
+The bottlenose dolphin fecundity as a function of population size based on the above distributions for $\rho$ are represented below as the fecundity rate as a function of population size:  
+
+```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
+#translating it into density dependence relationship
+getbeta <- function(Fmax=0.35, rho, Fnom=0.24, Nnom=3045) {
+  
+  # get the density dependent fecundity beta parameter
+  # implements equation 8 in Schwacke et al 2017
+  beta <- 1 / Nnom * ((Fmax - Fnom) / Fnom) ^ (1 / rho)
+  return(beta)
+}
+
+ft <- function(Nt, Fmax=0.35, rho, Fnom=0.24, Nnom=3045) {
+  # get fecundity given population size (and the other relevant parameters)
+  # implements equation 7 in Schwacke et al 2017
+  beta <- getbeta(Fmax, rho, Fnom, Nnom)
+  res  <- Fmax / (1 + (beta * Nt) ^ rho)
+  return(res)
+}
+
+set.seed(123)
+Nts <- 0:5000
+#Schwake et al 2017
+par(mfrow=c(2,1),mar=c(4.5,5,1.5,1))
+#the mean rho
+plot(Nts,ft(Nt=Nts,rho=6.4),type="n",ylab="",
+     xlab=TeX("Population size"),ylim=c(0.18,0.4),cex.axis=1.5,cex.lab=1.5)
+#1000 realizations of rho
+rhos <- rgamma(1000,shape=6.4,scale=1)
+for(i in 1:1000){
+  lines(Nts,ft(Nt=Nts,rho=rhos[i]),lty=2,lwd=0.5,col="grey")
+}
+points(Nts,ft(Nt=Nts,rho=6.4),type="l",col="springgreen4",lwd=3)
+abline(h=c(0.24,0.35),v=3045,lty=2)
+#new
+#the mean rho
+plot(Nts,ft(Nt=Nts,rho=6.34/0.853),type="n",ylab="",
+     xlab=TeX("Population size"),ylim=c(0.18,0.4),cex.axis=1.5,cex.lab=1.5)
+#1000 realizations of rho
+rhos <- 2.5+rgamma(1000,6.34, rate = 0.853)
+for(i in 1:1000){
+  lines(Nts,ft(Nt=Nts,rho=rhos[i]),lty=2,lwd=0.5,col="grey")
+}
+points(Nts,ft(Nt=Nts,rho=6),type="l",col="dodgerblue",lwd=3,lty=5)
+abline(h=c(0.24,0.35),v=3045,lty=2)
+
+mtext(TeX("Fecundity"),side = 2,line=3,at = 0.5,cex=1.5)
+```
+
+# Creating figure 3
+
+Here we represent the expert elicited Probability of recovery for a BB BND
+
+```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
+par(mfrow=c(1,1),mar=c(4.5,5,0.2,0.2))
+#Barataria Bay BND
+l1 <- 0
+u1 <- 0.55
+a1 <- 1.17
+b1 <- 2.36
+x <- seq(0, 1, length = 1000)
+y1 <- dbeta(x, a1, b1)/(u1-l1)
+plot(x* (u1-l1) + l1, y1, type = "l", xlim = c(0,0.6),lwd=3, ylim = c(0, 3.5),
+col="dodgerblue", ylab = "Probability density", xlab = "Probability of Recovery",cex.axis=1.5,cex.lab=1.5) 
+set.seed(123)
+ry1 <- (l1+rbeta(1000000, a1, b1)*u1)-l1
+text(0.45,3,labels=paste("mean:",round(mean(ry1),3)))
+text(0.45,2.7,labels=paste("median:",round(median(ry1),3)))
+text(0.45,2.4,labels=paste0("95% equal-tailed interval: ",round(quantile(ry1,p=0.025),3),",",round(quantile(ry1,p=0.975),3)))
+```
+
+
+
+# Creating figure 4
+
+## Load libraries and source required files:
+
+```{r,message=FALSE,warning=FALSE}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(ggpubr)
+library(readr)
+library(gridExtra)
+source("Functions/reqfuns.R")         # most functions are here
+source("Functions/SilerFuns.R")       # Siler model functions are here
+```
+
+## Loading required external information and files
+
+Figure 1 is created based on the population size distribution and probability of survival distribution that are the focus of Glennie et al., as well as survival probabilities that were described in Schwacke et al. 2017. We load the .csv files that contain the required information here:
+
+```{r,message=FALSE,warning=FALSE}
+#initial population size
+N_boot <- read_csv("InOutBySp/Bottlenose_dolphin_BB/N_boot.csv")
+#Baseline survival
+BaselineSurvival <- read_csv("InputFiles/BaselineSurvival.csv", col_names = FALSE)
+BaselineSurvival$oil <- "Baseline"
+#Post oil survival
+PostOilSurv <- read_csv("InOutBySp/Bottlenose_dolphin_BB/PostOilSurv.csv", col_names = FALSE)
+PostOilSurv$oil<- "Post-oil"
+#make single object for plotting
+survdata<- rbind(PostOilSurv,BaselineSurvival)
+```
+
+We also require the objects that record the simulations over time and corresponding injury metrics from our paper. We load those objects here:
+
+```{r}
+#note this loads a number of objects, including "simres" and "injury"
+load("InOutBySp/Bottlenose_dolphin_BB/Ttrusimres9999Sim.RData")
+```
+
+## Data wrangling
+
+Here we manipulate the objects to make them suitable for `ggplot`:
+
+```{r}
+#data<- data.frame(simres)
+nyears <- dim(simres)[2]
+nsims <- dim(simres)[3]
+ylims1 <- as.data.frame(c(min(c(colSums(simres[, , 1:nsims, 2]), colSums(simres[, , 1:nsims, 1])))*0.9, max(c(colSums(simres[, , 1:nsims, 2]), colSums(simres[, , 1:nsims, 1])))*1.1))
+
+firstyearsnooil<-data.frame(colSums(simres[, , 1, 2]))
+firstyearsoil<- as.data.frame(colSums(simres[, , 1, 1]))
+
+firstyearsnooil1<-(colSums(simres[, , 1, 2]))
+firstyearsoil1<- (colSums(simres[, , 1, 1]))
+
+#no oil
+data1<- as.data.frame(1:nrow(firstyearsnooil))
+colnames(data1)<-"year"
+data1$population<-firstyearsnooil1
+data1$nooil<- firstyearsnooil1
+
+#oil
+
+data2<- as.data.frame(1:nrow(firstyearsoil))
+colnames(data2)<-"year"
+data2$population<-firstyearsoil1
+data2$withoil<-firstyearsoil1
+
+data3<-merge(data1,data2,by="year",all=TRUE)
+
+data1<- as.data.frame(1:nrow(firstyearsnooil))
+colnames(data1)<-"year"
+data1$population<-firstyearsnooil1
+data1$nooil<- firstyearsnooil1
+data1$ymax<- data3$population.x
+data1$ymin<- data3$population.y
+data1$oil<-"nospill"
+
+
+
+data2<- as.data.frame(1:nrow(firstyearsoil))
+colnames(data2)<-"year"
+data2$oil<- "spill"
+data2$population<-firstyearsoil1
+data2$withoil<-firstyearsoil1
+data2$ymax<- data3$population.x
+data2$ymin<- data3$population.y
+data<- merge(data1,data2,by=c("year","oil","population","ymin","ymax"), all=TRUE)
+
+```
+
+```{r}
+data$diff<-data$ymax-data$ymin
+
+data$oil<-factor(data$oil, levels=c("nospill", "spill"))
+```
+
+
+```{r, echo=FALSE}
+
+#no oil
+ poptraj = matrix(NA, ncol = nyears, nrow = nsims)
+  for(i in 1:nsims) {
+    lines<- colSums(simres[, , i, 2])
+    poptraj[i, ] = colSums(simres[, , i, 2])
+  }
+  
+ 
+pra<- data.frame(t(poptraj))
+
+
+data11<-cbind(data1,pra)
+
+
+data111<-  data11 %>% 
+  pivot_longer(starts_with("X"),
+               names_to = "observ", 
+               names_transform = list(week = readr::parse_number),
+               values_to = "predict", 
+               values_drop_na = TRUE) %>% 
+  arrange(year,population,nooil,ymax,ymin,oil,observ,predict)
+
+
+  
+ #oil
+ poptraj = matrix(NA, ncol = nyears, nrow = nsims)
+  for(i in 1:nsims) {
+    lines<- colSums(simres[, , i, 1])
+    poptraj[i, ] = colSums(simres[, , i, 1])  }
+ 
+pra<- data.frame(t(poptraj))
+
+
+data22<-cbind(data2,pra)
+
+data222<-  data22 %>% 
+  pivot_longer(starts_with("X"),
+               names_to = "observ", 
+               names_transform = list(week = readr::parse_number),
+               values_to = "predict", 
+               values_drop_na = TRUE) %>% 
+  arrange(year,population,withoil,ymax,ymin,oil,observ,predict)
+
+data0<- merge(data111,data222,by=c("year","oil","population","ymin","ymax","observ","predict"), all=TRUE)
+
+data0$diff<-data0$ymax-data0$ymin
+
+data0$color<-with(data0, ifelse(oil =="nospill", "pink2",
+                                      ifelse(oil == "spill","lightblue", NA)))
+
+datt<-data0[data0$oil=="nospill",]
+datt$nospill<- datt$predict
+
+datt1<-data0[data0$oil=="spill",]
+datt1$spill<- datt1$predict
+
+datt10<-datt1[,c(1,6,12)] 
+datt0<-data.frame(datt[,c(12)])
+colnames(datt0)<-"nospill"
+data00<-cbind(datt10,datt0)
+
+data00$diff<-data00$nospill-data00$spill
+
+dattt1<-data00%>%
+group_by(year)%>% 
+summarise(Mean=mean(spill), Max=max(spill), Min=min(spill), Median=median(spill), Std=sd(spill),quantile975=quantile(spill,probs=0.975),quantile025=quantile(spill,probs=0.025))
+
+dattt1<-data00%>%
+group_by(year)%>% 
+summarise(Mean=mean(spill), Max=max(spill), Min=min(spill), Median=median(spill), Std=sd(spill),quantile975=quantile(spill,probs=0.975),quantile025=quantile(spill,probs=0.025),oil="spill")
+
+dattt2<-data00%>%
+group_by(year)%>% 
+summarise(Mean=mean(nospill), Max=max(nospill), Min=min(nospill), Median=median(nospill), Std=sd(nospill),quantile975=quantile(nospill,probs=0.975),quantile025=quantile(nospill,probs=0.025),oil="nospill")
+
+dattt2$ymax<- dattt2$Median
+dattt2$ymin<- dattt1$Median
+dattt1$ymin<- dattt1$Median
+dattt1$ymax<- dattt2$Median
+
+dattt1$population<- dattt1$Median
+dattt2$population<- dattt2$Median
+
+data4<- rbind(dattt2,dattt1)
+data4$diff<- data4$ymax-data4$ymin
+```
+
+## Making the plot
+
+### Creating individual plots
+
+For initial population size
+
+```{r, fig.width=15,fig.height=10}
+numberplot<-ggplot(N_boot, aes(x=x))+geom_histogram(aes(y=..count..),bins=17,colour="black",alpha=0.6)+coord_flip()+ geom_vline(xintercept=median(N_boot$x), linetype="dashed", 
+                color = "red", size=1.2)+xlim(1000,4500)+xlab("Population size")+theme_bw()
+```
+
+For survival
+
+```{r, fig.width=15,fig.height=10}
+baselsurv<-ggplot(survdata, aes(x=X1,y=oil))+geom_boxplot(aes(fill=oil),color="black",alpha=0.6)+xlab("Survival")+coord_flip()+geom_jitter(aes(colour=oil),shape=".")+
+  scale_fill_manual(values=c("darkblue","brown3"))+
+  scale_color_manual(values=c("darkblue","brown3"))+theme_bw()+ylab("")+theme(legend.position = "none")
+```
+
+For population trajectories
+
+```{r, fig.width=15,fig.height=10}
+
+YTR<-median(injury$YTR)
+YTR
+# for plot
+maxval<-unique(max(data4$diff))
+
+data4$yearMPD<-ifelse(data4$diff>=maxval, data4$year,NA)
+
+data4$y<-ifelse(data4$diff>=maxval, data4$ymin,NA)
+
+data4$yend<-ifelse(data4$diff>=maxval, data4$ymax,NA)
+
+MPD<-unique(data4$yearMPD[!is.na(data4$yearMPD)])
+MPD
+
+bestplot1<-ggplot(data4,aes(x=year,y=population,color=oil))+ 
+  geom_ribbon(aes(ymin = ymin,ymax=ymax), fill = "red", alpha = .3,data = . %>% filter(year<= YTR))+ 
+  geom_ribbon(aes(ymin = ymin,ymax=ymax), fill = "blue", alpha = .3,data = . %>% filter(year>=YTR))+
+  geom_segment(aes(x=MPD,xend=MPD,y=data4$y,yend=data4$yend),colour="black")+
+  geom_line(size=1.4)+
+  theme_bw()+
+  geom_vline(xintercept=YTR)+
+  labs(colour="")+
+  scale_color_manual(values=c("darkblue","brown3"))+
+  ylab("Predicted population size")+
+  xlab("Years since spill")+
+  ylim(1000,4500)+ 
+  annotate("segment", xend=YTR, x= 34.5, y= 4100, yend= 3200, arrow = arrow(type="closed", length = unit(0.1, "inches")))+ 
+  annotate('label', 
+           label = 'atop(atop("", bold("LTR")), atop("Number of years for the population to", "recover with 95% baseline trajectory"))', 
+           y = 4200, x = 34.5, parse = T)+ 
+  annotate('label', 
+           label = 'atop(atop("", "Lost"), atop("cetacean", "years"))', 
+           y = 1800, x = 30, parse = T)+
+  annotate("segment", xend=12.5, x= 29, y= 1900, yend= 2800, arrow = arrow(type="closed", length = unit(0.1, "inches"))) + 
+  annotate('label', 
+           label = 'atop(atop("", bold("MPD")), atop("Largest proportional", "decrease"))', 
+           y = 4300, x = 7, parse = T)+
+  annotate("segment", xend=MPD, x= 7, y= 4050, yend= 3200, arrow = arrow(type="closed", length = unit(0.1, "inches")))+ theme(legend.position = c(0.92, 0.2))+xlim(0,50)
+```
+
+All in one, i.e. 
+
+```{r, fig.width=15,fig.height=10,message=FALSE,warning=FALSE}
+layout_matrix <- matrix(c(1, 1, 2, 2, 4, 3, 3, 4), nrow = 2, byrow = TRUE)
+grid.arrange(numberplot,baselsurv,bestplot1, layout_matrix = matrix(c(1,3,2,3), nrow = 2)) 
+```
+
+We decided for simplicity to not include the survival probability information in the main paper, considering  simply the population trajectories, with added estimates from SECR population size and injury metrics, which corresponds to figure 4 in the manuscript. This is shown below:
+
+```{r, fig.width=15,fig.height=10,message=FALSE,warning=FALSE}
+bas2019<- read_csv("InOutBySp/Bottlenose_dolphin_BB/N_boot2019.csv")
+N_boot <- read_csv("InOutBySp/Bottlenose_dolphin_BB/N_boot.csv")
+dattat1<-N_boot%>%
+summarise(Mean=mean(x), Max=max(x), Min=min(x), Median=median(x), Std=sd(x),quantile975=quantile(x,probs=0.975),quantile025=quantile(x,probs=0.025))
+
+dattat<-bas2019%>%
+summarise(Mean=mean(x), Max=max(x), Min=min(x), Median=median(x), Std=sd(x),quantile975=quantile(x,probs=0.975),quantile025=quantile(x,probs=0.025))
+
+
+ ggplot() + 
+  #geom_ribbon(data = subset(data4,year<= YTR),aes(ymin = ymin,ymax=ymax,x=year), fill = "red", alpha = .4)+ 
+  #geom_ribbon(data = subset(data4,year>= YTR),aes(ymin = ymin,ymax=ymax,x=year), fill = "blue", alpha = .4)+
+annotate("segment",x=MPD-1,xend=MPD-1,yend=data4$y,y=data4$yend,colour="black",linetype = "dashed", arrow = arrow(type="closed", length = unit(0.1, "inches")))+
+  geom_line(aes(x=data4$year-1,y=data4$population,color=data4$oil,lwd=2),size=1.4)+
+  theme_bw()+
+ #   annotate("segment", yend = 1000, y = 4500, x = YTR, xend = YTR,colour = "black", arrow = arrow(type="closed", length = unit(0.1, "inches")),linetype="dashed") +
+  geom_vline(xintercept=YTR-1,linetype="dashed")+
+  labs(colour="")+
+  scale_color_manual(values=c("darkblue","brown3"))+
+  ylab("Population size")+
+  xlab("Years since spill")+
+  #annotate("segment", xend=YTR, x= 34.5, y= 4100, yend= 3200, arrow = arrow(type="open", length = unit(0.1, "inches")))+ 
+  #annotate('label', 
+        #   label = 'atop(atop("", bold("YTR")), atop("Number of years for the population to", "recover with 95% baseline trajectory"))', 
+       #    y = 4200, x = 34.5, parse = T)+ 
+  #annotate('label', 
+   #        label = 'atop(atop("", "Lost"), atop("cetacean", "years"))', 
+    #       y = 1800, x = 30, parse = T)+
+  #annotate("segment", xend=12.5, x=29, y= 1900, yend= 2800, arrow = arrow(type="open", length = unit(0.1, "inches"))) + 
+  #annotate('label', 
+   #        label = 'atop(atop("", bold("MPD")), atop("Largest proportional", "decrease"))', 
+    #       y = 4300, x = 7, parse = T)+
+  #annotate("segment", xend=MPD, x= 7, y= 4050, yend= 2500, arrow = arrow(type="open", length = unit(0.1, "inches")))+
+  theme(legend.position = c(0.92, 0.2))+xlim(0,50)+   geom_ribbon(data = subset(data4,oil=="spill"),aes(x=year-1,y=Median,ymin =quantile025,ymax=quantile975),fill="red", alpha = .3)+
+  geom_ribbon(data = subset(data4,oil=="nospill"),aes(x=year-1,y=Median,ymin =quantile025,ymax=quantile975),fill="blue", alpha = .3)+
+   #to change font size on labels and axis
+  theme(axis.text.x = element_text(size = 20),
+        axis.text.y = element_text(size = 20),  
+        axis.title.x = element_text(size = 20),
+        axis.title.y = element_text(size = 20),
+        legend.text=element_text(size=20)) +
+  geom_pointrange(data=dattat, aes(x=9,
+              y=Median,ymin=quantile025,ymax=quantile975),size=1.5) + 
+ geom_pointrange(data=dattat1, aes(x=0,
+               y=Median,ymin=quantile025,ymax=quantile975),size=1.5)
+```
+
+The results paragraph in the paper is:
+
+The mean initial population size was `r round(mean(N_boot$x))` (95% credible intervals of `r round(quantile(N_boot$x,0.025))`;`r round(quantile(N_boot$x,0.975))`) (figure 4, top left panel). The mean of the survival pre oil spill was `r round(mean(BaselineSurvival$X1),3)` (95% credible intervals of `r round(quantile(BaselineSurvival$X1,prob=0.025),3)`;`r round(quantile(BaselineSurvival$X1,prob=0.975),3)`) while the mean of the survival post oil spill was `r round(mean(PostOilSurv$X1),3)` (95% credible intervals of `r round(quantile(PostOilSurv$X1,prob=0.025),3)`;`r round(quantile(PostOilSurv$X1,prob=0.975),3)`), leading to an average reduction in survival post-oil spill of `r round(mean(PostOilSurv$X1/BaselineSurvival$X1),3)` (95% credible intervals of `r round(quantile(PostOilSurv$X1/BaselineSurvival$X1,prob=0.025),3)`;`r round(quantile(PostOilSurv$X1/BaselineSurvival$X1,prob=0.975),3)`). The average population trajectory under the presence of the oil spill and assuming the oil spill never happened are shown in Figure 4 (bottom panel). There were  `r  round(median(injury$LCY))`  median LCY (95% percentile CI `r round(quantile(injury$LCY, probs=0.025),0)`-`r round(quantile(injury$LCY, probs=0.975),0)`), the maximum proportional decrease was `r  round(median(injury$MPD),1)` % (95% percentile CI `r round(quantile(injury$MPD, probs=0.025),1)`-`r round(quantile(injury$MPD, probs=0.975),1)`) and it took a median of `r  round(median(injury$YTR),1)` (95% percentile CI `r round(quantile(injury$YTR, probs=0.025),1)`-`r round(quantile(injury$YTR, probs=0.975),1)`) years for 95 % recovery.
+
+# Aknowledgments
+
+We would like to thank Carolina Marques for the code and data wrangling that made this plot.

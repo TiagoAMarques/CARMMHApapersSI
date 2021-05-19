@@ -47,7 +47,7 @@ kable(EEexpertlist,caption = "List of experts participatng in the Expert Elicita
 
 # Methods
 
-Prior to eliciting personal judgements, experts were given a primer on the probability concepts of interest comprising plausible limits (broadly defined as the <1st and >99th quantiles), median and quartiles. The facilitator highlighted some of the key biases and/or heuristics that can affect the quality of expert judgements – to ensure experts were conscious of these when providing their personal judgements. The scope of the elicitation and questions were discussed and clarified with the experts and questions were iteratively developed to ensure linguistic uncertainty was removed.
+Prior to eliciting personal judgements, experts were given a primer on the probability concepts of interest comprising plausible limits (broadly defined as the 1% and 99% quantiles), median and quartiles. The facilitator highlighted some of the key biases and/or heuristics that can affect the quality of expert judgements – to ensure experts were conscious of these when providing their personal judgements. The scope of the elicitation and questions were discussed and clarified with the experts and questions were iteratively developed to ensure linguistic uncertainty was removed.
 
 Experts were asked to provide their judgements using variable interval methods   – first identifying their personal judgements for plausible range and then dividing this range with median and 25th and 75th quantiles. Experts used a shiny app (https://smruconsulting.shinyapps.io/EE_SingleParam/) to anonymously and independently submit their judgements before they were fitted as probability distributions in SHELF (Gosling 2018) in R (the best fit was selected in SHELF using minimum ?? least squares approach). Once all experts’ judgements were received they were presented back to the group and each expert was invited to outline and discuss their judgements as a group to reach a consensus of what would be a rational impartial view of their combined knowledge (see Astfalck et al. (2018)).
 
@@ -160,8 +160,7 @@ Given the possible health consequences of exposure to DWH oiling and the likelih
 
 To estimate the proportional recovery (in survival probability) of those aﬀected by DWH oiling, experts agreed the wording of and provided judgements to the following question: “Think about an offshore Gulf of Mexico cetacean species whose health has been impacted by the DWH oil spill and has a guarded, poor or grave prognosis in the ﬁrst year or two after the DWH spill. Going forward, in the animal’s lifetime, what is the probability that it has a good or fair prognosis?”
 
-
-
+Experts were briefed on the veterinary prognosis scores from health assessments for Bay, Sound and Estuary bottlenose dolphins in the Gulf of Mexico (see Schwacke et al. in review) and asked to consider the mechanisms driving health prognosis for offshore cetacean species. Experts considered ill-effects of impacted pulmonary, cardiac and endocrine systems (e.g. pneumonia, pulmonary fibrosis, anemia, impaired stress response etc.) and the probability that such conditions were recoverable in an unpredictable open-ocean environment.  In general, experts considered that it was unlikely that most offshore cetacean species would recover (Figure S1.3) but that animals with a guarded prognosis might be more likely to recover. This resulted in a skewed distribution with some weight allowing for the greater likelihood that animals might recover. This tail was driven by the scientific uncertainty about the recoverability of some health conditions and therefore the likelihood of improved prognosis for animals in the ‘guarded’  category. There was also concern that the dynamic prey environment in the open ocean, coupled with the potential that the effects of oiling may compromise dive performance (and so foraging efficiency) could make recovery challenging for most animals.
 
 ```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
 #offshore species
@@ -173,9 +172,14 @@ y2 <- dbeta(x, a2, b2)/(u2-l2)
 plot(x* (u2-l2) + l2, y2, type = "l", col = "thistle4",lwd=3,ylab = "Density", xlab = "Recovery Proportion",cex.axis=1,cex.lab=1) 
 ```
 
-Figure S1.3 - Probability  distributions  showing  the  consensus  of  the  EE  for  the  proportional recovery of survival in Gulf of Mexico offshore cetacean species following DWH oiling.
+Figure S1.3 - Probability  distribution  showing  the  consensus  of  the  EE  for  the  proportional recovery of survival in Gulf of Mexico offshore cetacean species following DWH oiling.
 
-Experts were briefed on the veterinary prognosis scores from health assessments for Bay, Sound and Estuary bottlenose dolphins in the Gulf of Mexico (see Schwacke et al. in review) and asked to consider the mechanisms driving health prognosis for offshore cetacean species. Experts considered ill-effects of impacted pulmonary, cardiac and endocrine systems (e.g. pneumonia, pulmonary fibrosis, anemia, impaired stress response etc.) and the probability that such conditions were recoverable in an unpredictable open-ocean environment.  In general, experts considered that it was unlikely that most offshore cetacean species would recover (Figure S1.3) but that animals with a guarded prognosis might be more likely to recover. This resulted in a skewed distribution with some weight allowing for the greater likelihood that animals might recover. This tail was driven by the scientific uncertainty about the recoverability of some health conditions and therefore the likelihood of improved prognosis for animals in the ‘guarded’  category. There was also concern that the dynamic prey environment in the open ocean, coupled with the potential that the effects of oiling may compromise dive performance (and so foraging efficiency) could make recovery challenging for most animals.
+```{r}
+#generating 100000o replicates to empirically evaluate the mean and variance and quantiles
+ry2 <- (l2+rbeta(1000000, a2, b2)*u2)-l2
+```
+
+The mean value of this distribution is `r round(mean(ry2),3)`, the corresponding mean `r round(median(ry2),3)` and 0.025% and 0.975% quantiles of the distribution are (`r round(quantile(ry2,p=0.025),3)`,`r round(quantile(ry2,p=0.975),3)`).
  
 # Literature Cited
 

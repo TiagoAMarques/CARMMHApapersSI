@@ -48,15 +48,15 @@ include_graphics("figs/reproducibility_court.png")
 
 Other key files names and brief content descriptions follow:
 
-* [BND_InitialPopulation.pdf](BND_InitialPopulation.html) – Initial population size distribution and baseline survival. These are taken as data inputs, and the deatil analysis that describes how these were obtained is part of a separate dedicated effort where a spatially explicit capture recapture model was implemented (Glennie et al.,2021).
+* [BND_InitialPopulation](BND_InitialPopulation.html) – Initial population size distribution and baseline survival. These are taken as data inputs, and the deatil analysis that describes how these were obtained is part of a separate dedicated effort where a spatially explicit capture recapture model was implemented (Glennie et al.,2021).
 
-* [SurvivalReduction.pdf](SurvivalReduction.html) – Supplementary material about how we obtain the survival reduction factor. This combines baseline survival probability with post oil survival probability obtained by SCR. For the baseline survival probability we describe the analysis that integrates the different components required. The survival post oil spill for Barataria Bay bottlenose dolphins is obtained in a separate paper, Glennie et al (2021).
+* [SurvivalReduction](SurvivalReduction.html) – Supplementary material about how we obtain the survival reduction factor. This combines baseline survival probability with post oil survival probability obtained by SCR. For the baseline survival probability we describe the analysis that integrates the different components required. The survival post oil spill for Barataria Bay bottlenose dolphins is obtained in a separate paper, Glennie et al (2021).
 
-* [AgeOf1stReproduction.pdf](AgeOf1stReproduction.html) - Supplementary material with details about how we obtained the age at first reproduction for *Tursiops truncatus*;
+* [AgeOf1stReproduction](AgeOf1stReproduction.html) - Supplementary material with details about how we obtained the age at first reproduction for *Tursiops truncatus*;
 
-* [BNDinjury_Fig4.Rmd](BNDinjury_Fig4.html) - obtaining the injury measures presented on the paper;
+* [BNDinjury_Figs](BNDinjury_Figs.html) - obtaining the injury measures presented on the paper;
 
-* [BNDModelEvaluation.pdf](BNDModelEvaluation.html) - the code for the production of all the sensitivity analysis ;
+* [BNDModelEvaluation](BNDModelEvaluation.html) - the code for the production of all the sensitivity analysis ;
 
 # How to reproduce the paper results
 
