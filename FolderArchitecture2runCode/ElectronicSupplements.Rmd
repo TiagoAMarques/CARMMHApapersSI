@@ -1,5 +1,5 @@
 ---
-title: "Electronic supplements for CARMMHA's offshore injury paper"
+title: "Electronic supplements for CARMMHA's pelagic injury paper"
 author: ""
 date: \today
 output:
@@ -18,6 +18,8 @@ library(knitr)
 ***This will be a general preable common to all the documents included as Electronic Supplements to CARMMHA's pelagic injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc. - this is the MASTER version of the preamble and it must be copied over to all other docs before submission***
 
 This is an Electronic Supplement to the paper submited to MEPS on the ??-??-???? by Marques, T. A., Thomas, L., Booth, C., Garrison, L. P., Rosel, P. E., Mullin, K. D. & L. Schwacke entitled "Quantifying Deepwater Horizon oil spill induced injury on pelagic cetaceans".
+
+The master file with supplementary material is here: [Electronic Supplements master file](ElectronicSupplements.html).
 
 If you do happen to use this material, drop us a line at tiago.marques@st-andrews.ac.uk just so that we know it was useful to you. 
 
@@ -81,9 +83,9 @@ All the results in the paper can be recreated by the reader by running the code 
 
 The results shown in the paper tables are produced by different bits of code from the supplementary material:
 
-* Table 1 and 2 are produced within  [IniPopSizes.pdf](IniPopSizes.html);
+* Table 1 and 2 are produced within  [IniPopSizes.pdf](IniPopSizes.html); In fact, we recommend you run this first as it also creates a table (Table4GetInjury.txt) required to run the code in GetInjury.pdf that creates Table 3 below.
 
-* Table 3 is produced within [GetInjury.pdf](GetInjury.pdf). 
+* Table 3 is produced within [GetInjury.pdf](GetInjury.pdf). This can only be run after you have created the results. Note that it is fundamental that there is an object `ns` that defines in "GetInjury.Rmd" the correct number of iterations you used to run the code.
 
 To produce the results in Table 3 the user would have to run the code chunk `getresults` (in file [GetInjury.pdf](GetInjury.pdf)) that runs the actual simulations. That chunk is set to not run by default when you compile [GetInjury.pdf](GetInjury.pdf).
 

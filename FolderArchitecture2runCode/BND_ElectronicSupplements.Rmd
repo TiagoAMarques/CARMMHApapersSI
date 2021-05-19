@@ -1,5 +1,5 @@
 ---
-title: "Electronic supplements for CARMMHA's Barataria Bay bottlenose dolphin injury paper"
+title: "Electronic supplements for CARMMHA's Barataria Bay common bottlenose dolphin injury paper"
 author: ""
 date: \today
 output:
@@ -21,9 +21,11 @@ This is an Electronic Supplement to the paper submitted to Conservation Letters 
 
 The master file with supplementary material is here: [BND_Electronic Supplements master file](BND_ElectronicSupplements.html).
 
+If you do happen to use this material, drop us a line at tiago.marques@st-andrews.ac.uk just so that we know it was useful to you. 
+
 # Introduction
 
-This file is named "BND_ElectronicSupplements.pdf". This document is a master file that presents a full list of [Electronic Supplements available](#list-of-electronic-supplements). 
+This file is named "BND_ElectronicSupplements.pdf". This document is a master file that presents a full list of [Electronic Supplements available](#list-of-key-documents-on-this-repository). 
 
 All these files are created as dynamic reports using RMarkdown. Given these being RMarkdown you might be reading this as a pdf, as a html or as a word, depending on how the corresponding .Rmd was compiled. The original .Rmd files are provided in the original github repository:
 

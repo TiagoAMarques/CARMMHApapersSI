@@ -9,12 +9,11 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
 # Preamble
 
-***This will be a general preable common to all the documents included as Electronic Supplements to CARMMHA's offshore injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc.***
+***This will be a general preable common to all the documents included as Electronic Supplements to CARMMHA's pelagic injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc. - this is the MASTER version of the preamble and it must be copied over to all other docs before submission***
 
-This is an Electronic Supplement to the paper submited to MEPS on the ??-??-???? by Marques, T. A., Thomas, L., Booth, C., Garrison, L. P., Rosel, P. E., Mullin, K. D. & L. Schwacke entitled "Quantifying Deepwater Horizon oil spill induced injury on offshore cetaceans".
+This is an Electronic Supplement to the paper submited to MEPS on the ??-??-???? by Marques, T. A., Thomas, L., Booth, C., Garrison, L. P., Rosel, P. E., Mullin, K. D. & L. Schwacke entitled "Quantifying Deepwater Horizon oil spill induced injury on pelagic cetaceans".
 
 The master file with supplementary material is here: [Electronic Supplements master file](ElectronicSupplements.html).
 

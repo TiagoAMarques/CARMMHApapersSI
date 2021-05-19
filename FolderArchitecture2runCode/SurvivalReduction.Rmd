@@ -20,15 +20,17 @@ library(viridis)
 
 # Preamble
 
-***This will be a general preable common to all the documents included as Electronic Supplements to CARMMHA's offshore injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc.***
+***This will be a general preable common to several documents included as Electronic Supplements to CARMMHA's BB BND injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc.***
 
-This is an Electronic Supplement to the paper submited to MEPS on the ??-??-???? by Marques, T. A., Thomas, L., Booth, C., Garrison, L. P., Rosel, P. E., Mullin, K. D. & L. Schwacke entitled "Quantifying Deepwater Horizon oil spill induced injury on offshore cetaceans".
+This is an Electronic Supplement to the paper submitted to Conservation Letters on the ??-??-???? by L.H. Schwacke, T.A. Marques, C. Booth, C. Smith, F. Gomez, B. Balmer, A. Barratclough, S. De Guise, L. Garrison, K. Colegrove, J. Morey, K. D. Mullin, B. M. Quigley, P. Rosel, T. Rowles, R. Takeshita,  F. Townsend, T. Speakman, R. Wells, E. Zolman, L. Thomas, entitled "Why bottlenose dolphin populations have still not recovered a decade after the Deepwater Horizon oil spill"
 
-The master file with supplementary material is here: [Electronic Supplements master file](ElectronicSupplements.html).
+The master file with supplementary material is here: [BND_Electronic Supplements master file](BND_ElectronicSupplements.html).
+
+In case you are reading this document on git while browsing the material for the pelagic paper, the master file with supplementary material for the pelagic paper is here: [Electronic Supplements master file](ElectronicSupplements.html).
 
 # Background
 
-In this document we describe the required analysis to estimate a baseline survival and the post-oil spill survival, which together provide a survival reduction.
+In this document we describe the required analysis to estimate a baseline survival and the post-oil spill survivalfor common bottlenose dolphins in Barataria Bay, which combined provide a survival reduction.
 
 # Baseline Survival
 
@@ -452,12 +454,16 @@ Reading in the realizations of post-oil survival obtained from the SCR study. Fu
 SpostOilBB<-read.csv(file="InOutBySp/Bottlenose_dolphin_BB/PostOilSurv.csv",header=FALSE,col.names = "S")
 ```
 
+
+
 Comparing the pre oil spill with post oil spill survival. As expected the oil had a detrimental effect on survival, which is reassuring to observe in the figure below, since these two quantities were produced from completely independent sets of data.
 
 ```{r}
 #preparing a suitable object for plotting with ggplot
 PrePosS<-data.frame(S=c(SpostOilBB$S,meanS$S),period=c(rep("post-oil",length(SpostOilBB$S)),rep("baseline",length(meanS$S))))
 ```
+
+The mean of the survival pre oil spill was `r round(mean(meanS$S),3)` (95% credible intervals of `r round(quantile(meanS$S,prob=0.025),3)`;`r round(quantile(meanS$S,prob=0.975),3)`) while the mean of the survival post oil spill was `r round(mean(SpostOilBB$S),3)` (95% credible intervals of `r round(quantile(SpostOilBB$S,prob=0.025),3)`;`r round(quantile(SpostOilBB$S,prob=0.975),3)`), leading to an average reduction in survival post-oil spill of `r round(mean(SpostOilBB$S/meanS$S),3)` (95% credible intervals of `r round(quantile(SpostOilBB$S/meanS$S,prob=0.025),3)`;`r round(quantile(SpostOilBB$S/meanS$S,prob=0.975),3)`). Below we present side by side the comparison of pre and post oil survivals, where the reduction is survival is evident.
 
 ```{r}
 #plotting it
