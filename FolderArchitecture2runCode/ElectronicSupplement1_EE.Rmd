@@ -8,6 +8,8 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(knitr)
+library(latex2exp)  # for tex in plot labels
+
 ```
 
 # Preamble
@@ -30,7 +32,7 @@ options(tinytex.verbose = TRUE)
 
 # Background
 
-Expert elicitation (EE) workshops were carried out to generate probabilistic distributions for parameters for which there were limited empirical information to update population models used in Deepwater Horizon (DWH) Natural Resources Damage Assessment (integrating the latest and best data sources)(DWH MMIQT, 2015).
+Expert elicitation (EE) workshops were carried out to generate probabilistic distributions for parameters for which there were limited empirical information to update population models used in Deepwater Horizon (DWH) Natural Resources Damage Assessment (integrating the latest and best data sources)(DWH MMIQT, 2015). The elicitation was designed following the approach of Booth & Thomas (2021).
 Experts were chosen such that each individual had substantial knowledge on a given species group and/or the quantities of interest (see Table SI.1).  The breadth of expertise in the workshops was coordinated so that a comprehensive coverage of opinions could be achieved. As such, experts with knowledge of a wide range of cetacean taxa, their ecology and spanning the fields of epidemiology, animal physiology and veterinary science were selected (following guidance from Gosling 2018; Hart et al. 2018). Attaining this coverage is a critical component of a successful elicitation, both as it ensures a wide array of perspectives but also avoids the likelihood of redundant information being presented, which can introduce bias to discussions and decision making.
 
 Expert elicitation is a taxing mental process, even for quantitative scientists, as it is challenging for experts to express their judgements and associated uncertainty around their estimates. To combat this, experts participated in a webinar before the EE workshops to be familiarized with the objectives, approaches and quantities of interest to be addressed in the EE. In addition experts were asked to complete a four-part online e-learning training course (found at http://www.smruconsulting.com/products-tools/pcod/pcod-project-outputs/online-expert-elicitation-course).
@@ -51,32 +53,48 @@ Experts were asked to provide their judgements using variable interval methods  
 
 ## Density dependent fecundity response
 
-Following an elicitation on the shape of the density dependent fecundity response in bottlenose dolphins (see Schwacke et al in review), experts were asked the same question about sperm whales. The question was agreed as: “Given that the value of Rho will aﬀect the shape of the density dependent response of fecundity in offshore cetacean populations, what do you judge to be the most appropriate value for Rho for this species and population?”. The resulting distribution is shown below (Figure SI.1)
+Experts were asked about the shape of the density dependent fecundity response in bottlenose dolphins (see Schwacke et al in review). This led to different values from what had been considered before.
+
 
 ```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
-library(latex2exp)  # for tex in plot labels
-
 x <- seq(0.001, 25, length = 1000)
 #Our old distribution
 old.shape <- 6.4
 old.scale <- 1
 q <- dgamma(x, shape = old.shape, scale = old.scale)
-plot(x, q, type = "l", col = "springgreen4", lwd=2, xlim=c(0,28), xlab="Density Dependent 
-shape parameter (Rho)", ylab="Density",cex.lab=1)
+plot(x, q, type = "l", col = "springgreen4", lwd=2, xlim=c(0,28), xlab=expression(paste("Density dependence shape parameter ", rho)), ylab="Density",cex.lab=1)
 
 q3 <- dgamma(x, shape = 5.41, rate = 0.72)
-lines(x + 3, q3, type = "l", lwd=2, col = "springgreen")
+lines(x + 3, q3, type = "l", lwd = 2, lty = 2, col = "springgreen")
 
-q4 <- dgamma(x, shape = 5.02, rate = 0.652)
-lines(x + 3, q4, type = "l", lwd=3, lty=5, col = "dodgerblue")
-
-legend("topright", legend = c("BND - Schwacke, et al 2017", "BND - EE, 2020", 
-                              "sperm whale - EE, 2020"), col = c("springgreen4", 
-"springgreen", "dodgerblue"), lty = c(1,1,5), lwd=2, cex=1)
+legend("topright", inset = 0.05, legend = c("BND - Schwacke, et al 2017", "BND - EE, 2020"), col = c("springgreen4", 
+"springgreen"), lty = c(1, 2), lwd = 2, cex = 1)
 ```
 
 
-Figure S1.1 - Probability  distributions  showing  the  consensus  of  the  EE  for  the  value of Rho for Gulf of Mexico offshore cetacean species.
+Following that exercise, experts were asked the same question about sperm whales. The question was agreed as: “Given that the value of Rho will affect the shape of the density dependent response of fecundity in offshore cetacean populations, what do you judge to be the most appropriate value for $\rho$ for this species and population?”. The resulting distribution is shown below (Figure SI.1)
+
+```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
+x <- seq(0.001, 25, length = 1000)
+#Our old distribution
+old.shape <- 6.4
+old.scale <- 1
+q <- dgamma(x, shape = old.shape, scale = old.scale)
+plot(x, q, type = "l", col = "springgreen4", lwd=2, xlim=c(0,28), xlab=expression(paste("Density dependence shape parameter ", rho)), ylab="Density",cex.lab=1)
+
+q3 <- dgamma(x, shape = 5.41, rate = 0.72)
+lines(x + 3, q3, type = "l", lwd=2, lty=2, col = "springgreen")
+
+q4 <- dgamma(x, shape = 5.02, rate = 0.652)
+lines(x + 3, q4, type = "l", lwd=3, lty=2, col = "dodgerblue")
+
+legend("topright", legend = c("BND - Schwacke, et al 2017", "BND - EE, 2020", 
+                              "sperm whale - EE, 2020"), col = c("springgreen4", 
+"springgreen", "dodgerblue"), lty = c(1,2,2), lwd=2, cex=1)
+```
+
+
+Figure S1.1 - Probability  distributions  showing  the  consensus  of  the  EE  for  the  value of density dependence  shape parameter $\rho$ for Gulf of Mexico offshore cetacean species.
 
 Initially, some experts voiced concern about their expertise to provide a single distribution for all offshore species. They highlighted the range of prey, predators and wide-ranging environmental conditions as possible conflicting factors. They noted the strong social structure for sperm whales will keep fecundity high closer to K, but that the resource environment was likely to be more variable. But despite differences in the environment, foraging strategies and reproductive biology, experts came to a similar consensus as for bottlenose dolphins – indicating for marine mammal species, some generalisation is possible. As such for this analysis the probability distribution for bottlenose dolphins was applied to all species.
  
@@ -162,6 +180,8 @@ Experts were briefed on the veterinary prognosis scores from health assessments 
 # Literature Cited
 
 * Astfalck L., Cripps E., Gosling J., Hodkiewicz M., Milne I. (2018) Expert elicitation of directional metocean parameters. Ocean Engineering 161, 268-276.
+
+* Booth, C.; Thomas, L. (2021) An Expert Elicitation of the Effects of Low Salinity Water Exposure on Bottlenose Dolphins. Oceans 2021, 2, 179-192. 
 
 * DWH  MMIQT (2015),  Models and analyses for the quantification of injury to Gulf of Mexico cetaceans from the Deepwater Horizon Oil Spill, MM_TR.01_Schwacke_Quantification.of.lnjury.to.GOM.Cetacean - Available at https://www.fws.gov/doiddata/dwh-ar-documents/876/DWH-AR0105866.pdf
 
