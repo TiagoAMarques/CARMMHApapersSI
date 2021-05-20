@@ -1,7 +1,7 @@
 ---
-title: "Survival Reduction"
+title: "Estimating oil induced survival reduction"
 author: ''
-date: "26/Jan/2021"
+date:  \today
 output:
   html_document:
     df_print: paged
@@ -30,9 +30,22 @@ In case you are reading this document on git while browsing the material for the
 
 # Background
 
-In this document we describe the required analysis to estimate a baseline survival and the post-oil spill survivalfor common bottlenose dolphins in Barataria Bay, which combined provide a survival reduction.
+In this document we describe the required analysis to estimate a baseline survival and the post-oil spill survival for common bottlenose dolphins in Barataria Bay, which combined provide a survival reduction.
 
-# Baseline Survival
+A fundamental aspect of the population dynamics model is that the animals exposed to oil are assumed to have a reduced survival rate. 
+
+The way we quantify that reduction in survival is by comparing a population average baseline survival derived from the Siler model results previously reported by Schwacke et al. (2017) with a post oil spill population average survival obtained in a separate dedicated spatially explicit capture recapture (SECR) model for photo-identification data collected during 2010-2019 surveys in BB (Glennie et al. in prep). 
+
+However, these two sources of information on survival reflect estimates for different components of the population. In particular, the SECR study reflects only a population average survival that is not age- or sex- specific and that applies only to the fraction of the population that can be resighted - i.e., animals that have distinctive markings to be uniquely identified. 
+
+Since animals are identified based on natural markings on dorsal fins, and that young animals do not have such markings, younger animals are less likely to be considered in the SECR study. 
+
+Further, since we know from the Siler model that survival is sex and age dependent, this means that the population average survival based on the SECR results alone would be biased, closer to a survival for older animals and ignoring the younger animal survival. 
+
+Here he describe in detail the post-processing required to transform the sex- and ag-e specific baseline survival estimates from the Siler model to a population average survival compared to that of Glennie et al. 2021.
+
+
+# Population averaged baseline survival
 
 To estimate a distribution for the baseline survival in bottlenose dolphins we consider the sex and age specific survival from the Siler model results. 
 
@@ -45,7 +58,7 @@ The SCR Photo-ID estimate of survival is a biased estimate of the population ave
 We note upfront this wording might cause some confusion. The **proportion marked** could be used to refer to:
 
 1. the proportion of animals that have been marked in a MR context, and
-2. the proportion of animals that could be marked in a photo-ID capture recapture context because they have marks tham make them uniquely identifiable.
+2. the proportion of animals that could be marked in a photo-ID capture-recapture context because they have marks that make them uniquely identifiable.
 
 Here, when we use the wording "proportion marked", we are referring to the latter.
 
@@ -444,7 +457,6 @@ Finally, we output the resulting distribution of baseline survivals, which incor
 write.table(meanS$S,file="InputFiles/BaselineSurvival.csv",quote=FALSE,row.names = FALSE,col.names = FALSE)
 ```
 
-**Delete at the end:** Take a look at [this file](file:\\\C:\Users\tam2\Dropbox\Trabalho\Funded\CARMMHA\integrativemodelling\ModelComponents\0 Siler Model\EstimatingMeanAgeRangeSurv.html)
 
 # Comparison with survival post oil-spil
 
@@ -478,3 +490,12 @@ PrePosS %>% ggplot(aes(y=S,x=period,color=period)) +
   ggtitle("Comparison between baseline and post-oil population average survival") +
   xlab("")
 ```
+
+# References
+
+Glennie, R., L. Thomas, T. Speakman, L. Garrison, R. Takeshita and L.H. Schwacke. Manuscript in preparation. Estimating spatially-varying density and time-varying deographics with open population spatial capture-recapture: a photographic ID case study on bottlenose dolphins in Barataria Bay, USA.
+
+Schwacke, L. H.; Thomas, L.; Wells, R. S.; McFee, W. E.; Hohn, A. A.; Mullin, K. D.; Zolman, E. S.; Quigley, B. M.; Rowles, T. K. & Schwacke, J. H. 2017. Quantifying injury to common bottlenose dolphins from the Deepwater Horizon oil spill using an age-, sex- and class-structured population model 
+*Endangered Species Research* **33**: 265-279
+
+
