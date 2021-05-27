@@ -1,5 +1,5 @@
-runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.01, seed = NULL, 
-                       verbose = TRUE) {
+runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, 
+                       stratum = NULL, seed = NULL, verbose = TRUE) {
   # This function runs a set of simulations of the CARMMHA population dynamics model
   # for a given taxonomic unit Sp, a number of iterations nsims and for a number of years nyears
   # if under sensitivity mode (type!="Sim") all parameters at the mean nominal values
@@ -10,58 +10,28 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
   #       Sp:      the species code, see details below
   #       nsims:   the number of iterations to consider
   #       nyears:  the number of years to run each simulation for
-  #       type:    one of 3 options
+  #       type:    one of 2 options
   #                 1. "Sim", the default which means it should simply run the simulations
   #                 2. "Sens" runs a sensitivity analysis (parameter parS varies, all other are kept fixed at mean)
-  #                 3. "Elas" runs an elasticity analysis (parameter parS varies by small delta, all others kept fixed at mean)
-  #       parS:    the parameter for which the simulations are being run for if under type!=NULL, i.e.
-  #                 under sensitivity or elasticity mode (defaults to NULL)
-  #       delta:   a value representing the proportional change up and down that parameter parS will be altered
-  #                 by for the elasticity analysis (defaults to 0)
+  #       parS:    the parameter for which the simulations are being run for if under type==Sim, i.e. under sensitivity mode
+  #       stratum: either NULL (default) or an integer from 1-4 (only valid for Ttru).  If an integer, runs on the 
+  #                 proportion of the BSE BND population corresponding to that stratum number (see below). 
   #       seed:    if an integer value, then used to set the random number seed; if NULL (the default) no seed is set
   #       verbose: if TRUE (default) provides output to the console showing which iteration it is on
-  # ------------------------------------------------------------------------------------------------------------------
-  # Details regarding the use of nsims under elasticity mode, i.e. with argument type="Elas"
-  # If the function is run under the elasticity mode a value of delta must be defined
-  # then the number of simulations "nsims" is used to implicitly select the range 
-  # of the change in parS that the elasticity will be evaluated for
-  # delta represents the minimum amount that we will increase and decrease parS to evaluate the change
-  # delta is defined as a proportion, 0.01 means a 1% change
-  # if nsims = 2k+1, k an integer, then 2k+1 simulations are run where
-  # one where parS is used at (1+delta)*mean(parS) and another at (1-delta)*mean(parS)
-  # k considering every parameter at the mean value, with parS below mean(parS) at (1-(1:k)*delta)*mean(parS)
-  # k considering every parameter at the mean value, with parS above mean(parS) at (1+(1:k)*delta)*mean(parS)
-  # example: if nsims is = 3 that means 3 simulations are run
-  # one considers every parameter at the mean value, including parS at mean(parS)
-  # one considers every parameter at the mean value, with parS below mean(parS) at (1-delta)*mean(parS)
-  # one considers every parameter at the mean value, with parS above mean(parS) at (1+delta)*mean(parS)
-  # naturally delta and nsims need to be chosen carefully, and both nsims and delta are typically a small value
-  # (e.g. nsims=3 and delta=0.01)
-  # ------------------------------------------------------------------------------------------------------------------
-  #--------------------------------------------------------------------------
+  #------------------------------------------------------------------------------------------------------------------
   # Details on "Sp" to define species to work with
   #--------------------------------------------------------------------------
-  # Sp is a 4 letter character acronym (notable exceptions are Schwackeetal, LowSal1 and LowSal2)
+  # Sp is a 4 letter character acronym (exceptions are Schwackeetal, LowSal)
   # "SpeciesDefinitionFile4offshore.xlsx"
   # e.g. Pmac for sperm whale
   # if needed check file for acronym list correspondence to species
   # (acronym is the first column on the file "SpeciesDefinitionFile4offshore.xlsx")
-  # Sp <- "Ttru"
-  # Sp <- "Pmac"
-  # Sp <- "Kosp"
-  # Sp <- "Scly"
-  # Sp <- "Bbry"
-  # Sp <- "Pcra"
-  # Sp <- "Pele"
-  # Sp <- "Ttro"
-  # Sp <- "Gmac"
-  # Sp <- "Fatt"
-  # Sp <- "Gris"
-  # Sp <- "Sbre"
-  # Sp <- "Satt"
-  # Sp <- "Ttrs"
-  # Sp <- "Slon"
-  # Sp <- "Scoe"
+  #--------------------------------------------------------------------------
+  # Details on stratum analyses
+  #--------------------------------------------------------------------------
+  # Stratum is only valid for Sp = Ttru or LowSal.  In this case, the starting population
+  # size is multiplied by the estimated proportion of the population in the corresponding stratum.
+  # Stratum names are defined below.
   #--------------------------------------------------------------------------
   # Outputs
   #       There are several by-products of running the function (but no object returned at the end) 
@@ -71,29 +41,31 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
   #       The workspace contains the following objects
   #       simres: raw results, with population size by age, sex and class per year
   #               for each iteration of the simulation - see below details for object simres
-  #       injury: object created by pre-processing simres using function getInjury that
+  #       injury: object created by post-processing simres using function getInjury
   #               includes LCY, MPD and YTR for each iteration
   #       RunOnThe: time stamp for when the simulations were run
   #       TimeSpent: how long the simulations took to run
+  #       pars2save: dataframe with parameter values used per iteration
   # Additionally, 3 sets of plots are produced and saved
   #         1. plot of population trajectories; 2. plot of injury metrics; 3. plot of fecundities at year 0
   #--------------------------------------------------------------------------
+  
   #--------------------------------------------------------------------------
   # just a check to make sure argument type is well defined
-  if (!(type %in% c("Sim", "Elas", "Sens"))) {
-    stop("Wrong type used; only 'Sim', 'Elas' or 'Sens' allowed; please check argument type")
-  }
-  # checking that number of sims is sensible if type=="Elas"
-  # number of simulations above and below if under "Elas"
-  nab <- (nsims - 1) / 2
-  if (round(nab) != nab & type == "Elas") {
-    stop("Select a number of sims that is sensible under type=='Elas'. (nsims-1)/2 must be integer")
+  if (!(type %in% c("Sim", "Sens"))) {
+    stop("Wrong type used; only 'Sim' or 'Sens' allowed; please check argument type")
   }
   # check that if not under type="Sim" the parS argument is defined and not the NULL default 
   if (type != "Sim" & is.null(parS)){
-    stop("Under sensitivity analysis, type 'Sens' or 'Elas', parS cannot be NULL")
+    stop("Under sensitivity analysis, type='Sens', parS cannot be NULL")
   }
 
+  #--------------------------------------------------------------------------
+  # Set an object to save parameter values used in each iteration
+  pars2save <- data.frame(sim = 1:nsims, a1r = NA, N0 = NA, pe = NA, per = NA, Fmax = NA,
+  Fnom = NA, rho = NA, br = NA, por = NA, spos = NA, ascS = NA, SR = NA, BrTt = NA, 
+  PorTt = NA, y2R = NA, srTtru = NA, fecRed = NA, PM = NA)
+  
   #--------------------------------------------------------------------------
   # to time the procedure
   start_time <- Sys.time()
@@ -122,16 +94,27 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
   dimm <- ns * nc * na # number of classes (2 sexes * 3 conditions * number of age classes)
 
   #Define all values of Sp that refer to BB BNDs.
-  BB_BND_Sp <- c("Ttru", "Schwackeetal2017", "LowSal1", "LowSal2")
-  #Define all values of Sp that refer to low salinity
-  LowSal_Sp <- c("LowSal1", "LowSal2")
+  BB_BND_Sp <- c("Ttru", "Schwackeetal2017", "LowSal")
+  
+  #Define strata and check stratum being called appropriately
+  strata <- c("Island", "Southeast", "Central", "West")
+  if (is.null(stratum)){
+    #Stratum must be specified for LowSal runs
+    if(Sp == "LowSal")
+      stop("Stratum must be specified for LowSal scenarios")
+  } else {
+    if(!(Sp %in% c("Ttru", "LowSal")))
+      stop("Stratum analysis specified but species is not bottlenose dolphin")
+    if(!(stratum %in% 1:4))
+      stop("stratum argument must be NULL or an integer in the range 1-4")
+  }
   #--------------------------------------------------------------------------
 
   #--------------------------------------------------------------------------
   # Get all the relevant species information required to run the simulation
   # taken from file "SpeciesDefinitionFile4offshore.xlsx"
   # This file is hardwired in the code to reside in the subfolder "InputFiles"
-  if(Sp %in% LowSal_Sp) {
+  if(Sp == "LowSal") {
     SpInfo <- getSpData("Ttru")
   } else {
     SpInfo <- getSpData(Sp)
@@ -140,16 +123,6 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
 
   #--------------------------------------------------------------------------
   # BND data is required even if this is not a BND simulation
-  #--------------------------------------------------------------------------
-  # Get BB BND post oil Survival from Glennie et al 2021 SCR study
-  #--------------------------------------------------------------------------
-  # Survival
-  SpostOilBB <- read.csv(file = "InOutBySp/Bottlenose_dolphin_BB/PostOilSurv.csv", header = FALSE, col.names = "S")
-  SpostOilBB <- as.numeric(SpostOilBB$S)
-  meanspos <- mean(SpostOilBB)
-
-  #--------------------------------------------------------------------------
-
   #--------------------------------------------------------------------------
   # Scaling factor with respect to BND
   #--------------------------------------------------------------------------
@@ -167,6 +140,23 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
   na <- ceiling(na / scaling)
   #reformat the dimensions of object given scaling
   dimm <- ns * nc * na
+  #--------------------------------------------------------------------------
+  
+  #--------------------------------------------------------------------------
+  # BB BND post oil Survival from Glennie et al 2021 SCR study
+  #--------------------------------------------------------------------------
+  # Survival
+  SpostOilBB <- read.csv(file = "InOutBySp/Bottlenose_dolphin_BB/PostOilSurv.csv", header = FALSE, col.names = "S")
+  SpostOilBB <- as.numeric(SpostOilBB$S)
+  #forcing random drwas - there was an order in the draws
+  SpostOilBB <- SpostOilBB[sample.int(n=length(SpostOilBB),replace = FALSE)]
+  if (type != "Sim") {
+    # if running a sensitivity analysis and parS is not "spos" just use the mean
+    if(parS != "spos"){
+      meanspos <- mean(SpostOilBB)
+      SpostOilBB <- rep(meanspos,length(SpostOilBB))
+    }
+  }
   #--------------------------------------------------------------------------
 
   #--------------------------------------------------------------------------
@@ -245,22 +235,37 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
 
   # get survival reduction - note if BND this is changed after
   srsims <- with(SpInfo, rbeta(nsims, sra, srb) * (sru - srl) + srl)
-  meanSR <- mean(srsims)
+  if (type != "Sim") {
+    # if running a sensitivity analysis
+    if(parS != "SR"){
+      # if doing sensitivity analysis just use the mean
+      meanSR <- with(SpInfo, (sra/(sra+srb)) * (sru - srl) + srl)
+      srsims <- rep(meanSR,nsims)
+    }
+  }
 
-  if (Sp %in% LowSal_Sp) {
-    # Gets the survival reductions that are applied under low salinity scenarios for BB BNDs
-    # get low salinity survival reductions - 1st year 
-    LowSalSR_Yr1 <- read.csv(paste0("InOutBySp/", SpInfo$folder, "/LowSalSurv_Yr1.csv"), header = TRUE)
-    LowSalSR_Yr1 <- LowSalSR_Yr1$APA / LowSalSR_Yr1$NAA
-    LowSalSR_Yr1 <- sample(LowSalSR_Yr1, size = nsims, replace=TRUE)
-    # get low salinity survival reductions - other years
-    LowSalSR_OY <- read.csv(paste0("InOutBySp/", SpInfo$folder, "/LowSalSurv_OtherYears.csv"), header = TRUE)
-    LowSalSR_OY <- LowSalSR_OY$APA / LowSalSR_OY$NAA
-    LowSalSR_OY <- sample(LowSalSR_OY, size = nsims, replace=TRUE)
+  if (Sp == "LowSal") {
+    # Read in the survival changes from NOAA
+    LowSalS <- read.csv("InOutBySp/LowSal/BB_AllRegions_Survival.csv", header = TRUE)
+    # Survival reduction per stratum is survival under APA (preferred alternative)
+    #  divided by survival under NAA (no action alternative)
+    #Note - assumes stratum is set - as has to be for LowSal analysis
+    LowSalSR <- LowSalS[LowSalS$scenario == "APA", strata[stratum]] / 
+      LowSalS[LowSalS$scenario == "NAA", strata[stratum]]
+    #Sample nsims scenarios for each year, and turn into a matrix nsims * nyears
+    #But first save the random number seed, and restore afterwards - to
+    # make realizations run with LowSal compatible with those
+    # for Ttru
+    if (exists(".Random.seed", .GlobalEnv)) oldseed <- .GlobalEnv$.Random.seed
+    else oldseed <- NULL
+    LowSalSR <- matrix(LowSalSR[sample.int(length(LowSalSR), size = nsims * nyears, replace = TRUE)], nsims, nyears)
+    if (!is.null(oldseed)) .GlobalEnv$.Random.seed <- oldseed
+    else rm(".Random.seed", envir = .GlobalEnv)
   }
 
   #--------------------------------------------------------------------------
   # Initial population size and proportion exposed
+  #  also accounting for stratum if required (for BB bottlenose dolphin)
   #--------------------------------------------------------------------------
   # These files were provided by LT and the originals are hosted at
   # C:\Users\tam2\Dropbox\Trabalho\Funded\CARMMHA\integrativemodelling\OffshoreAbundance2
@@ -273,6 +278,18 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
   Nexp <- read.csv(paste0("InOutBySp/", SpInfo$folder, "/N_boot_in_oil.csv"), header = TRUE)
   Nexp <- Nexp[, 2]
   Nexp <- as.vector(Nexp)
+
+  #If a stratum analysis, get the proportion of the population in that stratum
+  # and multiply Nstart and Nexp appropriately
+  if(!is.null(stratum)){
+    Dstr <- read.csv(paste0("InOutBySp/", SpInfo$folder, "/D_str.csv"), header = TRUE)
+    pstr <- Dstr[, strata[stratum]]
+    if(length(pstr) != length(Nstart)) 
+      stop("D_str.csv and N_boot.csv have differing number of rows")
+    Nstart <- Nstart * pstr
+    Nexp <- Nexp * pstr
+  }
+
   # removing extreme outliers that arise on occasion from GAM simulations
   mult.sd <- 5
   lim.outlier <- mean(Nstart) + mult.sd * sd(Nstart)
@@ -280,18 +297,42 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
   # selecting just non outliers
   Nstart <- Nstart[index.NOT.outlier]
   Nexp <- Nexp[index.NOT.outlier]
+  
   # Get proportion of population exposed
   pexp<-Nexp/Nstart
   # get the mean values for 
   # Nstart
-  meanN0 <- mean(Nstart)
+  if (type != "Sim") {
+    # if running a sensitivity analysis
+    if(parS != "N0"){
+      # if doing sensitivity analysis just use the mean
+      meanN0 <- mean(Nstart)
+      Nstart <- rep(meanN0,nsims)
+    }
+  }
   # proportion exposed
-  meanpexp<-mean(pexp)
+  if (type != "Sim") {
+    # if running a sensitivity analysis
+    if(parS != "pe"){
+      # if doing sensitivity analysis just use the mean
+      meanpexp<-mean(pexp)
+      pexp <- rep(meanpexp,length(pexp))
+    }
+  }
+
   
   #--------------------------------------------------------------------------
   # The proportion of the population exposed that recovers
   pexprecsims <- with(SpInfo, rbeta(nsims, pra, prb) * (pru - prl) + prl)
-  meanper <- mean(pexprecsims) 
+  if (type != "Sim") {
+    # if running a sensitivity analysis
+    if(parS != "per"){
+      # if doing sensitivity analysis just use the mean
+      meanper <- with(SpInfo, (pra/(pra+prb)) * (pru - prl) + prl)
+      pexprecsims <- rep(meanper,nsims)
+    }
+  }
+  pars2save$per <- pexprecsims
   #--------------------------------------------------------------------------
 
   #--------------------------------------------------------------------------
@@ -301,15 +342,40 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
   Fmaxsims <- with(Ttru, rpert(nsims, min = minFmax, mode = modeFmax, max = maxFmax, shape = 4))
   # Scaling needs to happen here for maximum fecundity (i.e. minimum IBI) if not BND
   Fmaxsims <- Fmaxsims * scaling
-  meanFmax <- mean(Fmaxsims)
+  if (type != "Sim") {
+    # if running a sensitivity analysis
+    if(parS != "Fmax"){
+      # if doing sensitivity analysis just use the mean
+      meanFmax <- with(SpInfo,(minFmax + 4 * modeFmax + maxFmax)/(4 + 2))
+      Fmaxsims <- rep(meanFmax,nsims)
+    }
+  }
+  pars2save$Fmax <- Fmaxsims
   # F_nominal
   FnomsimsTtru <- with(Ttru, rpert(nsims, min = minFnom, mode = modeFnom, max = maxFnom, shape = 4))
-  Fnomsims <- FnomsimsTtru
-  Fnomsims <- Fnomsims * scaling
-  meanFnom <- mean(Fnomsims)
+  Fnomsims <- FnomsimsTtru * scaling
+  if (type != "Sim") {
+    # if running a sensitivity analysis
+    if(parS != "Fnom"){
+      # if doing sensitivity analysis just use the mean
+      meanFnom <- with(SpInfo,(minFnom + 4 * modeFnom + maxFnom)/(4 + 2))
+      Fnomsims <- rep(meanFnom,nsims) * scaling
+      FnomsimsTtru <- rep(meanFnom,nsims)
+    }
+  }
+  pars2save$Fnom <- Fnomsims
   # rho
   rhosims <- with(SpInfo, rhoshift + rgamma(nsims, shape = rhoshape, scale = rhoscale))
-  meanrho <- mean(rhosims)
+  
+  if (type != "Sim") {
+    # if running a sensitivity analysis
+    if(parS != "rho"){
+      # if doing sensitivity analysis just use the mean
+      meanrho <- with(SpInfo, rhoshift + rhoshape*rhoscale)
+      rhosims <- rep(meanrho,nsims)
+    }
+  }
+  pars2save$rho <- rhosims
 
   #--------------------------------------------------------------------------
   # age at first reproduction
@@ -318,24 +384,19 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
   # being evaluated in a sensitivity analysis
   a1stRsimsTtru <- with(Ttru, rgamma(nsims, shape = sha1str, scale = sca1str))
   a1stRsims <- a1stRsimsTtru
-  meana1R <- with(Ttru, sha1str * sca1str)
   if (type != "Sim") {
     # if running a sensitivity analysis
     if(parS != "a1r"){
       # if doing sensitivity analysis for other parameter not a1r just repeat the mean a1r nsims times
+      meana1R <- with(Ttru, sha1str * sca1str)
       a1stRsims <- rep(meana1R, nsims)
-    } else {
-      # if doing elasticity analysis get vector of 2k suitable values around the mean
-      if (type == "Elas") {
-        # (k above and k below mean, in multiples of delta)
-        a1stRsims <- c((1 - (nab:1) * delta) * meana1R, meana1R, (1 + (1:nab) * delta) * meana1R)
-      }
     }
   }
   # the modeling requires an integer and to adjust for possible scaling for non Ttru
   # the -0.5 is justified by a need to adjust the age of maturity to IBI
   # see SI for details
   a1stRsims <- round((a1stRsims - 0.5) / scaling)
+  pars2save$a1r <- a1stRsims
 
   #------------------------------------------------------------------------------
   # Baseline reproductive success rate
@@ -343,7 +404,15 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
   beta.pars <- getBetaDistPars(SpInfo$meanbrs, SpInfo$sdbrs)
   # get Baseline reproductive success rate
   pRepbasesims <- rbeta(nsims, beta.pars$alpha, beta.pars$beta)
-  meanpRepbase <- mean(pRepbasesims)
+  if (type != "Sim") {
+    # if running a sensitivity analysis
+    if(parS != "br"){
+      # if doing sensitivity analysis just use the mean
+      meanpRepbase <- beta.pars$alpha/(beta.pars$alpha+beta.pars$beta)
+      pRepbasesims <- rep(meanpRepbase,nsims)
+    }
+  }
+  pars2save$br <- pRepbasesims
   #------------------------------------------------------------------------------
   # Reproduction reduction
   # Post spill reproductive success rate
@@ -351,19 +420,47 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
   beta.pars <- getBetaDistPars(SpInfo$meanpors, SpInfo$sdpors)
   # get post spill reproductive success rate
   pRepPostsims <- rbeta(nsims, beta.pars$alpha, beta.pars$beta)
-  meanpor <- mean(pRepPostsims)
+  
+  if (type != "Sim") {
+    # if running a sensitivity analysis
+    if(parS != "por"){
+      # if doing sensitivity analysis just use the mean
+      meanpor <- beta.pars$alpha/(beta.pars$alpha+beta.pars$beta)
+      pRepPostsims  <- rep(meanpor,nsims)
+    }
+  }
+  pars2save$por <- pRepPostsims
+  
   #--------------------------------------------------------------------------
   # For BB BND
   # fecundity reduction for Ttru
   beta.pars <- getBetaDistPars(Ttru$meanbrs, Ttru$sdbrs)
   # get Baseline reproductive success rate for Ttru
   TtrupRepbasesims <- rbeta(nsims, beta.pars$alpha, beta.pars$beta)
-  meanTtrupRepbase <- mean(TtrupRepbasesims)
+  
+  if (type != "Sim") {
+    # if running a sensitivity analysis
+    if(parS != "BrTt"){
+      # if doing sensitivity analysis just use the mean
+      meanTtrupRepbase <- beta.pars$alpha/(beta.pars$alpha+beta.pars$beta)
+      TtrupRepbasesims <- rep(meanTtrupRepbase,nsims)
+    }
+  }
+  pars2save$BrTt <- TtrupRepbasesims
+  
   # get post spill reproductive success rate for Ttru
   beta.pars <- getBetaDistPars(Ttru$meanpors, Ttru$sdpors)
   TtrupRepPostsims <- rbeta(nsims, beta.pars$alpha, beta.pars$beta)
-  meanTtrupRepPost <- mean(TtrupRepPostsims)
-
+  if (type != "Sim") {
+    # if running a sensitivity analysis
+    if(parS != "PorTt"){
+      # if doing sensitivity analysis just use the mean
+      meanTtrupRepPost <- beta.pars$alpha/(beta.pars$alpha+beta.pars$beta)
+      TtrupRepPostsims <- rep(meanTtrupRepPost,nsims)
+    }
+  }
+  pars2save$PorTt <- TtrupRepPostsims
+  
   #--------------------------------------------------------------------------
   # Define a suitable object to hold the simulation data (i.e. the class sizes)
   #--------------------------------------------------------------------------
@@ -393,10 +490,7 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
                     year = paste0("y", 1:nyears), 
                     sim = paste0("s", 1:nsims), 
                     reality = c("spill", "nospill")))
-  #--------------------------------------------------------------------------
-  pars2save <- data.frame(sim = 1:nsims, a1r = NA, N0 = NA, pe = NA, per = NA, Fmax = NA,
-  Fnom = NA, rho = NA, br = NA, por = NA, spos = NA, ascS = NA, BS = NA, SR = NA, BrTt = NA, 
-  PorTt = NA, y2R = NA, srTtru = NA, fecRed = NA)
+
   #--------------------------------------------------------------------------
   # Simulation implementation
   #--------------------------------------------------------------------------
@@ -425,68 +519,22 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
     # get initial population size
     # index to link pop size and survival post oil spill, if BND
     iterN <- sample.int(length(Nstart), 1)
-
     #--------------------------------------------------------------------------
     # Initial population size: N0
     # if a regular Sim or N0 is the parameter being evaluated in a sensitivity analysis
     N0sim <- Nstart[iterN]
-    if (type != "Sim") {
-      # if running a sensitivity analysis
-      if(parS != "N0"){
-        # if doing sensitivity analysis just use the mean
-        N0sim <- meanN0
-      } else {
-        # if doing elasticity analysis get vector of 2k suitable values around the mean
-        if (type == "Elas") {
-          # (k above and k below mean, in multiples of delta)
-          # and select the ith of those - inefficient but i will be always low under type="Elas" any way
-          N0sim <- c((1 - (nab:1) * delta) * meanN0, meanN0, (1 + (1:nab) * delta) * meanN0)[i]
-        }
-      }
-    }
     pars2save$N0[i] <- N0sim
-    
     #------------------------------------------------------------------------------
     # proportion of animals in the population exposed to oil: pe
     # if a regular Sim or pe is the parameter being evaluated in a sensitivity analysis
     # First get the number of exposed animals
     pexpsim <- pexp[iterN]
-    if (type != "Sim") {
-      # if running a sensitivity analysis
-      if(parS != "pe"){
-        # if doing sensitivity analysis just use the mean
-        pexpsim <- meanpexp
-      } else {
-        # if doing elasticity analysis get vector of 2k suitable values around the mean
-        if (type == "Elas") {
-          # (k above and k below mean, in multiples of delta)
-          # and select the ith of those - inefficient but i will be always low under type="Elas" any way
-          pexpsim <- c((1 - (nab:1) * delta) * meanpexp, meanpexp, (1 + (1:nab) * delta) * meanpexp)[i]
-        }
-      }
-    }
     pars2save$pe[i] <- pexpsim
-    #------------------------------------------------------------------------------
-    
+
     #------------------------------------------------------------------------------
     # proportion of the population exposed that recovers: per
     # if a regular Sim or per is the parameter being evaluated in a sensitivity analysis
     pexprecsim <- pexprecsims[i]
-    if (type != "Sim") {
-      # if running a sensitivity analysis
-      if(parS != "per"){
-        # if doing sensitivity analysis just use the mean
-        pexprecsim <- meanper
-      } else {
-        # if doing elasticity analysis get vector of 2k suitable values around the mean
-        if (type == "Elas") {
-          # (k above and k below mean, in multiples of delta)
-          # and select the ith of those - inefficient but i will be always low under type="Elas" any way
-          pexprecsim <- c((1 - (nab:1) * delta) * meanper, meanper, (1 + (1:nab) * delta) * meanper)[i]
-        }
-      }
-    }
-    pars2save$per[i] <- pexprecsim
     
     #------------------------------------------------------------------------------
     # Survival
@@ -499,124 +547,41 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
         # if doing sensitivity analysis just use the mean
         femalesur <- rowMeans(SpxFs)
         malesur <- rowMeans(SpxMs)
-      } else {
-        # if doing elasticity analysis get vector of 2k suitable values around the mean
-        if (type == "Elas") {
-          # (k above and k below mean, in multiples of delta)
-          # and select the ith of those - inefficient but i will be always low under type="Elas" any way
-          #                        NEEDS DOING - NOT IMPLEMENTED YET
-          #This is a pain to implement since it requires a range of values not just the mean survival probability or random deviates from it
-          print("not implemented yet")
-        }
       }
     }
+    #saves meanS, only useful to plot elasticity for ascS
+    #mean of female survival
+    pars2save$ascS[i] <- mean(femalesur)
     
     #------------------------------------------------------------------------------
     # Survival reduction - for the current Sp
-    # note if BND this is changed later
-    # if a regular Sim or SR is the parameter being evaluated in a sensitivity analysis
+    # note if BND srsim is changed later
     srsim <- srsims[i]
-    if (type != "Sim") {
-      # if running a sensitivity analysis
-      if(parS != "SR"){
-        # if doing sensitivity analysis just use the mean
-        srsim <- meanSR
-      } else {
-        # if doing elasticity analysis get vector of 2k suitable values around the mean
-        if (type == "Elas") {
-          # (k above and k below mean, in multiples of delta)
-          # and select the ith of those - inefficient but i will be always low under type="Elas" any way
-          srsim <- c((1 - (nab:1) * delta) * meanSR, meanSR, (1 + (1:nab) * delta) * meanSR)[i]
-        }
-      }
-    }
-    
     
     #------------------------------------------------------------
     # Fecundity
     # get DD fecundity parameters
     # if a regular Sim or Fmax is the parameter being evaluated in a sensitivity analysis
     Fmaxsim <- Fmaxsims[i]
-    if (type != "Sim") {
-      # if running a sensitivity analysis
-      if(parS != "Fmax"){
-        # if doing sensitivity analysis just use the mean
-        Fmaxsim <- meanFmax
-      } else {
-        # if doing elasticity analysis get vector of 2k suitable values around the mean
-        if (type == "Elas") {
-          # (k above and k below mean, in multiples of delta)
-          # and select the ith of those - inefficient but i will be always low under type="Elas" any way
-          Fmaxsim <- c((1 - (nab:1) * delta) * meanFmax, meanFmax, (1 + (1:nab) * delta) * meanFmax)[i]
-        }
-      }
-    }
-    pars2save$Fmax[i] <- Fmaxsim
-    
+  
     #------------------------------------------------------------
     # Fecundity
     # get DD fecundity parameters
     # if a regular Sim or Fnom is the parameter being evaluated in a sensitivity analysis
     Fnomsim <- Fnomsims[i]
-    if (type != "Sim") {
-      # if running a sensitivity analysis
-      if(parS != "Fnom"){
-        # if doing sensitivity analysis just use the mean
-        Fnomsim <- meanFnom
-      } else {
-        # if doing elasticity analysis get vector of 2k suitable values around the mean
-        if (type == "Elas") {
-          # (k above and k below mean, in multiples of delta)
-          # and select the ith of those - inefficient but i will be always low under type="Elas" any way
-          Fnomsim <- c((1 - (nab:1) * delta) * meanFnom, meanFnom, (1 + (1:nab) * delta) * meanFnom)[i]
-        }
-      }
-    }
-    pars2save$Fnom[i] <- Fnomsim
     
     #------------------------------------------------------------
     # Fecundity
     # get DD fecundity parameters
     # if a regular Sim or rho is the parameter being evaluated in a sensitivity analysis
     rhosim <- rhosims[i]
-    if (type != "Sim") {
-      # if running a sensitivity analysis
-      if(parS != "rho"){
-        # if doing sensitivity analysis just use the mean
-        rhosim <- meanrho
-      } else {
-        # if doing elasticity analysis get vector of 2k suitable values around the mean
-        if (type == "Elas") {
-          # (k above and k below mean, in multiples of delta)
-          # and select the ith of those - inefficient but i will be always low under type="Elas" any way
-          rhosim <- c((1 - (nab:1) * delta) * meanrho, meanrho, (1 + (1:nab) * delta) * meanrho)[i]
-        }
-      }
-    }
-    pars2save$rho[i] <- rhosim
     
     # obtain sims i age at first reproduction
     a1stRsim <- a1stRsims[i]
-    pars2save$a1r[i] <- a1stRsim
     
     # br Baseline reproductive success rate
     # if a regular Sim or br is the parameter being evaluated in a sensitivity analysis
     pRepbasesim <- pRepbasesims[i]
-    if (type != "Sim") {
-      # if running a sensitivity analysis
-      if(parS != "br"){
-        # if doing sensitivity analysis just use the mean
-        pRepbasesim <- meanpRepbase
-      } else {
-        # if doing elasticity analysis get vector of 2k suitable values around the mean
-        if (type == "Elas") {
-          # (k above and k below mean, in multiples of delta)
-          # and select the ith of those - inefficient but i will be always low under type="Elas" any way
-          pRepbasesim <- c((1 - (nab:1) * delta) * meanpRepbase, meanpRepbase, (1 + (1:nab) * delta) * meanpRepbase)[i]
-        }
-      }
-    }
-    pars2save$br[i] <- pRepbasesim
 
     #------------------------------------------------------------
     # Get transition matrix
@@ -642,51 +607,42 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
     qijs <- c(distNominal[1:61] * predictions[iS, ], distNominal[62:122] * predictions[iS, ]) / sum(c(distNominal[1:61] * predictions[iS, ], distNominal[62:122] * predictions[iS, ]))
     # population baseline, i.e. pre oil spill, average survival consistent with SCR study
     meanS <- sum(pxMF[, iS] * qijs)
+    #saves mean P(marked|age), only useful to plot elasticity for PM
+    pars2save$PM[i] <- mean(predictions[iS, ])
     
     if (type != "Sim") {
       # if running a sensitivity analysis
       if(parS != "PM"){
+        # note dimm = number of sexes * number of conditions * number of age classes
+        M0BND <- getM(na = naBND, dimm = ns * nc * naBND, femalesur = rowMeans(pxFs), malesur = rowMeans(pxMs), 
+                      srf = 1, ddfr = FnomsimsTtru[i], frf = 1, a1stR = a1stRsimsTtru[i], alasR = naBND)
+        #------------------------------------------------------------   
+        # get nominal distribution in age and sex class
+        ev0 <- eigen(M0BND)
+        distNominal <- Re(ev0$vectors[, 1]) / sum(Re(ev0$vectors[, 1]))
         # if doing sensitivity analysis just use the mean P(marked|age)
         qijs <- c(distNominal[1:61] * mpredictions, distNominal[62:122] * mpredictions) / sum(c(distNominal[1:61] * mpredictions, distNominal[62:122] * mpredictions))
         # population baseline, i.e. pre oil spill, average survival consistent with SCR study
         meanS <- sum(rowMeans(pxMF) * qijs)
-      } else {
-        # if doing elasticity analysis get vector of 2k suitable values around the mean
-        if (type == "Elas") {
-          # (k above and k below mean, in multiples of delta)
-          # and select the ith of those - inefficient but i will be always low under type="Elas" any way
-          #                        NEEDS DOING - NOT IMPLEMENTED YET
-          #This is a pain to implement since it requires a range of values not just the mean survival probability or random deviates from it
-          warning("Elasticity for survival not implemented yet.")
-        }
+        pars2save$PM[i] <- mean(mpredictions)
       }
     }
-    pars2save$BS[i] <- meanS
     
     # spos survival post oil-spill for BB BND with Glennie et al. SCR analysis
-    # if a regular Sim or spos is the parameter being evaluated in a sensitivity analysis
     Spostspill <- SpostOilBB[iterN]
-    if (type != "Sim") {
-      # if running a sensitivity analysis
-      if(parS != "spos"){
-        # if doing sensitivity analysis just use the mean
-        Spostspill <- meanspos
-      } else {
-        # if doing elasticity analysis get vector of 2k suitable values around the mean
-        if (type == "Elas") {
-          # (k above and k below mean, in multiples of delta)
-          # and select the ith of those - inefficient but i will be always low under type="Elas" any way
-          Spostspill <- c((1 - (nab:1) * delta) * meanspos, meanspos, (1 + (1:nab) * delta) * meanspos)[i]
-        }
-      }
-    }
     pars2save$spos[i] <- Spostspill
-    
-    # survival reduction factor - to be used to scale fecundity reduction later
+
+    # Ttru survival reduction factor - to be used to scale fecundity reduction later
     srsimTtru <- Spostspill / meanS
     pars2save$srTtru[i] <- srsimTtru
     # constrain survival reduction - this could be changed to sample values of Spostspill that are lower than meanS
     if (srsimTtru > 1) srsimTtru <- 1
+    
+    # if we are in a Ttru sim, need to replace survival reduction with Ttru value
+    if (Sp %in% BB_BND_Sp) {
+      srsim <- srsimTtru
+    }
+    pars2save$SR[i] <- srsim
 
     # make population stable if not Ttru in Barataria Bay
     if (!(Sp %in% BB_BND_Sp)) {
@@ -738,33 +694,12 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
     pars2save$y2R[i] <- yrbssim
     #------------------------------------------------------------
 
-    # if we are in a Ttru sim, need to replace survival reduction with Ttru value
-    if (Sp %in% BB_BND_Sp) {
-      srsim <- srsimTtru
-    }
-    pars2save$SR[i] <- srsim
-    
     # yearly reduction factor for survival
     rfssim <- getRedFac(y1 = srsim, ny2r2n = yrbssim, ny = nyears)
 
     # por: post spill reproductive success rate
     # if a regular Sim or por is the parameter being evaluated in a sensitivity analysis
     pRepPostsim <- pRepPostsims[i]
-    if (type != "Sim") {
-      # if running a sensitivity analysis
-      if(parS != "por"){
-        # if doing sensitivity analysis just use the mean
-        pRepPostsim  <- meanpor
-      } else {
-        # if doing elasticity analysis get vector of 2k suitable values around the mean
-        if (type == "Elas") {
-          # (k above and k below mean, in multiples of delta)
-          # and select the ith of those - inefficient but i will be always low under type="Elas" any way
-          pRepPostsim <- c((1 - (nab:1) * delta) * meanpor, meanpor, (1 + (1:nab) * delta) * meanpor)[i]
-        }
-      }
-    }
-    pars2save$por[i] <- pRepPostsim
     
     # reproduction reduction factor
     # if BB Ttru, no scaling required
@@ -774,53 +709,19 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
     # by the ratio of the fecundity to survival reductions in Ttru
     # not to be confused with the scaling of survival for different species
     if (!(Sp %in% BB_BND_Sp)) {
-      
       # BrTt Baseline reproductive success rate for Ttru
-      # if a regular Sim or BrTt is the parameter being evaluated in a sensitivity analysis
       TtrupRepbasesim <- TtrupRepbasesims[i]
-      if (type != "Sim") {
-        # if running a sensitivity analysis
-        if(parS != "BrTt"){
-          # if doing sensitivity analysis just use the mean
-          TtrupRepbasesim <- meanTtrupRepbase
-        } else {
-          # if doing elasticity analysis get vector of 2k suitable values around the mean
-          if (type == "Elas") {
-            # (k above and k below mean, in multiples of delta)
-            # and select the ith of those - inefficient but i will be always low under type="Elas" any way
-            TtrupRepbasesim <- c((1 - (nab:1) * delta) * meanTtrupRepbase, meanTtrupRepbase, (1 + (1:nab) * delta) * meanTtrupRepbase)[i]
-          }
-        }
-      }
-      pars2save$BrTt[i] <- TtrupRepbasesim
-      
       # PorTt post spill reproductive success rate for Ttru
-      # if a regular Sim or PorTt is the parameter being evaluated in a sensitivity analysis
       TtrupRepPostsim <- TtrupRepPostsims[i]
-      if (type != "Sim") {
-        # if running a sensitivity analysis
-        if(parS != "PorTt"){
-          # if doing sensitivity analysis just use the mean
-          TtrupRepPostsim <- meanTtrupRepPost
-        } else {
-          # if doing elasticity analysis get vector of 2k suitable values around the mean
-          if (type == "Elas") {
-            # (k above and k below mean, in multiples of delta)
-            # and select the ith of those - inefficient but i will be always low under type="Elas" any way
-            TtrupRepPostsim <- c((1 - (nab:1) * delta) * meanTtrupRepPost, meanTtrupRepPost, (1 + (1:nab) * delta) * meanTtrupRepPost)[i]
-          }
-        }
-      }
-      pars2save$PorTt[i] <- TtrupRepPostsim
-      
+      #fecundity reduction      
       fecRedTtru <- 1 - TtrupRepPostsim / TtrupRepbasesim
       fecRed <- srsim * fecRedTtru / srsimTtru
     }
     pars2save$fecRed[i] <- fecRed
 
+    # yearly reduction factor for fecundity
     rrfsim <- getRedFac(y1 = fecRed, ny2r2n = yrbssim, ny = nyears)
     
-
     #-----------------------------------------------------------
     # Initial population numbers per class
     # Nominal age distribution is normalized eigenvector associated with dominant eigenvalue
@@ -845,24 +746,19 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
       ftsimoil <- ft(Nt = currNoil, Fmax = Fmaxsim, rho = rhosim, Nnom = N0sim, Fnom = Fnomsim)
       
       # get appropriate low salinity survival multiplier
-      LowSalSR <- 1
-      if (Sp %in% LowSal_Sp) {
-        if(j == (2027 - 2010 + 1)){
-          LowSalSR <- LowSalSR_Yr1[i]
-        } else {
-          if(j > (2027 - 2010 + 1)){
-            LowSalSR <- LowSalSR_OY[i]
-          }
-        }
+      LowSalSR_Yr <- 1
+      if (Sp == "LowSal") {
+        if(j >= (2027 - 2010 + 1)) LowSalSR_Yr <- LowSalSR[i, j]
       }
       # Get the actual transition matrix --------------------
       # oil spill scenario
-      Moil <- getM(na = na, dimm = ns * nc * na, femalesur = femalesur * LowSalSR, 
-                   malesur = malesur * LowSalSR, srf = rfssim[j], 
-                   ddfr = ftsimoil, frf = rrfsim[j], a1stR = a1stRsim, alasR = na)
+      Moil <- getM(na = na, dimm = ns * nc * na, femalesur = femalesur * LowSalSR_Yr, 
+                   malesur = malesur * LowSalSR_Yr, srf = rfssim[j], srf.yr1 = rfssim[1],
+                   ddfr = ftsimoil, frf = rrfsim[j], frf.yr1 = rrfsim[1], 
+                   a1stR = a1stRsim, alasR = na)
       # If we are under constant pop, i.e. under any stock not BND Barataria Bay
       Mnooil <- M0
-      # no-oil spill scenario (survival reduction factor = 1)
+      # no-oil spill scenario (survival and fecundity reduction factors = 1)
       if (Sp %in% BB_BND_Sp) {
         # since we are under no constant pop, we need to do this step
         # DD for no-oil spill scenario
@@ -885,16 +781,20 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL, delta = 0.0
   TimeSpent <- end_time - start_time
   RunOnThe <- Sys.time()
 
-  # calculate and plot the injury measures
+  # calculate and plot injury measures
   injury <- getInjury(simres)
 
   #------------------------------------------------------------------
   # save results to corresponding species folder
   # file path
-  fp <- paste0("InOutBySp/", SpInfo$folder, "/", Sp)
+  if(Sp == "LowSal") {
+    fp <- paste0("InOutBySp/LowSal/", Sp)
+  } else {
+    fp <- paste0("InOutBySp/", SpInfo$folder, "/", Sp)
+  }
   # file type
   ft <- "simres"
-  # file specifics - number of sims, Sim Sens or Elas depending on type and parameter if type=="Sim"
+  # file specifics - number of sims, Sim or Sens depending on type and parameter
   # note if parS is NULL i.e. when type=="Sim" then name is just as paste0(nsims,type)
   fs <- paste0(nsims, type, parS)
   # file extension

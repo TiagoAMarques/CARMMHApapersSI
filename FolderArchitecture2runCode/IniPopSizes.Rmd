@@ -1,7 +1,7 @@
 ---
 title: "Initial population sizes"
 author: ""
-date: "7/7/2020"
+date:  \today
 output: html_document
 ---
 
@@ -12,15 +12,15 @@ library(knitr)
 
 # Preamble
 
-***This will be a general preable common to all the documents included as Electronic Supplements to CARMMHA's offshore injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc.***
+***This will be a general preable common to all the documents included as Electronic Supplements to CARMMHA's pelagic injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc. - this is the MASTER version of the preamble and it must be copied over to all other docs before submission***
 
-This is an Electronic Supplement to the paper submited to MEPS on the ??-??-???? by Marques, T. A., Thomas, L., Booth, C., Garrison, L. P., Rosel, P. E., Mullin, K. D. & L. Schwacke entitled "Quantifying Deepwater Horizon oil spill induced injury on offshore cetaceans".
+This is an Electronic Supplement to the paper submited to MEPS on the ??-??-???? by Marques, T. A., Thomas, L., Booth, C., Garrison, L. P., Rosel, P. E., Mullin, K. D. & L. Schwacke entitled "Quantifying Deepwater Horizon oil spill induced injury on pelagic cetaceans".
 
 The master file with supplementary material is here: [Electronic Supplements master file](ElectronicSupplements.html).
 
 # Introduction
 
-In this document we present the distribution for the initial population sizes, population exposed and proportion exposed for each of the stocks considered in the paper.
+In this document we present the distribution for the initial population sizes, population exposed and proportion exposed for each of the stocks considered in the pelagic paper.
 
 These population sizes were obtained from the models of 
 
@@ -38,7 +38,9 @@ include_graphics(path = "figs/Figure1.JPG")
 ```{r, cache = TRUE, echo = FALSE}
 # Define the species we run simulations for
 # Species ordered by alphabetic order of the 4 letter code used to refer to them.
-Sps <- c("Bwsp", "Fatt", "Gmac", "Ggri", "Kosp", "Pele", "Pmac", "Satt", "Sbre", "Scly", "Scoe", "Sfro", "Slon", "Ttro", "Ttrs", "Ttru")
+Sps <- c("Bwsp", "Fatt", "Gmac", "Ggri", "Kosp", "Pele", "Pmac", "Satt", "Sbre", "Scly", "Scoe", "Sfro", "Slon", "Ttro", "Ttrs")
+#this would include Ttru, but that is not from the pelagic paper!
+#Sps <- c("Bwsp", "Fatt", "Gmac", "Ggri", "Kosp", "Pele", "Pmac", "Satt", "Sbre", "Scly", "Scoe", "Sfro", "Slon", "Ttro", "Ttrs", "Ttru")
 source("Functions/reqfuns.R")         # most functions are here
 ```
 

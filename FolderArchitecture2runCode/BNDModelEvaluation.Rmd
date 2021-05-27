@@ -188,6 +188,7 @@ elasticity<-data.frame(parID=1:9,parameter=NA,label=NA,LCY=NA,YTR=NA,MPD=NA)
 Here we calculate the injury metric. This code chunk does not output the results by default, but removing the chunk options `results='hide',fig.show='hide'` the .Rmd will lead the code to show plots that provide insights to what is going on under the hood.
 
 ```{r, results='hide', fig.show='hide'}
+#
 #set up number of plots in figure
 par(mfrow=c(3,3),mar=c(4,4,2.5,0.5))
 for (k in 1:nmetrics){

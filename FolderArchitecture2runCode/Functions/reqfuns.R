@@ -2,12 +2,6 @@
 
 # This file includes several required functions
 
-##LT: I don't understand your naming convenstion here -- sometimes you capitalize the second wor
-##LT: and sometimes you don't
-##LT: Anyway, I've left as is
-
-##TAM: the problem is expecting a sensible coherent naming convention... my bad!
-
 # 1. getbeta    - computes the density dependent fecundity beta paramter
 # 
 # 2. ft         - computes the fecundity as a function of population size and other 
@@ -61,9 +55,9 @@ getRedFac <- function(y1, ny2r2n = 15, ny = 150) {
   # this function returns a yearly reduction factor for either fecundity or survival
   # Inputs:
   #       y1     - value in the first year post spill
-  #       ny2r2n - number of Years 2 Return 2 Normal
+  #       ny2r2n - number of years to return to normal (i.e., baseline) 
   #       ny     - total number of years to get reduction factor for
-  redfac <- c(y1,y1 + 1:ny2r2n * (1 - y1) / ny2r2n, rep(1, ny - ny2r2n))
+  redfac <- c(y1, y1 + 1:ny2r2n * (1 - y1) / ny2r2n, rep(1, ny - ny2r2n))
   return(redfac)
 }
 
@@ -72,7 +66,8 @@ getRedFac <- function(y1, ny2r2n = 15, ny = 150) {
 
 # Creating the transition matrix
 # inputs required: all that affects fecundity and survival
-getM <- function(na, dimm, femalesur, malesur, srf, ddfr, frf, a1stR, alasR) {
+getM <- function(na, dimm, femalesur, malesur, srf, srf.yr1 = srf, 
+                 ddfr, frf, frf.yr1 = frf, a1stR, alasR) {
   
   # given all the required inputs, this function structures the data to 
   # get a suitable transition matrix
@@ -85,17 +80,16 @@ getM <- function(na, dimm, femalesur, malesur, srf, ddfr, frf, a1stR, alasR) {
   # femalesur - female survival, per age class
   # malesur   - male survival, per age class
   # srf       - survival reduction factor
+  # srf.yr1   - survival reduction factor in yr1 - for animals that don't recover
   # 
   # Fecundity:
-  # ddfr  - density dependent fecundity rate
-  # frf   - fecundity reduction factor
-  # a1stR - the age of first reproduction 8 means that females with 0 to 7
-  #         years old do not reproduce
-##LT: Needs resolved and comment needs ammending  
-  #         Looking at Lori's code, it seems like the value used was 7
-  #         But that would imply reproduction starts at 7
-  # alasR - the age of last reproduction
-  #         48 means females 49 years old and older do not reproduce
+  # ddfr    - density dependent fecundity rate
+  # frf     - fecundity reduction factor
+  # frf.yr1 - fecundity reduction factor in yr1 - for animals that don't recover
+  # a1stR   - the age of first reproduction 8 means that females with 0 to 7
+  #           years old do not reproduce
+  # alasR   - the age of last reproduction
+  #           48 means females 49 years old and older do not reproduce
   
   # FECUNDITY -------------------------
   # Transition probability
@@ -107,9 +101,8 @@ getM <- function(na, dimm, femalesur, malesur, srf, ddfr, frf, a1stR, alasR) {
   ddfrv[1:a1stR] <- 0 # females younger than a1stR have fecundity 0
   # exposed that recover - impact by fecundity reduction factor
   ddfrver <- ddfrv * frf
-  # exposed that do not recover - impact by fecundity reduction factor
-  # reduction stays constant
-  ddfrvenr <- ddfrv * rep(frf[1], length(frf))
+  # exposed that do not recover - impact by yr 1 fecundity reduction factor
+  ddfrvenr <- ddfrv * frf.yr1
   
   # 1st row - produces females at time 0
   #unexposed animals
@@ -124,7 +117,7 @@ getM <- function(na, dimm, femalesur, malesur, srf, ddfr, frf, a1stR, alasR) {
   
   TransM[1, ] <- c(ffecunfem, ffecunma, ffecexpfemar, ffecexpmar, ffecexpfemanr, ffecexpmanr)
   
-  # 62nd = na+1 row - produces males at age 0 - just the same as above, but useful to have
+  # na + 1 row - produces males at age 0 - just the same as above, but useful to have
   # here if variability in sex ratio is included later
   mfecunfem    <- ddfrv / 2  # unexposed females
   mfecunma     <- rep(0, na) # males fecundity - always 0
@@ -133,18 +126,23 @@ getM <- function(na, dimm, femalesur, malesur, srf, ddfr, frf, a1stR, alasR) {
   mfecexpfemanr  <- ddfrvenr / 2 # exposed
   mfecexpmanr    <- rep(0, na) # males fecundity - always 0
   
-  TransM[na+1, ] <- c(mfecunfem, mfecunma, mfecexpfemar, mfecexpmar, mfecexpfemanr, mfecexpmanr)
+  TransM[na + 1, ] <- c(mfecunfem, mfecunma, mfecexpfemar, mfecexpmar, mfecexpfemanr, mfecexpmanr)
   
   # values for survival ---------------
+  # constrained so all values less than or equal to 1
+  # values > 1 can be produced otherwise in low salinity simulations
   #unexposed animals
   sfus <- femalesur       # females 
   smus <- malesur         # males 
+  sfus[sfus > 1] <- 1; smus[smus > 1] <- 1
   # exposed that recover
   sfers <- femalesur * srf # females 
   smers <- malesur * srf   # males 
+  sfers[sfers > 1] <- 1; smers[smers > 1] <- 1
   # exposed that do not recover
-  sfenrs <- femalesur * rep(srf[1], length(srf)) # females 
-  smenrs <- malesur * rep(srf[1], length(srf))   # males
+  sfenrs <- femalesur * srf.yr1 # females 
+  smenrs <- malesur * srf.yr1 # males
+  sfenrs[sfenrs > 1] <- 1; smenrs[smenrs > 1] <- 1
   
   # construct transition matrix
   for(m in 1:(na - 1)) {
