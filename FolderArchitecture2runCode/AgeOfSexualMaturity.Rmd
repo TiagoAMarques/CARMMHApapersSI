@@ -1,0 +1,191 @@
+---
+title: "Age of Sexual Maturity"
+author: ""
+date: "30/May/2021"
+output:
+  html_document: default
+  pdf_document: default
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(readxl)
+library(mgcv)
+library(Hmisc)
+```
+
+# Preamble
+
+***This will be a general preable common to several documents included as Electronic Supplements to CARMMHA's BB BND injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc.***
+
+This is an Electronic Supplement to the paper submitted to Conservation Letters on the ??-??-???? by L.H. Schwacke, T.A. Marques, C. Booth, C. Smith, F. Gomez, B. Balmer, A. Barratclough, S. De Guise, L. Garrison, K. Colegrove, J. Morey, K. D. Mullin, B. M. Quigley, P. Rosel, T. Rowles, R. Takeshita,  F. Townsend, T. Speakman, R. Wells, E. Zolman, L. Thomas, entitled "Why bottlenose dolphin populations have still not recovered a decade after the Deepwater Horizon oil spill"
+
+The master file with supplementary material is here: [BND_Electronic Supplements master file](BND_ElectronicSupplements.html).
+
+# Introduction
+
+Here we describe the meta-analysis undertaken to determine age at sexual maturity in wild bottlenose dolphins.  We found two relevant datasets: one from a study based on necropsies of stranded animals from the central Atlantic Coast of the US between 1975 and 1987 (Mead and Potter 1990), and the other from observations of known-age animals with first calves from a well-studied population in Sarasota Bay (Wells et al in prep).
+
+The target parameter here is age at sexual maturity (ASM), i.e., the age at which a female is physiologically capable of becoming pregnant.  In the population model, females from this age onwards can give birth the following year.  The data from the Mead and Potter study presumably (it is not stated explicitly) measure whether ovulation has taken place, and hence give direct measurements of whether a female of the observed age is sexually mature or not.  The data from the Sarasota Bay study are of whether a female was observed with a calf or not.  Since gestation is approximately one year, a female with a calf must have been sexually mature at least one year earlier, so we subtract 1 from the ages.  However, we also need to account for the fact that she may not have become pregnant when she was first mature.  As an approximation, we assume that the rate at which sexually mature females get pregnant for the first time is equal to the rate of pregnancy for females that have bred before.  For females that have bred before, we have an estimate of the inter-breeding interval (IBI): the inverse of the nominal fecundity used in Schwacke et al. (2017).  One year of this is gestation, and assuming that time of pregancy is uniformly distributed over the remaining interval, the average time of pregnancy is then (IBI-1)/2.  Putting together these two factors (gestation time and time to become pregnant) means we subtract (1 + (IBI-1)/2) = (IBI+1)/2 from the observed ages in the Sarasota study.
+
+We first undertake a binary regression on each dataset, regressing whether sexually mature or not (response variable) as a function of age (explanatory variable).  These analyses yield estimates of the age at which 50% of the population are sexually mature.  We then undertake a meta-analysis to combine these two estimates (using a variance-weighted mean).
+
+# Mead and Potter data
+
+Here we read in the data, fit a binary GAM and plot the result, showing with dashed black lines the age at which the probability of being sexually mature is 0.5. We read in the data
+
+```{r}
+mp.data <- data.frame(age = c(27,17,24,15,14,2,1,0,22,2,12,4,1.5,3,2,14,0,0,0,2,1,3,0,18,12,16,25,3,2,2,11,20,20,1,8,20,10,2.5,2,3,11,0,2.2,3,3,15,1,3,10,8,16), mature = c(1,1,1,1,1,0,0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,0,0,0,1,1,1,0,1,1,1,1,0,0,1,0,0,0,0,0,0,0,1,0,1))
+```
+
+fit the GAM binomial model
+
+```{r}
+#Fit binary GAM
+mod1 <- gam(mature ~ s(age), family = binomial, data = mp.data)
+newdata <- data.frame(age = seq(min(mp.data$age), max(mp.data$age), length = 1000))
+```
+
+and then predict from it over the range of available ages
+
+```{r}
+#predict on the scale of the link function
+pred <- predict(mod1, newdata = newdata, se.fit = TRUE)
+#predict on the scale of the response - a probability
+pred.r <- predict(mod1, newdata = newdata, se.fit = TRUE,type="response")
+# which.max returns the index of first element to be equal to the maximum
+# in a vector of true or false, that is the first true == 1
+which.age.p.50 <- which.max(pred.r$fit > 0.5)
+mp.age.p.50 <- newdata$age[which.age.p.50]
+```
+
+The predictions from the model are represented in the following plot:
+
+```{r}
+#Plot predictions
+plot(newdata$age, plogis(pred$fit), type = "l", col = "red", main = "Mead and Potter data", ylim = c(0, 1), ylab = "p(mature)", xlab = "age")
+lines(newdata$age, plogis(pred$fit + 1.96 * pred$se.fit), lty = 2, col = "red")
+lines(newdata$age, plogis(pred$fit - 1.96 * pred$se.fit), lty = 2, col = "red")
+#show p.50
+lines(c(mp.age.p.50, mp.age.p.50), c(0, 0.5), lty = 3)
+lines(c(0, mp.age.p.50), c(0.5, 0.5), lty = 3)
+#show data - jittered a little
+rug(jitter(mp.data$age[mp.data$mature == 1], amount = 0.1), side = 3)
+rug(jitter(mp.data$age[mp.data$mature == 0], amount = 0.1), side = 1)
+```
+
+We therefore estimate the age at which 50% of the animals are mature is `r round(mp.age.p.50,2)`.
+
+Note two inconsistent observations which could correspond to recording errors - one immature animal aged `r max(mp.data$age[mp.data$mature == 0])` and one mature animal aged `r min(mp.data$age[mp.data$mature == 1])`. While these may be incorrect, we have no evidence of this, so we retain them in the analysis.
+
+We use a parametric bootstrap approach to obtain a standard error on the estimate of number of years at which probability of sexual maturity is 0.5.
+
+```{r}
+#Code adapted from predict.gam help
+rmvn <- function(n,mu,sig) { ## MVN random deviates
+  L <- mroot(sig);m <- ncol(L);
+  t(mu + L%*%matrix(rnorm(m*n),m,n)) 
+}
+# Note required large number of replicates to reduce the Monte Carlo error 
+# on the estimated standard error
+B <- 100000
+Xp <- predict(mod1, newdata, type = "lpmatrix")
+br <- rmvn(B, coef(mod1), mod1$Vp)
+res <- rep(0, B)
+for(i in 1:B){
+  pred <- Xp %*% br[i, ]
+  res[i] <- newdata$age[which.max(pred > 0)]
+}
+mp.se.age.p.50 <- sd(res)
+#mp.se.age.p.50
+#quantile(res, c(0.025, 0.975))
+```
+
+Therefore the predicted age of sexual maturity is `r round(mp.age.p.50, 2)` with SD `r round(mp.se.age.p.50, 2)` and 95% confidence interval `r round(quantile(res, 0.025), 2)`-`r round(quantile(res, 0.975), 2)`.
+
+# Wells et al data
+
+We read in the data
+
+```{r,warning=FALSE,message=FALSE}
+sarasota <- read_excel("InOutBySp/Bottlenose_dolphin_BB/Sarasota Age at First Birth 11Mar20.xlsx",range = "A3:A55", col_names = FALSE)
+names(sarasota) <- "age"
+```
+
+Below is an histogram of the ages at which females were first observed with a calf in the Sarasota Bay data.
+
+```{r}
+with(sarasota, hist(age, breaks = seq(min(age) - 0.5, max(age) + 0.5, by = 1)))
+sa.mean <- mean(sarasota$age)
+sa.sd <- sd(sarasota$age)
+sa.se <- sa.sd/sqrt(length(sarasota$age))
+```
+
+From these `r length(sarasota$age)` observations, the mean age at first seen with a calf is `r round(sa.mean,2)` with SD `r round(sa.sd,2)` and SE `r round(sa.se,4)`.
+
+As described previously, we wish to subtract (IBI + 1)/2 from these values, to give age at sexual maturity.  We take as IBI the inverse of the nominal fecundity from Schwacke et al. (2017).
+
+```{r}
+#Nominal fecundity from Schwacke et al. (2017)
+fec <- 0.24
+#Subtract (half the IBI + 0.5) from the data to make it 
+# equal to mean age at sexual maturity
+sa.mean <- sa.mean - ((1 / fec) / 2 + 0.5)
+#sa.mean
+```
+
+This gives mean age of sexual maturity of `r format(sa.mean, digits = 4)` with standard error unchanged at `r format(sa.se, digits = 4)`.
+
+# Meta-analysis
+
+In combining these two estimates together, we used an inverse variance weighted mean.
+
+```{r}
+#Mead and Potter data
+mp.mean <- mp.age.p.50
+mp.se <- mp.se.age.p.50
+
+#Inverse variance weighted average
+asm.dat.mean <- c(sa.mean, mp.mean)
+asm.dat.se <- c(sa.se, mp.se)
+weights <- 1 / (asm.dat.se ^ 2)
+asm.mean <- sum(weights * asm.dat.mean) / sum(weights)
+asm.se <- sqrt (sum(weights ^ 2 * asm.dat.se ^ 2) / sum(weights ^ 2))
+```
+
+The Mead and Potter estimate has much higher standard error, and so hardly influences the  composite estimate.  Combined mean `r format(asm.mean, digits = 4)` and combined SE `r format(asm.se, digits = 4)` (recall that the Mead adn Potter estimate was `r format(mp.mean, digits = 4)` and the Wells et al. was `r format(sa.mean, digits = 4)`).
+
+This is illustrated in the plot below, which fits the mean and variance of each data source, and the composite, to gamma distributions.
+
+```{r}
+get.gamma.par <- function(mean, var){
+#Returns shape and scale parameter of gamma given mean and var
+  return(list(shape = mean ^ 2 / var, scale = var / mean))
+}
+
+#Plot results
+x <- seq(6, 9, length = 100)
+asm.par <- get.gamma.par(asm.mean, asm.se ^ 2)
+asm.res <- dgamma(x, shape = asm.par$shape, scale = asm.par$scale)
+sa.par <- get.gamma.par(sa.mean, sa.se ^ 2)
+sa.res <- dgamma(x, shape = sa.par$shape, scale = sa.par$scale)
+mp.par <- get.gamma.par(mp.mean, mp.se ^ 2)
+mp.res <- dgamma(x, shape = mp.par$shape, scale = mp.par$scale)
+ylim <- c(0, max(asm.res, sa.res, mp.res) * 1.4)
+plot(x, asm.res, xlab = "Average age at sexual maturity", ylab = "Probability density", main = "Meta analysis", type = "l", ylim = ylim)
+lines(x, sa.res, lty = 2, col = "red")
+lines(x, mp.res, lty = 3, col = "blue")
+legend("topright", legend = c("Weighted mean", "Wells et al", "Mead and Potter"), lty = 1:3, col = c("black", "red", "blue"))
+```
+
+We opted by using **so, what is it?** in the model, in particular using a gamma random variable. Note that because the population dynamics model uses and integer for age, at each iteration the random deviate obtained from this continous distribution is rounded to an integer.
+
+# References
+
+Mead, J.G. and C.W. Potter. 1990. A natural history of bottlenose dolphins along the central Atlantic coast of the United States. In *The Bottlenose Dolphin*, Eds S. Letherwood and R.R. Reeves. Academic Press.
+
+Wells, R. S., M. D. Scott, A. A. Hohn, J. C. Sweeney, F. I. Townsend, J. B. Allen, A. A. Barleycorn, S. Hofmann, K. A. McHugh, C. R. Smith, R. C. Lacy, and A. B. Irvine.  In preparation.  Life history, reproductive biology and demographic parameters for common bottlenose dolphins, (*Tursiops truncatus*), in Sarasota Bay, Florida.  *Frontiers in Marine Science, Marine Conservation and Sustainability*.
+
+Schwacke, L.H., L. Thomas, R.S. Wells, W.E. McFee, A.A. Hahn, K.D. Mullin, E.S. Zolman, B.M. Quigley, T.K. Rowles and J.H. Schwacke. 2017. An age-, sex- and class-structured population model for estimating nearshore common bottlenose dolphin injury following the Deepwater Horizon oil spill. *Endangered Species Research* **33**: 265-279. 

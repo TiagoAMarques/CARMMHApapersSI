@@ -32,6 +32,7 @@ Sps <- c("Bwsp", "Fatt", "Ggri", "Gmac", "Kosp", "Pele", "Pmac", "Satt", "Sbre",
 #list of parameters
 parS <- c("a1r","N0","pe","per","Fmax","Fnom","rho","br","por","spos","ascS","PM","SR","BrTt","PorTt")
 
+
 #define the number of iterations to run
 ns <- 500
 # define the number of years each iteration is run for

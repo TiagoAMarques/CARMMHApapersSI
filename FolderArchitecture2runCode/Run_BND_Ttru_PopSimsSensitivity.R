@@ -24,6 +24,7 @@ source("Functions/runPopSims.R")      # the main simulation function
 #list of parameters
 parS <- c("a1r","N0","pe","per","Fmax","Fnom","rho","br","por","spos","ascS","PM")
 
+
 #define the number of iterations to run
 ns <- 500
 # define the number of years each iteration is run for
@@ -32,4 +33,17 @@ ny <- 75
 
 for (j in parS) {
   runPopSims(Sp = "Ttru", type = "Sens", nsims = ns, nyears = ny, par =j)
+}
+
+#bespoke analysis for elasticity for ascS and PM
+parS <- c("ascSE","PME")
+# define the number of iterations to run - only 3, 
+# one at the average (iteration 2)
+# one with - 0.5% (iteration 1)
+# one with + 0.5% (iteration 3)
+# multiplied by the entire parameter vector corresponding to these parameters
+ns <- 3
+
+for (j in parS) {
+  runPopSims(Sp = "Ttru", type = "Elas", nsims = ns, nyears = ny, par =j)
 }

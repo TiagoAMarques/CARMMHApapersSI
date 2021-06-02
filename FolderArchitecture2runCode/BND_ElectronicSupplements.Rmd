@@ -31,16 +31,7 @@ All these files are created as dynamic reports using RMarkdown. Given these bein
 
 https://github.com/TiagoAMarques/CARMMHApapersSI
 
-The above repository also includes all the code required for readers to reproduce independently the paper results. [Below](#how-to-reproduce-the-paper-results) is a quick description of how all the results in the paper might be recreated by the reader, within a framework of reproducible research.
-
-This means also that it should be straightforward for a reader to update the results with new information, be it new data that becomes available or different assumptions about population, allowing to explore both the consequences of new knowledge or the impact of the assumptions we made on the results presented.
-
-```{r fig1,eval=FALSE,echo=FALSE,fig.width=3,fig.align="center",fig.cap="\\label{fig:fig1}Artwork by @allison_horst at available at https://github.com/allisonhorst/stats-illustrations. This image illustrates the concept of reproducible research and is a tribute to Allison's work on combining art and science."}
-# All defaults
-include_graphics("figs/reproducibility_court.png")
-```
-
-![Artwork by @allison_horst at available at https://github.com/allisonhorst/stats-illustrations. This image illustrates the concept of reproducible research and is a tribute to Allison's work on combining art and science.](figs/reproducibility_court.png){width=50%}
+The above repository also includes all the code required for readers to reproduce independently the paper results. [Below](#how-to-reproduce-the-paper-results) is a quick description of how all the results in the paper might be recreated by the reader, within a framework of [reproducible research](#reproducible-research).
 
 # List of key documents on this repository
 
@@ -52,7 +43,7 @@ Other key files names and brief content descriptions follow:
 
 * [SurvivalReduction](SurvivalReduction.html) – Supplementary material about how we obtain the survival reduction factor. This combines baseline survival probability with post oil survival probability obtained by SCR. For the baseline survival probability we describe the analysis that integrates the different components required. The survival post oil spill for Barataria Bay bottlenose dolphins is obtained in a separate paper, Glennie et al (2021).
 
-* [AgeOf1stReproduction](AgeOf1stReproduction.html) - Supplementary material with details about how we obtained the age at first reproduction for *Tursiops truncatus*;
+* [AgeOfSexualMaturity](AgeOfSexualMaturity.html) - Supplementary material with details about how we obtained the age at first reproduction for *Tursiops truncatus*;
 
 * [BNDinjury_Figs](BNDinjury_Figs.html) - obtaining the injury measures presented on the paper;
 
@@ -126,7 +117,7 @@ The folder structure and all files required to successfully run the code is in t
 
 At a bare minimum running the code requires the following folders and the material provided in them:
 
-* `InputFiles`: this folder includes a number of files that are treated as data, inputs required to run the code, including the key file `SpeciesDefinitionFile4offshore.xlsx` that contains parameters for all the different taxonomic units in CARMMHA project, including the Barataria Bay bottlenose dolphins.
+* `InputFiles`: this folder includes a number of files that are treated as data, inputs required to run the code, including the key file `SpeciesDefinitionFile.xlsx` that contains parameters for all the different taxonomic units in CARMMHA project, including the Barataria Bay bottlenose dolphins.
 
 * `InOutBySp\Bottlenose_dolphin_BB`:  a folder that also contains species specific input files, namely "N_boot.csv" and "N_boot_in_oil.csv", a distribution of initial population sizes of both all animals and exposed animals. This is also the folder where results are outputed to by default.
 
@@ -138,3 +129,13 @@ Note that the code could take a considerable amount of time to run. The conseque
 
 Glennie, R., L. Thomas, T. Speakman, L. Garrison, R. Takeshita and L.H. Schwacke. Manuscript in preparation. Estimating spatially-varying density and time-varying deographics with open population spatial capture-recapture: a photographic ID case study on bottlenose dolphins in Barataria Bay, USA.
 
+# Reproducible research
+
+We have invested a considerable amount of time to make our analysis reproducible. This means also that it should be relatively straightforward for a reader to update the results with new information, be it new data that becomes available or different assumptions about population, allowing to explore both the consequences of new knowledge or the impact of the assumptions we made on the results presented.
+
+```{r fig1,eval=FALSE,echo=FALSE,fig.width=3,fig.align="center",fig.cap="\\label{fig:fig1}Artwork by @allison_horst at available at https://github.com/allisonhorst/stats-illustrations. This image illustrates the concept of reproducible research and is a tribute to Allison's work on combining art and science."}
+# All defaults
+include_graphics("figs/reproducibility_court.png")
+```
+
+![Artwork by @allison_horst at available at https://github.com/allisonhorst/stats-illustrations. This image illustrates the concept of reproducible research and is a tribute to Allison's work on combining art and science.](figs/reproducibility_court.png){width=50%}

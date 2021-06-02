@@ -133,7 +133,7 @@ y.pred2 <- plogis(y.pred2)
 ```{r,echo=FALSE}
 #Plot the data
 par(mfrow=c(1,1),mar=c(4,4,0.5,0.5))
-with(MRdata, plot(Marked ~ AgeCap,xlim=c(0,45)))
+with(MRdata, plot(Marked ~ AgeCap,xlim=c(0,45),ylab="P(marked)",xlab="Age"))
 lines(newdata$AgeCap, y.pred2, col = "green")
 ```
 
@@ -153,7 +153,7 @@ off.set2 <- rep(min.val, length = nrow(newdata))
 
 set.seed(20932)
 #Plot the data
-with(MRdata,plot(Marked~AgeCap,xlim=c(0,45)))
+with(MRdata,plot(Marked~AgeCap,xlim=c(0,45),ylab="P(marked)",xlab="Age"))
 #Make predictions
 Xp <- predict(gamAge.constr, newdata = list(AgeCap = newdata$AgeCap, X = X2, off.set = off.set2), type = "lpmatrix")
 # define number of resamples

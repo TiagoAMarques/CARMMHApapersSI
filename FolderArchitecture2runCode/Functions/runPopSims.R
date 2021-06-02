@@ -10,9 +10,11 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL,
   #       Sp:      the species code, see details below
   #       nsims:   the number of iterations to consider
   #       nyears:  the number of years to run each simulation for
-  #       type:    one of 2 options
+  #       type:    one of 3 options
   #                 1. "Sim", the default which means it should simply run the simulations
   #                 2. "Sens" runs a sensitivity analysis (parameter parS varies, all other are kept fixed at mean)
+  #                 3. "Elas" runs and elasticity analysis, used only for parameters that are not scalars, 
+  #                     namely "ascS" or "PM", for that purpose renamed as "ascSE" and "PME", respectively  
   #       parS:    the parameter for which the simulations are being run for if under type==Sim, i.e. under sensitivity mode
   #       stratum: either NULL (default) or an integer from 1-4 (only valid for Ttru).  If an integer, runs on the 
   #                 proportion of the BSE BND population corresponding to that stratum number (see below). 
@@ -22,10 +24,10 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL,
   # Details on "Sp" to define species to work with
   #--------------------------------------------------------------------------
   # Sp is a 4 letter character acronym (exceptions are Schwackeetal, LowSal)
-  # "SpeciesDefinitionFile4offshore.xlsx"
+  # "SpeciesDefinitionFile.xlsx"
   # e.g. Pmac for sperm whale
   # if needed check file for acronym list correspondence to species
-  # (acronym is the first column on the file "SpeciesDefinitionFile4offshore.xlsx")
+  # (acronym is the first column on the file "SpeciesDefinitionFile.xlsx")
   #--------------------------------------------------------------------------
   # Details on stratum analyses
   #--------------------------------------------------------------------------
@@ -36,7 +38,7 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL,
   # Outputs
   #       There are several by-products of running the function (but no object returned at the end) 
   #       An R workspace is saved in a species specific folder
-  #       The folder name is defined in "SpeciesDefinitionFile4offshore.xlsx"
+  #       The folder name is defined in "SpeciesDefinitionFile.xlsx"
   #       The object name reflects its contents
   #       The workspace contains the following objects
   #       simres: raw results, with population size by age, sex and class per year
@@ -52,12 +54,12 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL,
   
   #--------------------------------------------------------------------------
   # just a check to make sure argument type is well defined
-  if (!(type %in% c("Sim", "Sens"))) {
-    stop("Wrong type used; only 'Sim' or 'Sens' allowed; please check argument type")
+  if (!(type %in% c("Sim", "Sens", "Elas"))) {
+    stop("Wrong type used; only 'Sim', 'Sens' or 'Elas' allowed; please check argument type")
   }
   # check that if not under type="Sim" the parS argument is defined and not the NULL default 
   if (type != "Sim" & is.null(parS)){
-    stop("Under sensitivity analysis, type='Sens', parS cannot be NULL")
+    stop("Under sensitivity analysis, type='Sens' or type='Elas', parS cannot be NULL")
   }
 
   #--------------------------------------------------------------------------
@@ -92,6 +94,7 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL,
   ns <- 2 # number of sexes
   nc <- 3 # number of conditions (see details above)
   dimm <- ns * nc * na # number of classes (2 sexes * 3 conditions * number of age classes)
+  multsE<-c(0.995,1,1.005) #this is only used in Elasticity mode for two parameters but the cost of setting here is negligible
 
   #Define all values of Sp that refer to BB BNDs.
   BB_BND_Sp <- c("Ttru", "Schwackeetal2017", "LowSal")
@@ -112,7 +115,7 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL,
 
   #--------------------------------------------------------------------------
   # Get all the relevant species information required to run the simulation
-  # taken from file "SpeciesDefinitionFile4offshore.xlsx"
+  # taken from file "SpeciesDefinitionFile.xlsx"
   # This file is hardwired in the code to reside in the subfolder "InputFiles"
   if(Sp == "LowSal") {
     SpInfo <- getSpData("Ttru")
@@ -198,6 +201,8 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL,
   }
   # for sensitivity only
   mpredictions <- colMeans(predictions)
+  
+  
   # get sex and age specific survivals
   #--------------------------------------------------------------------------
   # ages for Ttru
@@ -549,6 +554,17 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL,
         malesur <- rowMeans(SpxMs)
       }
     }
+    
+    if (type != "Sim") {
+      # if running a sensitivity analysis
+      if(parS == "ascSE"){
+        #only 3 sims are being run by definition
+        femalesur <- multsE[i]*rowMeans(SpxFs)
+        malesur <- multsE[i]*rowMeans(SpxMs)
+      }
+    }
+    
+    
     #saves meanS, only useful to plot elasticity for ascS
     #mean of female survival
     pars2save$ascS[i] <- mean(femalesur)
@@ -625,6 +641,18 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL,
         # population baseline, i.e. pre oil spill, average survival consistent with SCR study
         meanS <- sum(rowMeans(pxMF) * qijs)
         pars2save$PM[i] <- mean(mpredictions)
+      }
+    }
+    
+    if (type != "Sim") {
+      # if running a sensitivity analysis
+      if(parS == "PME"){
+        #only 3 sims are being run by definition
+        mpredictionsPME <- mpredictions * multsE[i]
+        qijs <- c(distNominal[1:61] * mpredictions, distNominal[62:122] * mpredictionsPME) / sum(c(distNominal[1:61] * mpredictionsPME, distNominal[62:122] * mpredictionsPME))
+        # population baseline, i.e. pre oil spill, average survival consistent with SCR study
+        meanS <- sum(rowMeans(pxMF) * qijs)
+        pars2save$PM[i] <- mean(mpredictionsPME)
       }
     }
     

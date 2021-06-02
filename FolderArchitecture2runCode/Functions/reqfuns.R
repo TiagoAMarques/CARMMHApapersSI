@@ -7,7 +7,7 @@
 # 2. ft         - computes the fecundity as a function of population size and other 
 #                 parameters) depends on "getbeta()"
 #                 
-# 3. getRedFac  - computes the reduction factors works for either fecundity or survival
+# 3. getRedFac  - computes the reduction factors; works for either fecundity or survival
 # 
 # 4. getM       - computes the transition matrix requires: all that affects 
 #                 survival and reproduction
@@ -232,7 +232,7 @@ plotSims <- function(sr) {
 
 #the file must have a specific fixed format
 #and in this case was created by TAM
-getSpData <- function(sp, file = "InputFiles/SpeciesDefinitionFile4offshore.xlsx"){
+getSpData <- function(sp, file = "InputFiles/SpeciesDefinitionFile.xlsx"){
   # the 1st argument for this function is the species code
   # sp: a 4 letter character acronym
   # e.g. Pmac for sperm whale
