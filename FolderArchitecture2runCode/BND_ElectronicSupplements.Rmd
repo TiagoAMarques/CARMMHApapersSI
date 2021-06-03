@@ -45,7 +45,7 @@ Other key files names and brief content descriptions follow:
 
 * [AgeOfSexualMaturity](AgeOfSexualMaturity.html) - Supplementary material with details about how we obtained the age at first reproduction for *Tursiops truncatus*;
 
-* [BNDinjury_Figs](BNDinjury_Figs.html) - obtaining figures 2, 3 and 4 and the injury measures presented on the paper;
+* [BNDinjury_Figs](BNDinjury_Figs.html) - obtaining figures 3, 4 and 5, as well as the injury metrics results presented on the paper;
 
 * [BNDModelEvaluation](BNDModelEvaluation.html) - the code for the production of all the sensitivity analysis ;
 

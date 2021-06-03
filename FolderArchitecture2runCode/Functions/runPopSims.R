@@ -24,14 +24,17 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL,
   # Details on "Sp" to define species to work with
   #--------------------------------------------------------------------------
   # Sp is a 4 letter character acronym (exceptions are Schwackeetal, LowSal)
-  # "SpeciesDefinitionFile.xlsx"
-  # e.g. Pmac for sperm whale
+  # See 'SpeciesDefinitionFile.xlsx'
+  # e.g. 'Pmac' for sperm whale
   # if needed check file for acronym list correspondence to species
-  # (acronym is the first column on the file "SpeciesDefinitionFile.xlsx")
+  # (acronym is the first column on the file 'SpeciesDefinitionFile.xlsx')
   #--------------------------------------------------------------------------
   # Details on stratum analyses
   #--------------------------------------------------------------------------
-  # Stratum is only valid for Sp = Ttru or LowSal.  In this case, the starting population
+  # The stratum argument is only used for the dedicated analysis to evaluate the effect of increased freshwater
+  # being diverted into Barataria Bay. That was an analysis conducted by the CARMMHA Team to respond to a request from the MMC
+  # that might lead to a separate paper at some point.
+  # Stratum is only valid for Sp = 'Ttru' or 'LowSal'.  In this case, the starting population
   # size is multiplied by the estimated proportion of the population in the corresponding stratum.
   # Stratum names are defined below.
   #--------------------------------------------------------------------------
