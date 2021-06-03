@@ -1,4 +1,6 @@
-#this runs all the simulations and produces outputs for BND Ttru
+# Thiscode runs the simulations and produces outputs for BND Ttru sensitivity (uncertainty and elasticity) analysis
+# See 'BNDModelEvaluation.html' for further details and results 
+
 source("Functions/reqfuns.R")         # auxiliary functions are here
 source("Functions/SilerFuns.R")       # Siler model functions are here
 source("Functions/runPopSims.R")      # the main simulation function
@@ -24,9 +26,8 @@ source("Functions/runPopSims.R")      # the main simulation function
 #list of parameters
 parS <- c("a1r","N0","pe","per","Fmax","Fnom","rho","br","por","spos","ascS","PM")
 
-
 #define the number of iterations to run
-ns <- 500
+ns <- 1000
 # define the number of years each iteration is run for
 ny <- 75
 # For each parameter we want to evaluate sensitivity for, see list above  
@@ -35,7 +36,8 @@ for (j in parS) {
   runPopSims(Sp = "Ttru", type = "Sens", nsims = ns, nyears = ny, par =j)
 }
 
-#bespoke analysis for elasticity for ascS and PM
+# Below follows a bespoke analysis for elasticity for ascS and PM
+# These runs have to be made separately with just 3 iterations
 parS <- c("ascSE","PME")
 # define the number of iterations to run - only 3, 
 # one at the average (iteration 2)

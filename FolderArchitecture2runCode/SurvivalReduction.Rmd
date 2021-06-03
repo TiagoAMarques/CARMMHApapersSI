@@ -20,11 +20,12 @@ library(viridis)
 
 # Preamble
 
-***This will be a general preable common to several documents included as Electronic Supplements to CARMMHA's BB BND injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc.***
+This is an Electronic Supplement to the manuscript Schwacke, L.A. et al.  "Modeling population impacts of the Deepwater Horizon oil spill on a long-lived species: implications and recommendations for future environmental disasters"
 
-This is an Electronic Supplement to the paper submitted to Conservation Letters on the ??-??-???? by L.H. Schwacke, T.A. Marques, C. Booth, C. Smith, F. Gomez, B. Balmer, A. Barratclough, S. De Guise, L. Garrison, K. Colegrove, J. Morey, K. D. Mullin, B. M. Quigley, P. Rosel, T. Rowles, R. Takeshita,  F. Townsend, T. Speakman, R. Wells, E. Zolman, L. Thomas, entitled "Why bottlenose dolphin populations have still not recovered a decade after the Deepwater Horizon oil spill"
+The master file containing links to all supplementary files related to this paper is [BND_Electronic Supplements master file](BND_ElectronicSupplements.html).
 
-The master file with supplementary material is here: [BND_Electronic Supplements master file](BND_ElectronicSupplements.html).
+If you make use of any of this material in your work, it would be appreciated if you would [contact Tiago
+Marques](mailto:tiago.marques@st-andrews.ac.uk) to let him know.
 
 In case you are reading this document on git while browsing the material for the pelagic paper, the master file with supplementary material for the pelagic paper is here: [Electronic Supplements master file](ElectronicSupplements.html).
 
@@ -80,9 +81,7 @@ Below we simulate each of these quantities, and propagate the corresponding unce
 
 ## Probability of being marked as a function of age
 
-We consider a dataset containing known-age animals (from health assessments, etc.) from Barataria Bay (Lori Schwacke, unpublished data), and performed a binary logistic regression to estimate the probability of an animal being marked as a function of age and other covariates.
-
-For each of these animals there was a record of whether the animals had markings that would allow them to be marked by photo-ID, and hence being included in the pool of animals used to estimate survival from the SECR model.
+We consider a dataset containing known-age animals (from health assessments, etc.) from Barataria Bay (Lori Schwacke, unpublished data), and performed a binary logistic regression to estimate the probability of an animal being marked as a function of age and other covariates. Data were analyzed from 54 dolphins in BB ranging in age from 2.5 to 42 years with recorded presence or absence of distinctive marks (such as would be used in photo-ID surveys). For each of these animals there was a record of whether the animals had markings that would allow them to be marked by photo-ID, and hence being included in the pool of animals used to estimate survival from the SECR model.
 
 Read in the data, from file "BaselineSurvSIdata.txt". Note that the original data had additional columns, with different characteristics associated with animals. However, we striped the file from anything that was not found to be relevant. As an example, the sex of the animal is not in the table, because we found no evidence for there to be sex related differences in the probability of an animal being marked as a function of age.
 

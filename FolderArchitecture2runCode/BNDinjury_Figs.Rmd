@@ -1,5 +1,5 @@
 ---
-title: "Creating Figures 2, 3 and 4"
+title: "Creating Figures 3, 4 and 5"
 author: ""
 date: \today
 output:
@@ -17,17 +17,24 @@ options(scipen=999)
 
 # Preamble
 
-***This will be a general preamble common to several documents included as Electronic Supplements to CARMMHA's BB BND injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc.***
+This is an Electronic Supplement to the manuscript Schwacke, L.A. et al.  "Modeling population impacts of the Deepwater Horizon oil spill on a long-lived species: implications and recommendations for future environmental disasters"
 
-This is an Electronic Supplement to the paper submited to Conservation Letters on the ??-??-???? by L.H. Schwacke, T.A. Marques, C. Booth, C. Smith, F. Gomez, B. Balmer, A. Barratclough, S. De Guise, L. Garrison, K. Colegrove, J. Morey, K. D. Mullin, B. M. Quigley, P. Rosel, T. Rowles, R. Takeshita,  F. Townsend, T. Speakman, R. Wells, E. Zolman, L. Thomas, entitled "Why bottlenose dolphin populations have still not recovered a decade after the Deepwater Horizon oil spill"
+The master file containing links to all supplementary files related to this paper is [BND_Electronic Supplements master file](BND_ElectronicSupplements.html).
 
-The master file with supplementary material is here: [BND Electronic Supplements master file](BND_ElectronicSupplements.html).
+If you make use of any of this material in your work, it would be appreciated if you would [contact Tiago
+Marques](mailto:tiago.marques@st-andrews.ac.uk) to let him know.
 
 # Introduction
 
 In this document we present the code required to reproduce figures 2, 3 and 4 in the BB BND injury paper.
 
-# Creating figure 2
+```{r}
+#a function required to get some values
+source("Functions/reqfuns.R")
+```
+
+
+# Creating figure 3
 
 To update the distributions from Schwacke et al 2017, experts were asked: "Given that the value of $\rho$ will affect the shape of the density dependent response of fecundity in the [BSE and coastal bottlenose dolphin/Gulf of Mexico] population, what do you judge to be the most appropriate value for Rho for this species and population?"
 
@@ -48,8 +55,10 @@ plot(x, q, type = "l", col = "springgreen4", lwd=2, xlim=c(0,28), xlab=expressio
 #lines(x + lower, q2, type = "l", col = "red")
 #lines(x, q3, type = "l", col = "blue", lty = 2)
 
-q3 <- dgamma(x, shape = 5.41, rate = 0.72)
-lines(x + 3, q3, type = "l", lwd=2, lty=5, col = "dodgerblue")
+SpInfo <- getSpData("Ttru")
+
+q3 <- with(SpInfo,dgamma(x, shape = rhoshape, scale = rhoscale))
+lines(x + SpInfo$rhoshift, q3, type = "l", lwd=2, lty=5, col = "dodgerblue")
 
 #q4 <- dgamma(x, shape = 5.02, rate = 0.652)
 #lines(x + 3, q4, type = "l", lwd=3, lty=5, col = "dodgerblue")
@@ -57,64 +66,44 @@ lines(x + 3, q3, type = "l", lwd=2, lty=5, col = "dodgerblue")
 legend("topright", legend = c("BND - Schwacke, et al 2017", "BND - EE, 2020"), col = c("springgreen4", 
 "dodgerblue"), lty = c(1,5), lwd=2, cex=1, inset = 0.05)
 
-rhos <- (3+rgamma(1000000, shape = 5.41, rate = 0.72))
+rhos <- with(SpInfo,(rhoshift+rgamma(1000000, shape = rhoshape, scale = rhoscale)))
 text(21,0.1,labels=paste("mean:",round(mean(rhos),2)))
 text(21,0.08,labels=paste("median:",round(median(rhos),2)))
-text(21,0.06,labels=paste0("95% equal-tailed interval: ",round(quantile(rhos,p=0.025),2),",",round(quantile(rhos,p=0.975),2)))
-
+text(21,0.06,labels=paste0("95% equal-tailed interval: ",round(quantile(rhos,p=0.025),2),"-",round(quantile(rhos,p=0.975),2)))
 ```
 
 
 The bottlenose dolphin fecundity as a function of population size based on the above distributions for $\rho$ are represented below as the fecundity rate as a function of population size:  
 
 ```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
-#translating it into density dependence relationship
-getbeta <- function(Fmax=0.35, rho, Fnom=0.24, Nnom=3045) {
-  
-  # get the density dependent fecundity beta parameter
-  # implements equation 8 in Schwacke et al 2017
-  beta <- 1 / Nnom * ((Fmax - Fnom) / Fnom) ^ (1 / rho)
-  return(beta)
-}
-
-ft <- function(Nt, Fmax=0.35, rho, Fnom=0.24, Nnom=3045) {
-  # get fecundity given population size (and the other relevant parameters)
-  # implements equation 7 in Schwacke et al 2017
-  beta <- getbeta(Fmax, rho, Fnom, Nnom)
-  res  <- Fmax / (1 + (beta * Nt) ^ rho)
-  return(res)
-}
-
 set.seed(123)
 Nts <- 0:5000
 #Schwake et al 2017
 par(mfrow=c(2,1),mar=c(4.5,5,1.5,1))
-#the mean rho
-plot(Nts,ft(Nt=Nts,rho=6.4),type="n",ylab="",
-     xlab=TeX("Population size"),ylim=c(0.18,0.4),cex.axis=1.5,cex.lab=1.5)
 #1000 realizations of rho
-rhos <- rgamma(1000,shape=6.4,scale=1)
+rhos2017 <- rgamma(1000,shape=6.4,scale=1)
+#the mean rho
+plot(Nts,ft(Nt=Nts,rho=6.4,Nnom=3045,Fmax=0.35,Fnom=0.24),type="n",ylab="",
+     xlab=TeX("Population size"),ylim=c(0.18,0.4),cex.axis=1.5,cex.lab=1.5)
 for(i in 1:1000){
-  lines(Nts,ft(Nt=Nts,rho=rhos[i]),lty=2,lwd=0.5,col="grey")
+  lines(Nts,ft(Nt=Nts,rho=rhos2017[i],Nnom=3045,Fmax=0.35,Fnom=0.24),lty=2,lwd=0.5,col="grey")
 }
-points(Nts,ft(Nt=Nts,rho=6.4),type="l",col="springgreen4",lwd=3)
+points(Nts,ft(Nt=Nts,rho=6.4,Nnom=3045,Fmax=0.35,Fnom=0.24),type="l",col="springgreen4",lwd=3)
 abline(h=c(0.24,0.35),v=3045,lty=2)
 #new
 #the mean rho
-plot(Nts,ft(Nt=Nts,rho=6.34/0.853),type="n",ylab="",
+plot(Nts,ft(Nt=Nts,rho=6.34/0.853,Nnom=3045,Fmax=0.35,Fnom=0.24),type="n",ylab="",
      xlab=TeX("Population size"),ylim=c(0.18,0.4),cex.axis=1.5,cex.lab=1.5)
-#1000 realizations of rho
-rhos <- 2.5+rgamma(1000,6.34, rate = 0.853)
 for(i in 1:1000){
-  lines(Nts,ft(Nt=Nts,rho=rhos[i]),lty=2,lwd=0.5,col="grey")
+  lines(Nts,ft(Nt=Nts,rho=rhos[i],Nnom=3045,Fmax=0.35,Fnom=0.24),lty=2,lwd=0.5,col="grey")
 }
-points(Nts,ft(Nt=Nts,rho=6),type="l",col="dodgerblue",lwd=3,lty=5)
+points(Nts,ft(Nt=Nts,rho=6,Nnom=3045,Fmax=0.35,Fnom=0.24),type="l",col="dodgerblue",lwd=3,lty=5)
 abline(h=c(0.24,0.35),v=3045,lty=2)
 
 mtext(TeX("Fecundity"),side = 2,line=3,at = 0.5,cex=1.5)
 ```
 
-# Creating figure 3
+# Creating figure 4
 
 Here we represent the expert elicited Probability of recovery for a BB BND
 
@@ -133,12 +122,10 @@ set.seed(123)
 ry1 <- (l1+rbeta(1000000, a1, b1)*u1)-l1
 text(0.45,3,labels=paste("mean:",round(mean(ry1),3)))
 text(0.45,2.7,labels=paste("median:",round(median(ry1),3)))
-text(0.45,2.4,labels=paste0("95% equal-tailed interval: ",round(quantile(ry1,p=0.025),3),",",round(quantile(ry1,p=0.975),3)))
+text(0.45,2.4,labels=paste0("95% equal-tailed interval: ",round(quantile(ry1,p=0.025),3),"-",round(quantile(ry1,p=0.975),3)))
 ```
 
-
-
-# Creating figure 4
+# Creating figure 5
 
 ## Load libraries and source required files:
 
@@ -174,7 +161,7 @@ We also require the objects that record the simulations over time and correspond
 
 ```{r}
 #note this loads a number of objects, including "simres" and "injury"
-load("InOutBySp/Bottlenose_dolphin_BB/Ttrusimres9999Sim.RData")
+load("InOutBySp/Bottlenose_dolphin_BB/Ttrusimres10000Sim.RData")
 ```
 
 ## Data wrangling
@@ -434,11 +421,11 @@ annotate("segment",x=MPD-1,xend=MPD-1,yend=data4$y,y=data4$yend,colour="black",l
   theme(legend.position = c(0.92, 0.2))+xlim(0,50)+   geom_ribbon(data = subset(data4,oil=="spill"),aes(x=year-1,y=Median,ymin =quantile025,ymax=quantile975),fill="red", alpha = .3)+
   geom_ribbon(data = subset(data4,oil=="nospill"),aes(x=year-1,y=Median,ymin =quantile025,ymax=quantile975),fill="blue", alpha = .3)+
    #to change font size on labels and axis
-  theme(axis.text.x = element_text(size = 20),
-        axis.text.y = element_text(size = 20),  
-        axis.title.x = element_text(size = 20),
-        axis.title.y = element_text(size = 20),
-        legend.text=element_text(size=20)) +
+  theme(axis.text.x = element_text(size = 30),
+        axis.text.y = element_text(size = 30),  
+        axis.title.x = element_text(size = 30),
+        axis.title.y = element_text(size = 30),
+        legend.text=element_text(size=30)) +
   geom_pointrange(data=dattat, aes(x=9,
               y=Median,ymin=quantile025,ymax=quantile975),size=1.5) + 
  geom_pointrange(data=dattat1, aes(x=0,
@@ -456,6 +443,6 @@ prop.in.2019<-100*(bas2019$x-N_boot$x)/N_boot$x
 
 The population size in 2019 was `r round(mean(prop.in.2019),2)` % lower (95% percentile CI `r round(quantile(prop.in.2019, probs=0.025),1)`,`r round(quantile(prop.in.2019, probs=0.975),1)`) than that of 2010.
 
-# Aknowledgments
+# Acknowledgments
 
 We would like to thank Carolina Marques for the code and data wrangling that made this plot.

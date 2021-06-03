@@ -15,11 +15,12 @@ library(knitr)
 
 # Preamble
 
-***This will be a general preable common to several documents included as Electronic Supplements to CARMMHA's BB BND injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc.***
+This is an Electronic Supplement to the manuscript Schwacke, L.A. et al.  "Modeling population impacts of the Deepwater Horizon oil spill on a long-lived species: implications and recommendations for future environmental disasters"
 
-This is an Electronic Supplement to the paper submited to Conservation Letters on the ??-??-???? by L.H. Schwacke, T.A. Marques, C. Booth, C. Smith, F. Gomez, B. Balmer, A. Barratclough, S. De Guise, L. Garrison, K. Colegrove, J. Morey, K. D. Mullin, B. M. Quigley, P. Rosel, T. Rowles, R. Takeshita,  F. Townsend, T. Speakman, R. Wells, E. Zolman, L. Thomas, entitled "Why bottlenose dolphin populations have still not recovered a decade after the Deepwater Horizon oil spill"
+The master file containing links to all supplementary files related to this paper is [BND_Electronic Supplements master file](BND_ElectronicSupplements.html).
 
-The master file with supplementary material is here: [BND Electronic Supplements master file](BND_ElectronicSupplements.html).
+If you make use of any of this material in your work, it would be appreciated if you would [contact Tiago
+Marques](mailto:tiago.marques@st-andrews.ac.uk) to let him know.
 
 # Introduction
 
@@ -70,7 +71,7 @@ $LCYPC^k_{j}=\frac{LCY^k_{j}-\bar{LCY}}{\bar{LCY}}$
 #BB BND
 #select Tursiops
 j<-3
-runs4Sens<-500
+runs4Sens<-1000
 patt<-paste0(runs4Sens,"Sens")
 folders<-list.files(path="InOutBySp")
 nfolders<-length(folders)
@@ -111,7 +112,7 @@ for (i in 1:nfiles){
   segments(i+0.2,qsinjury[1,2],i+0.2,qsinjury[3,2],col=1)
   points(c(i-0.2,i,i+0.2),qsinjury[2,],col=c(4,2,1),pch=c(16,15,18))
   label <- par.name
-  if(par.name == "a1r") label <- "AFR"
+  if(par.name == "a1r") label <- "ASM"
   if(par.name == "N0") label <- expression(N[0])
   if(par.name == "br") label <- expression(R[baseline])
   if(par.name == "por") label <- expression(R[1])
@@ -129,19 +130,7 @@ for (i in 1:nfiles){
 
 
 ```{r,echo=FALSE,eval=FALSE}
-#A deprecated alternative representation where each paramter is visualized in its own plot
-#BB BND
-#select Tursiops
-j<-3
-runs4Sens<-500
-patt<-paste0(runs4Sens,"Sens")
-folders<-list.files(path="InOutBySp")
-nfolders<-length(folders)
-#print(folders[j])
-#get files names
-files=list.files(path=paste0("InOutBySp/",folders[j]),pattern = patt)
-#check how many files
-nfiles<-length(files)
+#A deprecated alternative representation where each parameter is visualized in its own plot
 #set up number of plots in figure
 par(mfrow=c(3,4),mar=c(4,4,2.5,0.5))
 for (i in 1:nfiles){
@@ -227,7 +216,7 @@ for (i in 1:nfiles){
   #select the k_th injury (k = 1,2,3)
   inj<-eval(parse(text=paste0("injury$",metrics[k])))
   label <- par.name
-  if(par.name == "a1r") label <- "AFR"
+  if(par.name == "a1r") label <- "ASM"
   if(par.name == "N0") label <- expression(N[0])
   if(par.name == "br") label <- expression(R[baseline])
   if(par.name == "por") label <- expression(R[1])
@@ -272,7 +261,7 @@ Finally, looking at the elasticity measures in a plot for all parameters at once
 par(mfrow=c(1,1),mar=c(4,6,0.5,0.5))
 barplot(t(as.matrix(elasticity[,4:6])),col=c(4,2,1),beside=TRUE,ylab="Percent chage per 1% change in parameter")
 for (i in 1:nrow(elasticity)){
-  if(elasticity$parameter[i] == "a1r") label <- "AFR"
+  if(elasticity$parameter[i] == "a1r") label <- "ASM"
   if(elasticity$parameter[i] == "N0") label <- expression(N[0])
   if(elasticity$parameter[i] == "br") label <- expression(R[baseline])
   if(elasticity$parameter[i] == "por") label <- expression(R[1])
@@ -355,7 +344,7 @@ The final plot is here:
 par(mfrow=c(1,1),mar=c(4,6,0.5,0.5))
 barplot(t(as.matrix(elasticity[,4:6])),col=c(4,2,1),beside=TRUE,ylab="Percent chage per 1% change in parameter")
 for (i in 1:nrow(elasticity)){
-  if(elasticity$parameter[i] == "a1r") label <- "AFR"
+  if(elasticity$parameter[i] == "a1r") label <- "ASM"
   if(elasticity$parameter[i] == "N0") label <- expression(N[0])
   if(elasticity$parameter[i] == "br") label <- expression(R[baseline])
   if(elasticity$parameter[i] == "por") label <- expression(R[1])
