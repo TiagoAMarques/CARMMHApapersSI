@@ -121,7 +121,7 @@ for (i in 1:nfiles){
   if(par.name == "spos") label <- expression(S[1])
   if(par.name == "Fmax") label <- expression(F[max])
   if(par.name == "Fnom") label <- expression(F[nom])
-  if(par.name == "ascS") label <- expression(S[f,j]+S[m,j])
+  if(par.name == "ascS") label <- expression(paste(S[f,j]," & ",S[m,j]))
   if(par.name == "PM") label <- expression(P[marked])
   axis(side = 1, at = i,labels = label, las = 2)
   legend("topleft",inset=0.05,legend=names(injury),col=c(4,2,1),lty=1,pch=c(16,15,18))
@@ -225,7 +225,7 @@ for (i in 1:nfiles){
   if(par.name == "spos") label <- expression(S[1])
   if(par.name == "Fmax") label <- expression(F[max])
   if(par.name == "Fnom") label <- expression(F[nom])
-  if(par.name == "ascS") label <- expression(S[f,j]+S[m,j])
+  if(par.name == "ascS") label <- expression(paste(S[f,j]," & ",S[m,j]))
   if(par.name == "PM") label <- expression(P[(marked)])
   #collect par name
   elasticity$label[m] <- label
@@ -255,34 +255,12 @@ m <- m+1
 }
 ```
 
-Finally, looking at the elasticity measures in a plot for all parameters at once
-
-```{r}
-par(mfrow=c(1,1),mar=c(4,6,0.5,0.5))
-barplot(t(as.matrix(elasticity[,4:6])),col=c(4,2,1),beside=TRUE,ylab="Percent chage per 1% change in parameter")
-for (i in 1:nrow(elasticity)){
-  if(elasticity$parameter[i] == "a1r") label <- "ASM"
-  if(elasticity$parameter[i] == "N0") label <- expression(N[0])
-  if(elasticity$parameter[i] == "br") label <- expression(R[baseline])
-  if(elasticity$parameter[i] == "por") label <- expression(R[1])
-  if(elasticity$parameter[i] == "rho") label <- expression(rho)
-  if(elasticity$parameter[i] == "per") label <- expression(P[recovery])
-  if(elasticity$parameter[i] == "spos") label <- expression(S[1])
-  if(elasticity$parameter[i] == "Fmax") label <- expression(F[max])
-  if(elasticity$parameter[i] == "Fnom") label <- expression(F[nom])
-  if(elasticity$parameter[i] == "ascS") label <- expression(S[f,j]+S[m,j])
-  if(elasticity$parameter[i] == "PM") label <- expression(P[marked])
-  axis(side = 1, at = 2.5+(i-1)*4,labels = label, las = 2)
-}
-legend("bottomleft",col=c(4,2,1),pt.bg=c(4,2,1),legend=metrics,inset=0.2,cex=1.2,pch=22)
-```
-
-Note that in the image above the two inputs to the model which are not scalars, namely
+Note that for two of the inputs to the model are not scalars, namely
 
 * $S_{f,j}$ and $S_{m,j}$, and 
 * $P_{marked}$,
 
-are not shown, since there is no univariate quantity to consider that the injury metric depends on, and hence no obvious value to represent in the x axis. One might be tempted to consider the average survival and the average $P_{marked}$ as the corresponding univariate quantities to evaluate the injury metrics against. However, that does not really help, because the same mean value can be obtained with different combinations of the vectors, and different combinations of the vectors will have different impacts on the injury metric. This is visible by removing the options `results='hide',fig.show='hide'` in the chunk below. 
+Since there is no univariate quantity to consider that the injury metric depends on the above procedure is not feasible. One might be tempted to consider the average survival and the average $P_{marked}$ as the corresponding univariate quantities to evaluate the injury metrics against. However, that does not really help, because the same mean value can be obtained with different combinations of the vectors, and different combinations of the vectors will have different impacts on the injury metric. This is visible by removing the options `results='hide',fig.show='hide'` in the chunk below. 
 
 ```{r, results='hide', fig.show='hide'}
 par(mfrow=c(3,2),mar=c(4,4,2.5,0.5))
@@ -353,13 +331,56 @@ for (i in 1:nrow(elasticity)){
   if(elasticity$parameter[i] == "spos") label <- expression(S[1])
   if(elasticity$parameter[i] == "Fmax") label <- expression(F[max])
   if(elasticity$parameter[i] == "Fnom") label <- expression(F[nom])
-  if(elasticity$parameter[i] == "ascS") label <- expression(S[f,j]+S[m,j])
+  if(elasticity$parameter[i] == "ascS") label <- expression(paste(S[f,j]," & ",S[m,j]))
   if(elasticity$parameter[i] == "PM") label <- expression(P[marked])
   axis(side = 1, at = 2.5+(i-1)*4,labels = label, las = 2)
 }
 legend("bottomleft",col=c(4,2,1),pt.bg=c(4,2,1),legend=metrics,inset=0.2,cex=1.2,pch=22)
 ```
 
+Insight into these elasticity values can be obtained by representing the population trajectories considering 0.5 % under and above the mean value for a statistic. Here we illustrate that with the two parameters that were not scalars.
+
+```{r}
+#Proportion marked
+load("InOutBySp/Bottlenose_dolphin_BB/Ttrusimres3ElasPME.RData")
+sr <- simres
+par(mfrow=c(1,1),mar = c(4, 4, 2, 0.1))
+nyears <- dim(sr)[2]
+nsims <- dim(sr)[3]
+ylims <- c(min(c(colSums(sr[, , 1:nsims, 2]), colSums(sr[, , 1:nsims, 1])))*0.9, max(c(colSums(sr[, , 1:nsims, 2]), colSums(sr[, , 1:nsims, 1])))*1.1)
+
+plot(colSums(sr[, , 1, 2]), type = "n", ylim = ylims, xlab = "Years post spill", ylab = "Predicted population size", las = 1,main="P(marked)")
+# baseline less 0.5% PM
+lines(colSums(sr[, , 1, 2]), type = "l", lwd = 0.7, col = 2)
+# baseline plus 0.5% PM
+lines(colSums(sr[, , 3, 2]), type = "l", lwd = 1, col = 3)
+# under oil less 0.5 %
+lines(colSums(sr[, , 1, 1]), type = "l", lwd = 0.7, col = 2)
+# under oil plus 0.5 %
+lines(colSums(sr[, , 3, 1]), type = "l", lwd = 1, col = 3)
+# add a legend
+legend("bottomright",inset=0.05,cex=1.2,col=2:3,lty=1,legend=c("- 0.5 %","+ 0.5 %"))
+
+# Survival
+load("InOutBySp/Bottlenose_dolphin_BB/Ttrusimres3ElasascSE.RData")
+sr <- simres
+nyears <- dim(sr)[2]
+nsims <- dim(sr)[3]
+ylims <- c(min(c(colSums(sr[, , 1:nsims, 2]), colSums(sr[, , 1:nsims, 1])))*0.9, max(c(colSums(sr[, , 1:nsims, 2]), colSums(sr[, , 1:nsims, 1])))*1.1)
+par(mfrow=c(1,1),mar = c(4, 4, 2, 0.1))
+
+plot(colSums(sr[, , 1, 2]), type = "n", ylim = ylims, xlab = "Years post spill", ylab = "Predicted population size", las = 1,main="Sm+Sf")
+# baseline less 0.5% PM
+lines(colSums(sr[, , 1, 2]), type = "l", lwd = 0.7, col = 2)
+# baseline plus 0.5% PM
+lines(colSums(sr[, , 3, 2]), type = "l", lwd = 1, col = 3)
+# under oil less 0.5 %
+lines(colSums(sr[, , 1, 1]), type = "l", lwd = 0.7, col = 2)
+# under oil plus 0.5 %
+lines(colSums(sr[, , 3, 1]), type = "l", lwd = 1, col = 3)
+# add a legend
+legend("bottomright",inset=0.05,cex=1.2,col=2:3,lty=1,legend=c("- 0.5 %","+ 0.5 %"))
+```
 
 # References
 
