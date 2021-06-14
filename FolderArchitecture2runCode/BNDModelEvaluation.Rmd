@@ -82,7 +82,7 @@ files=list.files(path=paste0("InOutBySp/",folders[j]),pattern = patt)
 nfiles<-length(files)
 #set up number of plots in figure
 par(mfrow=c(1,1),mar=c(5,4,0.5,0.5))
-plot(c(0.5,11.5),c(-1.1,1.1),type="n",xlab="",main="",xaxt="n",ylab="Proportional change (95% CI)")
+plot(c(0.5,11.5),c(-0.8,1.4),type="n",xlab="",main="",xaxt="n",ylab="Proportional change (95% CI)")
 abline(h=0,lty=2)
 for (i in 1:nfiles){
   #for each parameter
@@ -369,7 +369,7 @@ nsims <- dim(sr)[3]
 ylims <- c(min(c(colSums(sr[, , 1:nsims, 2]), colSums(sr[, , 1:nsims, 1])))*0.9, max(c(colSums(sr[, , 1:nsims, 2]), colSums(sr[, , 1:nsims, 1])))*1.1)
 par(mfrow=c(1,1),mar = c(4, 4, 2, 0.1))
 
-plot(colSums(sr[, , 1, 2]), type = "n", ylim = ylims, xlab = "Years post spill", ylab = "Predicted population size", las = 1,main="Sm+Sf")
+plot(colSums(sr[, , 1, 2]), type = "n", ylim = ylims, xlab = "Years post spill", ylab = "Predicted population size", las = 1,main=expression(paste(S[f,j]," & ",S[m,j])))
 # baseline less 0.5% PM
 lines(colSums(sr[, , 1, 2]), type = "l", lwd = 0.7, col = 2)
 # baseline plus 0.5% PM

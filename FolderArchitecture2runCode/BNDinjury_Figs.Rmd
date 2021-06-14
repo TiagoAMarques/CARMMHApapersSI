@@ -63,7 +63,7 @@ lines(x + SpInfo$rhoshift, q3, type = "l", lwd=2, lty=5, col = "dodgerblue")
 #q4 <- dgamma(x, shape = 5.02, rate = 0.652)
 #lines(x + 3, q4, type = "l", lwd=3, lty=5, col = "dodgerblue")
 
-legend("topright", legend = c("BND - Schwacke, et al 2017", "BND - EE, 2020"), col = c("springgreen4", 
+legend("topright", legend = c("Schwacke, et al 2017", "EE, 2020"), col = c("springgreen4", 
 "dodgerblue"), lty = c(1,5), lwd=2, cex=1, inset = 0.05)
 
 rhos <- with(SpInfo,(rhoshift+rgamma(1000000, shape = rhoshape, scale = rhoscale)))
