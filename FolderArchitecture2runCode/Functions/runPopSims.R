@@ -354,7 +354,7 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL,
     # if running a sensitivity analysis
     if(parS != "Fmax"){
       # if doing sensitivity analysis just use the mean
-      meanFmax <- with(SpInfo,(minFmax + 4 * modeFmax + maxFmax)/(4 + 2))
+      meanFmax <- with(Ttru,(minFmax + 4 * modeFmax + maxFmax)/(4 + 2))
       Fmaxsims <- rep(meanFmax,nsims)
     }
   }
@@ -366,7 +366,7 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL,
     # if running a sensitivity analysis
     if(parS != "Fnom"){
       # if doing sensitivity analysis just use the mean
-      meanFnom <- with(SpInfo,(minFnom + 4 * modeFnom + maxFnom)/(4 + 2))
+      meanFnom <- with(Ttru,(minFnom + 4 * modeFnom + maxFnom)/(4 + 2))
       Fnomsims <- rep(meanFnom,nsims) * scaling
       FnomsimsTtru <- rep(meanFnom,nsims)
     }
@@ -409,7 +409,7 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL,
   #------------------------------------------------------------------------------
   # Baseline reproductive success rate
   # get parameters of binomial
-  beta.pars <- getBetaDistPars(SpInfo$meanbrs, SpInfo$sdbrs)
+  beta.pars <- getBetaDistPars(SpInfo$meanbrs, SpInfo$sdbrs^2)
   # get Baseline reproductive success rate
   pRepbasesims <- rbeta(nsims, beta.pars$alpha, beta.pars$beta)
   if (type != "Sim") {
@@ -425,7 +425,7 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL,
   # Reproduction reduction
   # Post spill reproductive success rate
   # get parameters of binomial
-  beta.pars <- getBetaDistPars(SpInfo$meanpors, SpInfo$sdpors)
+  beta.pars <- getBetaDistPars(SpInfo$meanpors, SpInfo$sdpors^2)
   # get post spill reproductive success rate
   pRepPostsims <- rbeta(nsims, beta.pars$alpha, beta.pars$beta)
   
@@ -442,7 +442,7 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL,
   #--------------------------------------------------------------------------
   # For BB BND
   # fecundity reduction for Ttru
-  beta.pars <- getBetaDistPars(Ttru$meanbrs, Ttru$sdbrs)
+  beta.pars <- getBetaDistPars(Ttru$meanbrs, Ttru$sdbrs^2)
   # get Baseline reproductive success rate for Ttru
   TtrupRepbasesims <- rbeta(nsims, beta.pars$alpha, beta.pars$beta)
   
@@ -457,7 +457,7 @@ runPopSims <- function(Sp, nsims, nyears, type = "Sim", parS = NULL,
   pars2save$BrTt <- TtrupRepbasesims
   
   # get post spill reproductive success rate for Ttru
-  beta.pars <- getBetaDistPars(Ttru$meanpors, Ttru$sdpors)
+  beta.pars <- getBetaDistPars(Ttru$meanpors, Ttru$sdpors^2)
   TtrupRepPostsims <- rbeta(nsims, beta.pars$alpha, beta.pars$beta)
   if (type != "Sim") {
     # if running a sensitivity analysis
