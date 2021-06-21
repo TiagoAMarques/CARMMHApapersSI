@@ -25,9 +25,11 @@ If you do happen to use this material, drop us a line at tiago.marques@st-andrew
 
 # Introduction
 
-This file is named "ElectronicSupplements.pdf". This document is a master file that presents a full list of  [Electronic Supplements available](#list-of-electronic-supplements). 
+This document is a master file that presents a full list of  [Electronic Supplements available](#list-of-electronic-supplements). 
 
-All these files are created as dynamic reports using RMarkdown. Given these being RMarkdown you might be reading this as a pdf, as a html or as a word, depending on how the corresponding .Rmd was compiled. The original .Rmd files are provided in the original github repository:
+All these files are created as dynamic reports using RMarkdown. 
+
+The source .Rmd files are provided in the github repository:
 
 https://github.com/TiagoAMarques/CARMMHA
 

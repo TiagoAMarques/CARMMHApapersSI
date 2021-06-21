@@ -25,9 +25,11 @@ Marques](mailto:tiago.marques@st-andrews.ac.uk) to let him know.
 
 # Introduction
 
-This file is named "BND_ElectronicSupplements.pdf". This document is a master file that presents a full list of [Electronic Supplements available](#list-of-key-documents-on-this-repository). 
+This document is a master file that presents a full list of [Electronic Supplements available](#list-of-key-documents-on-this-repository). 
 
-All these files are created as dynamic reports using RMarkdown. Given these being RMarkdown you might be reading this as a pdf, as a html or as a word, depending on how the corresponding .Rmd was compiled. The original .Rmd files are provided in the original github repository:
+All these files are created as dynamic reports using RMarkdown. 
+
+The source .Rmd files are provided in the github repository:
 
 https://github.com/TiagoAMarques/CARMMHApapersSI
 
@@ -35,83 +37,28 @@ The above repository also includes all the code required for readers to reproduc
 
 # List of key documents on this repository
 
-[Back to Introduction](#introduction)
-
 Other key files names and brief content descriptions follow:
 
 * [BND_InitialPopulation](BND_InitialPopulation.html) – Initial population size distribution and baseline survival. These are taken as data inputs, and the detailed analysis that describes how these were obtained is part of a separate dedicated effort where a spatially explicit capture recapture model was implemented (Glennie et al.,2021).
 
-* [SurvivalReduction](SurvivalReduction.html) – Supplementary material about how we obtain the survival reduction factor. This combines baseline survival probability with post oil survival probability obtained by SCR. For the baseline survival probability we describe the analysis that integrates the different components required. The survival post oil spill for Barataria Bay bottlenose dolphins is obtained in a separate paper, Glennie et al (2021).
+* [SurvivalReduction](SurvivalReduction.html) – Supplementary material about how we obtain the survival reduction factor. This combines baseline survival probability with post-spill  survival probability obtained by spatial capture recapture (SCR). For the baseline survival probability we describe the analysis that integrates the different components required. The  post-spill survival for Barataria Bay bottlenose dolphins is obtained in a separate paper, Glennie et al (2021).
 
-* [AgeOfSexualMaturity](AgeOfSexualMaturity.html) - Supplementary material with details about how we obtained the age at first reproduction for *Tursiops truncatus*;
+* [AgeOfSexualMaturity](AgeOfSexualMaturity.html) - Supplementary material with details about how we obtained the age at first reproduction for *Tursiops truncatus*.
 
-* [BNDinjury_Figs](BNDinjury_Figs.html) - obtaining figures 3, 4 and 5, as well as the injury metrics results presented on the paper;
+* [BNDinjury_Figs](BNDinjury_Figs.html) - R code for obtaining figures 3, 4 and 5, as well as the injury metrics results presented on the paper.
 
-* [BNDModelEvaluation](BNDModelEvaluation.html) - the code for the production of all the sensitivity analysis ;
+* [BNDModelEvaluation](BNDModelEvaluation.html) - The R code for the production of all the sensitivity analysis.
 
 # How to reproduce the paper results
 
-[Back to Introduction](#introduction)
+All the results in the paper can be recreated by the reader by running the code provided. Having the code also facilitates extending and using the code under different scenarios, species and locations.
 
-All the results in the paper can be recreated by the reader by running the code provided. Having the code also facilitates extending and using the code under different scenarios, species and locations. This is considered the most convenient way to share the results, since all the outputs would be too large to share in the github repository.
+The results shown in the paper tables are produced by different code files from the supplementary material. To get the paper results you need to run two files:
 
-## All the results
-
-The results shown in the paper tables are produced by different bits of code from the supplementary material. To get the paper results you need to run two files:
-
-* `run_BND_Ttru_PopSims.R` - to get the main results. This is the code output next for readability
-
-```{r , eval = FALSE, echo = TRUE}
-#this runs all the simulations and produces outputs for Ttru BND species
-source("Functions/runPopSims.R")        
-#define the number of iterations to run
-ns <- 9999
-# define the number of years each iteration is run for
-ny <- 75
-runPopSims(Sp = "Ttru", nsims = ns, nyears = ny, seed = 7134672)
-```
+* `run_BND_Ttru_PopSims.R` - to get the main results.
 
 
-* `Run_BND_Ttru_PopSimsSensitivity.R` - to run the sensitivity analysis. This is the code output here for readability
-
-```{r , eval = FALSE, echo = TRUE}
-#this runs all the simulations and produces outputs for BND Ttru
-source("Functions/reqfuns.R")         # auxiliary functions are here
-source("Functions/SilerFuns.R")       # Siler model functions are here
-source("Functions/runPopSims.R")      # the main simulation function
-
-# ------------
-# define the parameters that we evaluate sensitivity for
-# "a1r" - age at first reproduction - uses mean of Gamma if par not "a1r" in runSimsSensitivity
-# "N0" - initial population size - uses mean of realizations if par not "N0" in runSimsSensitivity
-# "per" - proportion exposed that recovers - uses mean of realizations if par not "per" in runSimsSensitivity
-# "Fmax" - Maximum fecundity - uses mean of realizations if par not "Fmax" in runSimsSensitivity
-# "Fnom" - Nominal Fecundity - uses mean of realizations if par not "Fnom" in runSimsSensitivity
-# "rho" - density dependence parameter - uses mean of realizations if par not "rho" in runSimsSensitivity
-# "br" - baseline reproduction - uses mean of realizations if par not "br" in runSimsSensitivity
-# "por" - post spill reproductive success rate - uses mean of realizations if par not "por" in runSimsSensitivity
-# "spos" - post oil spill survival  - uses mean of realizations if par not "spos" in runSimsSensitivity (SR for non Ttru)
-# "ascS" -  age sex class survival -  uses mean of realizations of survival curves if par not "ascS" in runSimsSensitivity
-# "PM" - proportion marked  -  uses mean of realizations of P(marked|age) if par not "PM" in runSimsSensitivity
-# ---------------
-# While pe is always 1 for Ttru, it is nonetheless evaluated, as a control: no variability is expected
-# "pe" - proportion exposed - uses mean of realizations if par not "N0" in runSimsSensitivity
-# ---------------
-
-#list of parameters
-parS <- c("a1r","N0","pe","per","Fmax","Fnom","rho","br","por","spos","ascS","PM")
-
-#define the number of iterations to run
-ns <- 500
-# define the number of years each iteration is run for
-ny <- 75
-# For each parameter we want to evaluate sensitivity for, see list above  
-
-for (j in parS) {
-  runPopSims(Sp = "Ttru", type = "Sens", nsims = ns, nyears = ny, par =j)
-}
-```
-
+* `Run_BND_Ttru_PopSimsSensitivity.R` - to run the sensitivity analysis.
 
 The folder structure and all files required to successfully run the code is in the above github repository (under folder `FolderArchitecture2runCode`). The recommended procedure is to download this entire folder into a local folder and then run the above files.
 
@@ -123,11 +70,11 @@ At a bare minimum running the code requires the following folders and the materi
 
 * `Functions`: folder containing all the R code including functions required to run the simulations
 
-Note that the code could take a considerable amount of time to run. The consequence of running said chunk will be to populate the folder `InOutBySp\Bottlenose_dolphin_BB` with the R workspaces holding the results that the rest of the code in [BNDinjury_Fig4.Rmd](BNDinjury_Fig4.pdf) and [BNDModelEvaluation.Rmd](BNDModelEvaluation.pdf) uses to produce the tables with injury metrics.
+Note that the code could take a considerable amount of time to run. The consequence of running the code will be to populate the folder `InOutBySp\Bottlenose_dolphin_BB` with the R workspaces holding the results that the rest of the code in [BNDinjury_Figs.Rmd](BNDinjury_Figs.pdf) and [BNDModelEvaluation.Rmd](BNDModelEvaluation.pdf) uses to produce the tables with injury metrics.
 
 # References
 
-Glennie, R., L. Thomas, T. Speakman, L. Garrison, R. Takeshita and L.H. Schwacke. Manuscript in preparation. Estimating spatially-varying density and time-varying deographics with open population spatial capture-recapture: a photographic ID case study on bottlenose dolphins in Barataria Bay, USA.
+Glennie, R.; Thomas, L.; Speakman, T.; Garrison, L.; Takeshita, R. & Schwacke, L. 2021. [Estimating spatially-varying density and time-varying demographics with open population spatial capture-recapture: a photo-ID case study on bottlenose dolphins in Barataria Bay, Louisana, USA](https://arxiv.org/abs/2106.09579) arXiv:2106.09579
 
 # Reproducible research
 
