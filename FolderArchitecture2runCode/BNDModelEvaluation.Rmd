@@ -1,5 +1,5 @@
 ---
-title: 'BND BB Model evaluation: sensitivity and elasticity analysis'
+title: 'Model evaluation: sensitivity and elasticity analysis for common bottlenose dolphins in Barataria Bay'
 author: ""
 date: \today
 output: html_document
@@ -12,10 +12,9 @@ library(mgcv)
 library(knitr)
 ```
 
-
 # Preamble
 
-This is an Electronic Supplement to the manuscript Schwacke, L.A. et al.  "Modeling population impacts of the Deepwater Horizon oil spill on a long-lived species: implications and recommendations for future environmental disasters"
+This is an Electronic Supplement to the manuscript Schwacke, L.A. et al. "Modeling population impacts of the Deepwater Horizon oil spill on a long-lived species: implications and recommendations for future environmental disasters"
 
 The master file containing links to all supplementary files related to this paper is [BND_Electronic Supplements master file](BND_ElectronicSupplements.html).
 
@@ -24,370 +23,371 @@ Marques](mailto:tiago.marques@st-andrews.ac.uk) to let him know.
 
 # Introduction
 
-This working document describes how the injury results reported depend on the different population dynamics model parameters considered. All the parameters have uncertainty associated with them and it is only natural to ask what would change in the reported values for the injury metrics if the input parameters changed accordingly.
+This working document describes how the injury results reported depend on the different population dynamics model parameters considered. All the parameters have uncertainty associated with them and it is only natural to ask what would change in the reported values for the injury metrics if the input parameters changed accordingly. We have 3 injury metrics: 
 
+* lost cetacean years (LCY), 
+* maximum proportional decrease (MPD), and 
+* years to recovery (YTR).
+ 
 To do so we considered two types of sensitivity analysis:
 
-* Uncertainty analysis - this is akin to what was done in Schwacke et al. 2017. Each parameter for which a distribution was available was allowed to vary according to the assumed precision while keeping all the other parameters constant at their nominal value (i.e., the mean of the corresponding distributions). This type of analysis allows one to evaluate the relative contribution of the parameter variability in the overall variability in reported statistics.
+* Uncertainty analysis. The aim is to determine how much the uncertainty in each input parameter influences uncertainty in the resulting injury metrics.  Each model parameter for which a distribution was available was allowed to vary by sampling from this distribution while keeping all the other parameters constant at their nominal value (i.e., the mean of their corresponding distributions).  The relative contribution of uncertainty in each input parameter to overall uncertainty in injury metrics was thereby evaluated.  This is akin to the sensitivity analysis undertaken by Schwacke et al. (2017 Supplemental Materials).
 
-* Elasticity analysis - this is traditionally an analysis that estimates the proportional change in the population growth rate for a proportional change in a vital rate (i.e. survival, growth or reproduction) (Benton & Grant 1999). Here we extend the concept to evaluate the impact of changing a parameter by a given percentage in a given derived statistic from the model, like the reported injury metrics.
+* Elasticity analysis.  The aim is to estimate the proportional change in the injury metrics caused by a proportional change in each model parameter. This allows us to quantify the ``inherent sensitivity'' of each model parameter.  Elasticity is traditionally used in the population dynamics literature (Benton & Grant 199, Caswell 1981) to determine the proportional change in population growth rate to a proportional change in population vital rate; here we extend the concept to cover the injury metrics.
 
-These analysis are run by sourcing the file `Run_BND_Ttru_PopSimsSensitivity`.
+To contrast the two, imagine two model parameters for which uncertainty on inputs produces the same moderate level of uncertainty on the estimate of an injury metric.  In one case this might be because there is considerable uncertainty on the input (i.e., the parameter is not known at all precisely) combined with low elasticity (i.e., little effect of this uncertainty on the injury metric); in the second case this might be because there is little uncertainty on the input combined with high elasticity.  Undertaking both an uncertainty and an elasticity analysis allows us to distinguish between these scenarios.
+
+The analyses reported in this document are based on files produced by sourcing the file `Run_BND_Ttru_PopSimsSensitivity`. That source file produces a result file for each parameter that we then post-process here to obtain both uncertainty and elasticity values.
 
 # The model parameters
 
-Here we provide a complete list of the quantities/parameters/statistics considered in the BND BB population dinamics model, that might therefore have an impact in the injury metrics:
+We provide a complete list of the quantities/parameters/statistics considered in the BND BB population dynamics model, that might therefore have an impact in the injury metrics:
 
 * Derived from the SECR capture recapture study reported by Glennie et al. 2021, with distributions  available via parametric bootstrap resampling; see also [BND_InitialPopulation](BND_InitialPopulation.html) for details.
     - $N_0$: initial population size 
     - $S_1$: post oil spill survival
 
 * Based on the Expert Elicitation exercise, see SI section on Expert Elicitation exercise, for details
-    - $\rho$: density dependence shape parameter; modelled as a shifted gamma distribution
-    - $P_{recovery}$: proportion of exposed animals that recover to baseline survival and fecundity levels within their lifetime; modelled as a shifted beta distribution
+    - $\rho$: density dependence shape parameter; modeled as a shifted gamma distribution
+    - $P_{recovery}$: proportion of exposed animals that recover to baseline survival and fecundity levels within their lifetime; modeled as a shifted beta distribution
 
 * Based on earlier published work, see SI, Table S2.1 - Input parameters for population model, for additional source details 
     - $S_m$ and $S_f$: a vector of age and sex dependent survival for males and females, based on the Siler model parameters, see [SurvivalReduction](SurvivalReduction.html) for details
-    - $AFR$: age at first reproduction; modelled as a gamma distribution; see [AgeOfSexualMaturity](AgeOfSexualMaturity.html) for details
-    - $F_max$: maximum fecundity - modelled as a beta-PERT distribution
-    - $F_nom$: nominal fecundity - modelled as a beta-PERT distribution
-    - $R_{baseline}$: baseline reproductive success - modelled as beta distribution
-    - $R_1$: post oil spill reproductive success - modelled as beta distribution 
+    - $ASM$: age of sexual maturity; modeled as a gamma distribution; see [AgeOfSexualMaturity](AgeOfSexualMaturity.html) for details.
+    - $F_{max}$: maximum fecundity - modeled as a beta-PERT distribution
+    - $F_{nom}$: nominal fecundity - modeled as a beta-PERT distribution
+    - $R_{baseline}$: baseline reproductive success - modeled as beta distribution
+    - $R_1$: post-spill reproductive success - modeled as beta distribution 
 
 * Based on unpublished data
     - $P_{marked}$: a vector of probabilities of an animal being marked as a function of age, see [SurvivalReduction](SurvivalReduction.html) for details
 
-All these quantities and their respective distributions/parameters are provided in file `SpeciesDefinitionFile.xlsx`.
+All these quantities and their respective distributions/parameters are provided in file `SpeciesDefinitionFile.xlsx`. 
 
 # Sensitivity Analysis 
 
+We want to estimate the sensitivity to the 11 parameters defined above. We have run 1000 iterations for each parameter to evaluate sensitivity, and then we derive the elasticity by post-processing these runs to evaluate how the injury metric changes by changing the parameter in the vicinity of its mean value. We adress these in turn in the follwoing two sub-sections.
+
 ## Uncertainty
 
-Consider we have $k$ parameters we want to test sensitivity to. And we have run 10000 iterations to evaluate each of the 3 injury metrics. We have run 500 iterations to evaluate sensitivity. Consider LCY as an example. The mean LCY from the 10000 observations is say $\bar{LCY}$. We represent the $LCYPC^k$ as the proportional change in LCY for parameter $k$. What we have represented in the plot below for parameter $k$, where parameter $k$ is allowed to change but all other parameters are kept at their nominal value (here we considered their mean), are the median and the 2.5 and 97.5 percentiles of the distribution of the following statistics (j=1,2,..,500)
+Consider a given parameter $K$. Consider $I$ as an example injury metric. The mean $I$ from the 1000 observations of a given injury metric is $\bar{I}$. We represent the $PC^k(I)$ as the proportional change in $I$ for parameter $K$. 
 
-$LCYPC^k_{j}=\frac{LCY^k_{j}-\bar{LCY}}{\bar{LCY}}$
+We have represented in the plot below, for each injury metric and each parameter, the corresponding proportional change, in particular, the median, 2.5 and 97.5 percentiles of the distribution of proportional changes, across the 1000 uncertainty iterations for each parameter $K$
+
+$PC^K_{j}(I)=\frac{I^K_{j}-\bar{I}}{\bar{I}},~j=1,2,...,1000$
+
+where, for each parameter $K$ for which uncertainty is being evaluated, $K$ is allowed to change but all other parameters are kept at their nominal value.
 
 ```{r}
-#BB BND
-#select Tursiops
-j<-3
-runs4Sens<-1000
-patt<-paste0(runs4Sens,"Sens")
-folders<-list.files(path="InOutBySp")
-nfolders<-length(folders)
-#print(folders[j])
-#get files names
-files=list.files(path=paste0("InOutBySp/",folders[j]),pattern = patt)
-#check how many files
-nfiles<-length(files)
-#set up number of plots in figure
-par(mfrow=c(1,1),mar=c(5,4,0.5,0.5))
-plot(c(0.5,11.5),c(-0.8,1.4),type="n",xlab="",main="",xaxt="n",ylab="Proportional change (95% CI)")
-abline(h=0,lty=2)
-for (i in 1:nfiles){
-  #for each parameter
-  #load the sensitivity results
-  #this loads up a workspace that includes object injury
-  # a 3 column (one per injury metric) by nsims iterations data.frame
-  load(paste0("InOutBySp/",folders[j],"/",files[i]))
-  #get name of parameter in files[i]
-  str<-files[i]
-  #parameter name start
-  startp <- str_locate(string=str, pattern="Sens")[2]+1
-  #parameters name end
-  endp <- str_locate(string=str, pattern= ".RD")[1]-1
-  par.name<-substr(str, startp, endp)
-  
-  #scale the injury by subtracting mean injury for each injury metric
-  sinjury<-scale(injury,scale=FALSE)
-  #divide by mean for each injury metric
-  sinjury[,1]<-sinjury[,1]/mean(injury[,1],na.rm=TRUE)
-  sinjury[,2]<-sinjury[,2]/mean(injury[,2],na.rm=TRUE)
-  sinjury[,3]<-sinjury[,3]/mean(injury[,3],na.rm=TRUE)
-  #plot results
-  #boxplot(sinjury,main=par.name)
-  qsinjury<-apply(sinjury,2,quantile,probs=c(0.025,0.5,0.975),na.rm=TRUE)
-  segments(i-0.2,qsinjury[1,1],i-0.2,qsinjury[3,1],col=4)
-  segments(i,qsinjury[1,2],i,qsinjury[3,2],col=2)
-  segments(i+0.2,qsinjury[1,2],i+0.2,qsinjury[3,2],col=1)
-  points(c(i-0.2,i,i+0.2),qsinjury[2,],col=c(4,2,1),pch=c(16,15,18))
+# BB BND
+# number of iterations used in the sensitivity analysis
+runs4Sens <- 1000
+patt <- paste0(runs4Sens, "Sens")
+# get files names
+files <- list.files(path = "InOutBySp/Bottlenose_dolphin_BB", pattern = patt)
+# check how many files
+nfiles <- length(files)
+# set up number of plots in figure
+par(mfrow = c(1, 1), mar = c(5, 4, 0.5, 0.5))
+plot(c(0.5, 11.5), c(-0.8, 1.4), type = "n", xlab = "", main = "", xaxt = "n", ylab = "Proportional change (95% CI)")
+abline(h = 0, lty = 2)
+for (i in 1:nfiles) {
+  # for each parameter
+  # load the sensitivity results
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by runs4Sens iterations data.frame
+  ## a 3 column (one per injury metric) by nsims iterations data.frame
+  ## LT: What is nsims?  You have runs4Sens defined above - is that the same thing?
+  ## LT: So far as I can see, run4Sens is not used in any case, except to define the patt
+  ## LT: name.  So perhaps the code would have better long-term robustness if you did away
+  ## LT: with that, otherwise you're liable to change the number of sensitivity simulations in
+  ## LT: whatever file it is that generates those, and then forget to change it here.
+  ## LT: In general, constants should only be defined in one location!
+  load(paste0("InOutBySp/Bottlenose_dolphin_BB/", files[i]))
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  # scale the injury by subtracting mean injury for each injury metric
+  sinjury <- scale(injury, scale = FALSE)
+  # divide by mean for each injury metric
+  sinjury[, 1] <- sinjury[, 1] / mean(injury[, 1], na.rm = TRUE)
+  sinjury[, 2] <- sinjury[, 2] / mean(injury[, 2], na.rm = TRUE)
+  sinjury[, 3] <- sinjury[, 3] / mean(injury[, 3], na.rm = TRUE)
+  # plot results
+  qsinjury <- apply(sinjury, 2, quantile, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+  segments(i - 0.2, qsinjury[1, 1], i - 0.2, qsinjury[3, 1], col = 4)
+  segments(i, qsinjury[1, 2], i, qsinjury[3, 2], col = 2)
+  segments(i + 0.2, qsinjury[1, 2], i + 0.2, qsinjury[3, 2], col = 1)
+  points(c(i - 0.2, i, i + 0.2), qsinjury[2, ], col = c(4, 2, 1), pch = c(16, 15, 18))
   label <- par.name
-  if(par.name == "a1r") label <- "ASM"
-  if(par.name == "N0") label <- expression(N[0])
-  if(par.name == "br") label <- expression(R[baseline])
-  if(par.name == "por") label <- expression(R[1])
-  if(par.name == "rho") label <- expression(rho)
-  if(par.name == "per") label <- expression(P[recovery])
-  if(par.name == "spos") label <- expression(S[1])
-  if(par.name == "Fmax") label <- expression(F[max])
-  if(par.name == "Fnom") label <- expression(F[nom])
-  if(par.name == "ascS") label <- expression(paste(S[f,j]," & ",S[m,j]))
-  if(par.name == "PM") label <- expression(P[marked])
-  axis(side = 1, at = i,labels = label, las = 2)
-  legend("topleft",inset=0.05,legend=names(injury),col=c(4,2,1),lty=1,pch=c(16,15,18))
-  }
-```
-
-
-```{r,echo=FALSE,eval=FALSE}
-#A deprecated alternative representation where each parameter is visualized in its own plot
-#set up number of plots in figure
-par(mfrow=c(3,4),mar=c(4,4,2.5,0.5))
-for (i in 1:nfiles){
-  #for each parameter
-  #load the sensitivity results
-  #this loads up a workspace that includes object injury
-  # a 3 column (one per injury metric) by nsims iterations data.frame
-  load(paste0("InOutBySp/",folders[j],"/",files[i]))
-  #get name of parameter in files[i]
-  str<-files[i]
-  #parameter name start
-  startp <- str_locate(string=str, pattern="Sens")[2]+1
-  #parameters name end
-  endp <- str_locate(string=str, pattern= ".RD")[1]-1
-  par.name<-substr(str, startp, endp)
-  #scale the injury by subtracting mean injury for each injury metric
-  sinjury<-scale(injury,scale=FALSE)
-  #divide by mean for each injury metric
-  sinjury[,1]<-sinjury[,1]/mean(injury[,1],na.rm=TRUE)
-  sinjury[,2]<-sinjury[,2]/mean(injury[,2],na.rm=TRUE)
-  sinjury[,3]<-sinjury[,3]/mean(injury[,3],na.rm=TRUE)
-  #plot results
-  #boxplot(sinjury,main=par.name)
-  plot(c(0.5,3.5),range(sinjury,na.rm=TRUE),ylim=c(-1,1),type="n",xlab="",main=par.name,xaxt="n",ylab="Proportional change (95% CI)")
-  axis(side=1,at=1:3,labels=names(injury))
-  qsinjury<-apply(sinjury,2,quantile,probs=c(0.025,0.5,0.975),na.rm=TRUE)
-  for(k in 1:3){
-    segments(k,qsinjury[1,k],k,qsinjury[3,k])
-  }
-  points(c(1,2,3),qsinjury[2,])
-  abline(h=0,lty=2)
+  if (par.name == "N0") label <- expression(N[0])
+  if (par.name == "br") label <- expression(R[baseline])
+  if (par.name == "por") label <- expression(R[1])
+  if (par.name == "rho") label <- expression(rho)
+  if (par.name == "per") label <- expression(P[recovery])
+  if (par.name == "spos") label <- expression(S[1])
+  if (par.name == "Fmax") label <- expression(F[max])
+  if (par.name == "Fnom") label <- expression(F[nom])
+  if (par.name == "ascS") label <- expression(paste(S[f, j], " & ", S[m, j]))
+  if (par.name == "PM") label <- expression(P[marked])
+  axis(side = 1, at = i, labels = label, las = 2)
+  legend("topleft", inset = 0.05, legend = names(injury), col = c(4, 2, 1), lty = 1, pch = c(16, 15, 18))
 }
 ```
 
+A note regarding `ASM`. Given that this is a value for age in a model where age is incremented yearly, it needs to be an integer. As it turns out, the range of possible values of integers given the assumed distribution only covers, with non negligible probability, two different values. This is the reason why for the injury metric associated with `ASM` there are only two different values, and that induces that the median and the 2.5% percentile of the injury distributions coincide.
+
 ## Elasticity
 
-In this analysis we used the values obtained under the uncertainty analysis to model the relative change in the injury metrics as a function of the change in the different input parameters. We considered a generalized additive model (GAM), Gaussian response, and identity link. 
+In this analysis we used the values obtained under the uncertainty analysis - see previous sub-section - to model the percentage change in the 3 injury metrics (Lost Cetacean Years LCY, Years to Recovery YTR and Maximum Proportional Decrease MPD) as a function of a unit percentage change in the different input parameters. To do so, we used a generalized additive model (GAM), Gaussian response, and identity link. The reported results are virtually insensitive to the specific model chosen since the relations are all extremely smooth where it matters to evaluate elasticity, which is in the vicinity of the point estimate (here we considered the mean) of the parameter being evaluated. For a couple of injury metrics and parameters combinations the fit is far from ideal, in particular for YTR, but since this happens mostly when the elasticity is extremely small the effects are negligible. These problems originate because we are approximating change in a discrete injury metric (YTR) with a continuous function.
 
-The reported results are virtually insensitive to the specific model chosen (here, a GAM) since the relations are all extremely smooth where it matters to evaluate elasticity, which is in the vicinity of the point estimate (here we considered the mean) of the parameter being evaluated.
-
-The corresponding results are shown below, where we report the percentage change on the 3 injury metrics (Lost Cetacean Years LCY, Years to Recovery YTR and Maximum Proportional Decrease MPD ) when each parameter is varied by 1% around the mean (i.e.  increased or decreased by 0.5%), while all the other parameters are kept at their mean value. That is the number reported on top of each plot for each metric considered.
+The corresponding results are shown below, where we report the percentage change on the 3 injury metrics  when each parameter is varied by 1% around the mean (i.e.  increased or decreased by 0.5%), while all the other parameters are kept at their mean value.
 
 We first define an object to hold the elasticity measure for each parameter.
 
 ```{r}
-metrics<-c("LCY","YTR","MPD")
+metrics <- c("LCY", "YTR", "MPD")
 nmetrics <- length(metrics)
-elasticity<-data.frame(parID=1:11,parameter=NA,label=NA,LCY=NA,YTR=NA,MPD=NA)
+elasticity <- data.frame(parID = 1:11, parameter = NA, LCY = NA, YTR = NA, MPD = NA)
 ```
 
-Here we calculate the injury metric percent change for each change in 1% on each of the 11 parameters. The next code chunk does not output plots by default, but by removing the chunk options `results='hide',fig.show='hide'` the .Rmd will lead the code to show plots that provide insights to what is going on under the hood.
-
-```{r, results='hide', fig.show='hide'}
-#set up number of plots in figure
-par(mfrow=c(3,3),mar=c(4,4,2.5,0.5))
-for (k in 1:nmetrics){
-cat(paste0("Elasticity analysis for ",metrics[k]))
-#a counter to fill up object "elasticity"
-m<-1  
-for (i in 1:nfiles){
-  #for each parameter
-  #load the sensitivity results
-  #this loakds up a workspace that includes object injury
-  # a 3 column (one per injury metric) by nsims iterations data.frame
-  load(paste0("InOutBySp/",folders[j],"/",files[i]))
-  #get name of parameter in files[i]
-  str<-files[i]
-  #parameter name start
-  startp <- str_locate(string=str, pattern="Sens")[2]+1
-  #parameters name end
-  endp <- str_locate(string=str, pattern= ".RD")[1]-1
-  par.name<-substr(str, startp, endp)
-  elasticity$parameter[m] <- par.name
-  #these parameters are vectors - cannot evaluate like this
-  if(par.name=="ascS" | par.name=="PM") {
-    m<-m+1
-    next }
-  #if(par.name=="a1r") par.name="AFR"
-  #only for Ttru do not evaluate
-  if(substr(str, 1, 4)=="Ttru" & par.name=="pe") next
-  #plot percent change in metric
-  p2spar<-eval(parse(text=paste0("pars2save$",par.name)))
-  #select the k_th injury (k = 1,2,3)
-  inj<-eval(parse(text=paste0("injury$",metrics[k])))
-  label <- par.name
-  if(par.name == "a1r") label <- "ASM"
-  if(par.name == "N0") label <- expression(N[0])
-  if(par.name == "br") label <- expression(R[baseline])
-  if(par.name == "por") label <- expression(R[1])
-  if(par.name == "rho") label <- expression(rho)
-  if(par.name == "per") label <- expression(P[recovery])
-  if(par.name == "spos") label <- expression(S[1])
-  if(par.name == "Fmax") label <- expression(F[max])
-  if(par.name == "Fnom") label <- expression(F[nom])
-  if(par.name == "ascS") label <- expression(paste(S[f,j]," & ",S[m,j]))
-  if(par.name == "PM") label <- expression(P[(marked)])
-  #collect par name
-  elasticity$label[m] <- label
-  #plot results
-  plot(p2spar, inj, xlab= label,ylab=metrics[k])
-  dat4mod <- data.frame(par = p2spar, inj=injury[,k])
-  gammod <- gam(inj ~ s(par,k=3), data = dat4mod)
-  seqpars<-seq(min(p2spar),max(p2spar),length=500)
-  preds<-predict.gam(gammod,newdata=data.frame(par = seqpars),type="response")
-  #check model adequate for predictions
-  lines(seqpars,preds)
-  mpar <- mean(p2spar)
-  delta <- c(0.995, 1, 1.005)
-  nd <- data.frame(par = mpar*delta)
-  preds <- predict(gammod, newdata = nd,type="response")
-  m.metrics<-mean(inj)
-  100*(preds-m.metrics)/m.metrics
-  abline(v=c(mpar*delta),col=c("red","green","red"))
-  abline(h=c(preds),col=c("red","green","red"))
-  # calculate elasticity meajure for the m_th parameter and k_th injury metric 
-  elas <- round(100*(preds[3]-preds[1])/preds[2], 3)
-  elasticity[m,3+k] <- elas
-  mtext(text= elas, side = 3, cex = 0.8)
-  #increase counter
-m <- m+1
-}
-}
-```
+Here we calculate the injury metric percent change for each change in 1% on each of the 11 parameters. The next couple of code chunks do not output plots by default, but by removing the chunk options `results='hide',fig.show='hide'` the .Rmd will lead the code to show plots that provide insights to what is going on under the hood.
 
 Note that for two of the inputs to the model are not scalars, namely
 
 * $S_{f,j}$ and $S_{m,j}$, and 
 * $P_{marked}$,
 
-Since there is no univariate quantity to consider that the injury metric depends on the above procedure is not feasible. One might be tempted to consider the average survival and the average $P_{marked}$ as the corresponding univariate quantities to evaluate the injury metrics against. However, that does not really help, because the same mean value can be obtained with different combinations of the vectors, and different combinations of the vectors will have different impacts on the injury metric. This is visible by removing the options `results='hide',fig.show='hide'` in the chunk below. 
+Since there is no univariate quantity to consider that the injury metric depends on the above procedure needs an extension, where we use a univariate measure to represent these quantities. We considered the weighted (weighted by the proportion in each age and sex class) average survival, which we refer to as `meanSiler` (we also look at these means by sex, namely `meanSilerF` for females and `meanSilerM` for males), and the average $P_{marked}$, that we refer to as `paPM`, as the corresponding univariate quantities to evaluate the injury metrics against. Note that because the same mean value can be obtained with different combinations of the vectors, and different combinations of the corresponding vectors will have different impacts on the injury metric, this will lead to noise around the relationship we are trying to estimate.
 
-```{r, results='hide', fig.show='hide'}
-par(mfrow=c(3,2),mar=c(4,4,2.5,0.5))
-for (k in 1:nmetrics){
-for (i in 1:nfiles){
-  #for each parameter
-  #load the sensitivity results
-  #this loakds up a workspace that includes object injury
-  # a 3 column (one per injury metric) by nsims iterations data.frame
-  load(paste0("InOutBySp/",folders[j],"/",files[i]))
-  #get name of parameter in files[i]
-  str<-files[i]
-  #parameter name start
-  startp <- str_locate(string=str, pattern="Sens")[2]+1
-  #parameters name end
-  endp <- str_locate(string=str, pattern= ".RD")[1]-1
-  par.name<-substr(str, startp, endp)
-  label <- par.name
-  if(par.name != "ascS" & par.name != "PM") next
-  #plot percent change in metric
-  p2spar<-eval(parse(text=paste0("pars2save$",par.name)))
-  #select the k_th injury (k = 1,2,3)
-  inj<-eval(parse(text=paste0("injury$",metrics[k])))
-  if(par.name == "ascS") label <- expression(S[f,j]+S[m,j])
-  if(par.name == "PM") label <- expression(P[marked])
-  # 
-  plot(p2spar, inj, xlab= label,ylab=metrics[k])
-  dat4mod <- data.frame(par = p2spar, inj=injury[,k])
-  gammod <- gam(inj ~ s(par,k=3), data = dat4mod)
-  seqpars<-seq(min(p2spar),max(p2spar),length=500)
-  preds<-predict.gam(gammod,newdata=data.frame(par = seqpars),type="response")
-  #check model adequate for predictions
-  lines(seqpars,preds)
-  mpar <- mean(p2spar)
-  delta <- c(0.995, 1, 1.005)
-  nd <- data.frame(par = mpar*delta)
-  preds <- predict(gammod, newdata = nd,type="response")
-  m.metrics<-mean(inj)
-  100*(preds-m.metrics)/m.metrics
-  abline(v=c(mpar*delta),col=c("red","green","red"))
-  abline(h=c(preds),col=c("red","green","red"))
-  mtext(text=round(100*(preds[3]-preds[1])/preds[2],3),side=3,cex=0.8)
-}
+```{r}
+#```{r, results='hide', fig.show='hide'}
+# set up number of plots in figure
+par(mfrow = c(1, 3), mar = c(4, 4, 2.5, 0.5))
+for (i in 1:nfiles) {
+  cat(paste0("Elasticity analysis for ", files[i]))
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by number of iterations data.frame
+  load(paste0("InOutBySp/Bottlenose_dolphin_BB/", files[i]))
+  # for each parameter
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  elasticity$parameter[i] <- par.name
+  # do not process the file for proportion exposed - a null control
+  #* TAM*: delete
+  if (par.name == "pe") next
+  # select the parameter being evaluated - change parameter name later to avoid this tweak
+  #if (par.name == "ascS") par.name <- "ascS"
+  #if (par.name == "ascS") par.name <- "meanS"
+  if (par.name == "ascS") par.name <- "meanSiler"
+  if (par.name == "PM") par.name <- "paPM"
+  p2spar <- eval(parse(text = paste0("pars2save$", par.name)))
+  for (k in 1:nmetrics) {
+    # select the k_th injury (k = 1,2,3)
+    inj <- eval(parse(text = paste0("injury$", metrics[k])))
+    # plot results
+    plot(p2spar, inj, xlab = par.name, ylab = metrics[k])
+    dat4mod <- data.frame(par = p2spar, inj = injury[, k])
+    # if there are not enough unique values of the parameter being evaluated
+    # only happens if the parameter is ASM (2-3 unique values)
+    # force a linear model fit, else a relatively inflexible GAM
+    if (length(unique(inj))<=3) {
+      mod <- lm(inj ~ par, data = dat4mod)
+    } else {
+      mod <- gam(inj ~ s(par), data = dat4mod)
+    }
+    seqpars <- seq(min(p2spar), max(p2spar), length = 500)
+    preds <- predict(mod, newdata = data.frame(par = seqpars), type = "response")
+    # check model adequate for predictions by plotting relationship and addinmodel on top
+    lines(seqpars, preds)
+    mpar <- mean(p2spar)
+    delta <- c(0.995, 1, 1.005)
+    nd <- data.frame(par = mpar * delta)
+    preds <- predict(mod, newdata = nd, type = "response")
+    m.metrics <- mean(inj)
+    abline(v = c(mpar * delta), col = c("red", "green", "red"))
+    abline(h = c(preds), col = c("red", "green", "red"))
+    # calculate elasticity measure for the m_th parameter and k_th injury metric
+    elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    # save it in the right slot
+    elasticity[i, 3 + k] <- elas
+    # add number to top of the plot
+    mtext(text = round(elas,3), side = 3, cex = 0.8)
+  }
 }
 ```
 
-Instead, we made some special runs of `Run_BND_Ttru_PopSimsSensitivity` for these two parameters in which we calculated the injury metrics for a small increase and decrease (0.5%) of the values of the entire vector of (1) $S_{f,j}$ and $S_{m,j}$, and (2) $P_{marked}$.
+We represent the elasticity measures per parameter here:
 
 ```{r}
-load("InOutBySp/Bottlenose_dolphin_BB/Ttrusimres3ElasPME.RData")
-elasticity[elasticity$parameter=="PM",4:6]<- 100*(injury[3,]-injury[1,])/(injury[2,])
-load("InOutBySp/Bottlenose_dolphin_BB/Ttrusimres3ElasascSE.RData")
-elasticity[elasticity$parameter=="ascS",4:6]<- 100*(injury[3,]-injury[1,])/(injury[2,])
-```
-
-The final plot is here:
-
-```{r}
-par(mfrow=c(1,1),mar=c(4,6,0.5,0.5))
-barplot(t(as.matrix(elasticity[,4:6])),col=c(4,2,1),beside=TRUE,ylab="Percent chage per 1% change in parameter")
-for (i in 1:nrow(elasticity)){
-  if(elasticity$parameter[i] == "a1r") label <- "ASM"
-  if(elasticity$parameter[i] == "N0") label <- expression(N[0])
-  if(elasticity$parameter[i] == "br") label <- expression(R[baseline])
-  if(elasticity$parameter[i] == "por") label <- expression(R[1])
-  if(elasticity$parameter[i] == "rho") label <- expression(rho)
-  if(elasticity$parameter[i] == "per") label <- expression(P[recovery])
-  if(elasticity$parameter[i] == "spos") label <- expression(S[1])
-  if(elasticity$parameter[i] == "Fmax") label <- expression(F[max])
-  if(elasticity$parameter[i] == "Fnom") label <- expression(F[nom])
-  if(elasticity$parameter[i] == "ascS") label <- expression(paste(S[f,j]," & ",S[m,j]))
-  if(elasticity$parameter[i] == "PM") label <- expression(P[marked])
-  axis(side = 1, at = 2.5+(i-1)*4,labels = label, las = 2)
+par(mfrow = c(1, 1), mar = c(4, 6, 0.5, 0.5))
+barplot(t(as.matrix(elasticity[, 4:6])), col = c(4, 2, 1), beside = TRUE, ylab = "Percent change per 1% change in parameter")
+for (i in 1:nrow(elasticity)) {
+  # set reasonable label
+  label <- switch(elasticity$parameter[i],
+    ASM = "ASM",
+    N0 = expression(N[0]),
+    br = expression(R[baseline]),
+    por = expression(R[1]),
+    rho = expression(rho),
+    per = expression(P[recovery]),
+    spos = expression(S[1]),
+    Fmax = expression(F[max]),
+    Fnom = expression(F[nom]),
+    ascS = expression(paste(S[f, j], " & ", S[m, j])),
+    PM = expression(P[marked])
+  )
+  axis(side = 1, at = 2.5 + (i - 1) * 4, labels = label, las = 2)
 }
-legend("bottomleft",col=c(4,2,1),pt.bg=c(4,2,1),legend=metrics,inset=0.2,cex=1.2,pch=22)
+legend("bottomleft", col = c(4, 2, 1), pt.bg = c(4, 2, 1), legend = metrics, inset = 0.2, cex = 1.2, pch = 22)
 ```
 
-Insight into these elasticity values can be obtained by representing the population trajectories considering 0.5 % under and above the mean value for a statistic. Here we illustrate that with the two parameters that were not scalars.
+To further understand elasticity it might be useful to represent population trajectories under different extreme realizations of a given parameter. As an example, we show said trajectories for the mean Siler survival (i.e. mean Survival weighted for the proportion in each age class and sex, but not weighted for the proportion marked) below:
 
 ```{r}
-#Proportion marked
-load("InOutBySp/Bottlenose_dolphin_BB/Ttrusimres3ElasPME.RData")
+load("InOutBySp/Bottlenose_dolphin_BB/Ttrusimres1000SensascS.RData")
 sr <- simres
 par(mfrow=c(1,1),mar = c(4, 4, 2, 0.1))
 nyears <- dim(sr)[2]
 nsims <- dim(sr)[3]
 ylims <- c(min(c(colSums(sr[, , 1:nsims, 2]), colSums(sr[, , 1:nsims, 1])))*0.9, max(c(colSums(sr[, , 1:nsims, 2]), colSums(sr[, , 1:nsims, 1])))*1.1)
-
-plot(colSums(sr[, , 1, 2]), type = "n", ylim = ylims, xlab = "Years post spill", ylab = "Predicted population size", las = 1,main="P(marked)")
-# baseline less 0.5% PM
-lines(colSums(sr[, , 1, 2]), type = "l", lwd = 0.7, col = 2)
-# baseline plus 0.5% PM
-lines(colSums(sr[, , 3, 2]), type = "l", lwd = 1, col = 3)
-# under oil less 0.5 %
-lines(colSums(sr[, , 1, 1]), type = "l", lwd = 0.7, col = 2)
-# under oil plus 0.5 %
-lines(colSums(sr[, , 3, 1]), type = "l", lwd = 1, col = 3)
+plot(colSums(sr[, , 1, 2]), type = "n", ylim = ylims, xlab = "Years post spill", ylab = "Predicted population size", las = 1,main="Mean Siler")
+iMAX <- which(pars2save$meanSiler==max(pars2save$meanSiler))[1]
+iMIN <- which(pars2save$meanSiler==min(pars2save$meanSiler))[1]
+# baseline under minimum value for parameter
+lines(colSums(sr[, , iMIN, 2]), type = "l", lwd = 0.7, col = 2)
+# baseline under maximum value for parameter
+lines(colSums(sr[, , iMAX, 2]), type = "l", lwd = 1, col = 3)
+# under oil minimum value for parameter
+lines(colSums(sr[, , iMIN, 1]), type = "l", lwd = 0.7, col = 2)
+# under oil maximum value for parameter
+lines(colSums(sr[, , iMAX, 1]), type = "l", lwd = 1, col = 3)
 # add a legend
-legend("bottomright",inset=0.05,cex=1.2,col=2:3,lty=1,legend=c("- 0.5 %","+ 0.5 %"))
+legend("bottomright",inset=0.05,cex=1.2,col=2:3,lty=1,legend=c("min meanSiler","max meanSiler"))
+```
 
-# Survival
-load("InOutBySp/Bottlenose_dolphin_BB/Ttrusimres3ElasascSE.RData")
+In general terms, for each of the parameters, the relationship between what are the relative impacts in terms of uncertainty also reflect in similar patterns for elasticity. A noticeable difference is perhaps what happens for baseline survival, where the effect on the MPD presents an opposing pattern in elasticity. This pattern happens because while both YTR and LCY are naturally affected by the lower survival inducing longer recoveries, and hence much larger values for those injury metrics under low survival, the MPD is actually larger under high survival because the baseline scenario population size increases much more compared to post-spill scenario under the same conditions.
+
+One might also want to identify why there is such variability in the MPD when considering the meanSiler. It is perhaps unanticipated why not so different "average" meanSiler survivals could lead to MPD ranging from 44% to 50%. Visualizing those below show us that in fact the trajectories are somewhat different. But if the meanSiler is similar, what causes the difference?
+
+```{r}
+load("InOutBySp/Bottlenose_dolphin_BB/Ttrusimres1000SensascS.RData")
 sr <- simres
+par(mfrow=c(1,1),mar = c(4, 4, 2, 0.1))
 nyears <- dim(sr)[2]
 nsims <- dim(sr)[3]
 ylims <- c(min(c(colSums(sr[, , 1:nsims, 2]), colSums(sr[, , 1:nsims, 1])))*0.9, max(c(colSums(sr[, , 1:nsims, 2]), colSums(sr[, , 1:nsims, 1])))*1.1)
-par(mfrow=c(1,1),mar = c(4, 4, 2, 0.1))
-
-plot(colSums(sr[, , 1, 2]), type = "n", ylim = ylims, xlab = "Years post spill", ylab = "Predicted population size", las = 1,main=expression(paste(S[f,j]," & ",S[m,j])))
-# baseline less 0.5% PM
-lines(colSums(sr[, , 1, 2]), type = "l", lwd = 0.7, col = 2)
-# baseline plus 0.5% PM
-lines(colSums(sr[, , 3, 2]), type = "l", lwd = 1, col = 3)
-# under oil less 0.5 %
-lines(colSums(sr[, , 1, 1]), type = "l", lwd = 0.7, col = 2)
-# under oil plus 0.5 %
-lines(colSums(sr[, , 3, 1]), type = "l", lwd = 1, col = 3)
+plot(colSums(sr[, , 1, 2]), type = "n", ylim = ylims, xlab = "Years post spill", ylab = "Predicted population size", las = 1,main="Mean Siler")
+iMAX <- which(injury$MPD==max(injury$MPD))[1]
+iMIN <- which(injury$MPD==min(injury$MPD))[1]
+# baseline under minimum value for parameter
+lines(colSums(sr[, , iMIN, 2]), type = "l", lwd = 0.7, col = 2)
+# baseline under maximum value for parameter
+lines(colSums(sr[, , iMAX, 2]), type = "l", lwd = 1, col = 3)
+# under oil minimum value for parameter
+lines(colSums(sr[, , iMIN, 1]), type = "l", lwd = 0.7, col = 2)
+# under oil maximum value for parameter
+lines(colSums(sr[, , iMAX, 1]), type = "l", lwd = 1, col = 3)
 # add a legend
-legend("bottomright",inset=0.05,cex=1.2,col=2:3,lty=1,legend=c("- 0.5 %","+ 0.5 %"))
+legend("bottomright",inset=0.05,cex=1.2,col=2:3,lty=1,legend=c("min MPD","max MPD"))
 ```
+
+Do we get a hint of what is going on if we plot these injury metrics against survival separated by sex?
+
+```{r}
+par(mfrow = c(3, 3), mar = c(4, 4, 2.5, 0.5))
+#for each possible x-axis value to evaluate elasticity against in the case of baseline survival
+par.names<-c("meanSilerM","meanSilerF","meanSiler")
+for(s in 1:3){
+  par.name <- par.names[s]
+  p2spar <- eval(parse(text = paste0("pars2save$", par.name)))
+  for (k in 1:nmetrics) {
+    # select the k_th injury (k = 1,2,3)
+    inj <- eval(parse(text = paste0("injury$", metrics[k])))
+    # plot results
+    plot(p2spar, inj, xlab = par.name, ylab = metrics[k])
+    dat4mod <- data.frame(par = p2spar, inj = injury[, k])
+    # if there are not enough unique values of the parameter being evaluated
+    # only happens if the parameter is ASM (2 unique values)
+    # force a linear model fit, else a relatively inflexible GAM
+    if (length(unique(inj))<=2) {
+      mod <- lm(inj ~ par, data = dat4mod)
+    } else {
+      mod <- gam(inj ~ s(par, k = 3), data = dat4mod)
+    }
+    seqpars <- seq(min(p2spar), max(p2spar), length = 500)
+    preds <- predict(mod, newdata = data.frame(par = seqpars), type = "response")
+    # check model adequate for predictions by plotting relationship and addinmodel on top
+    lines(seqpars, preds)
+    mpar <- mean(p2spar)
+    delta <- c(0.995, 1, 1.005)
+    nd <- data.frame(par = mpar * delta)
+    preds <- predict(mod, newdata = nd, type = "response")
+    m.metrics <- mean(inj)
+    abline(v = c(mpar * delta), col = c("red", "green", "red"))
+    abline(h = c(preds), col = c("red", "green", "red"))
+    # calculate elasticity measure for the m_th parameter and k_th injury metric
+    elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    # save it in the right slot
+    mtext(text = round(elas,3), side = 3, cex = 0.8)
+  }
+}
+```
+
+We can get a feeling for how female survival seems to be more relevant for the injury metrics if we investigate what induces the larger differences in MPD. Looking at the female and male survivals for the two iterations that lead to the largest differences in MPD, even though they have very similar meanSiler survivals of `r round(pars2save$meanSiler[iMIN],3)` (minimum MPD) and `r round(pars2save$meanSiler[iMAX],3)` (maximum MPD).
+
+```{r}
+source("Functions/SilerFuns.R") # Siler model functions are here
+naBND <- 61 # number of age classes for BND
+agesBND <- 0:(naBND - 1)
+  #--------------------------------------------------------------------------
+  # Survival
+  #--------------------------------------------------------------------------
+  # reading in Siler parameters, for male and female BNDs
+  # These files were provided by LS via email on the Fri 5/22/2020 4:10 PM
+  pf <- read.csv("InputFiles/var_female 15May2020.csv")
+  pm <- read.csv("InputFiles/var_male 15May2020.csv")
+  # remove first column, which is just ID (not needed)
+  pf <- pf[, -1]
+  pm <- pm[, -1]
+  # get a sample from the Siler model for each sim - which is a posterior distribution
+  # number of Siler model draws
+  nS <- nrow(pf)
+  # objects to hold female and male realizations - Ttru
+  pxFs <- matrix(NA, nrow = length(agesBND), ncol = nS)
+  pxMs <- matrix(NA, nrow = length(agesBND), ncol = nS)
+   # for each observation of the posterior
+  for (s in 1:nS) {
+    # Survival Ttru
+    pxFs[, s] <- px(agesBND, pf[s, 1], pf[s, 2], pf[s, 3], pf[s, 4], pf[s, 5])
+    pxMs[, s] <- px(agesBND, pm[s, 1], pm[s, 2], pm[s, 3], pm[s, 4], pm[s, 5])
+   }
+plot(agesBND,pxFs[,pars2save$iS[iMAX]],col="green",type="l",lty=1,ylab="Survival probability",xlab="Age")
+points(agesBND,pxMs[,pars2save$iS[iMAX]],col="green",type="l",lty=2)
+points(agesBND,pxFs[,pars2save$iS[iMIN]],col="red",type="l",lty=1)
+points(agesBND,pxMs[,pars2save$iS[iMIN]],col="red",type="l",lty=2)
+legend("bottomleft",inset=0.05,legend=c("Female max MPD","Male max MPD","Female min MPD","Male min MPD"),lty=c(1,2,1,2),col=c("green","green","red","red"))
+```
+
+```{r,eval=FALSE}
+pars2save[c(iMIN,iMAX),]
+```
+
+
 
 # References
 
 Benton, T. G. & Grant, A. 1999 Elasticity analysis as an important tool in evolutionary and population ecology *Trends in Ecology & Evolution*  **14**: 467-471
 
+Caswell H. 2001 *Matrix Population Models: Construction, Analysis, and Interpretation*, 2nd ed. Sinauer Associates, Inc, Sunderland, Massachusetts. 
+
 Schwacke, L. H.; Thomas, L.; Wells, R. S.; McFee, W. E.; Hohn, A. A.; Mullin, K. D.; Zolman, E. S.; Quigley, B. M.; Rowles, T. K. & Schwacke, J. H. 2017. Quantifying injury to common bottlenose dolphins from the Deepwater Horizon oil spill using an age-, sex- and class-structured population model *Endangered Species Research* **33**: 265-279
-
-
-
-

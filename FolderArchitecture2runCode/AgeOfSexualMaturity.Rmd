@@ -18,11 +18,14 @@ library(Hmisc)
 
 # Preamble
 
-***This will be a general preable common to several documents included as Electronic Supplements to CARMMHA's BB BND injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc.***
+This is an Electronic Supplement to the manuscript Schwacke, L.A. et al.  "Modeling population impacts of the Deepwater Horizon oil spill on a long-lived species: implications and recommendations for future environmental disasters"
 
-This is an Electronic Supplement to the paper submitted to Conservation Letters on the ??-??-???? by L.H. Schwacke, T.A. Marques, C. Booth, C. Smith, F. Gomez, B. Balmer, A. Barratclough, S. De Guise, L. Garrison, K. Colegrove, J. Morey, K. D. Mullin, B. M. Quigley, P. Rosel, T. Rowles, R. Takeshita,  F. Townsend, T. Speakman, R. Wells, E. Zolman, L. Thomas, entitled "Why bottlenose dolphin populations have still not recovered a decade after the Deepwater Horizon oil spill"
+The master file containing links to all supplementary files related to this paper is [BND_Electronic Supplements master file](BND_ElectronicSupplements.html).
 
-The master file with supplementary material is here: [BND_Electronic Supplements master file](BND_ElectronicSupplements.html).
+If you make use of any of this material in your work, it would be appreciated if you would [contact Tiago
+Marques](mailto:tiago.marques@st-andrews.ac.uk) to let him know.
+
+In case you are reading this document on git while browsing the material for the pelagic paper, the master file with supplementary material for the pelagic paper is here: [Electronic Supplements master file](ElectronicSupplements.html).
 
 # Introduction
 
@@ -186,4 +189,4 @@ Mead, J.G. and C.W. Potter. 1990. A natural history of bottlenose dolphins along
 
 Wells, R. S., M. D. Scott, A. A. Hohn, J. C. Sweeney, F. I. Townsend, J. B. Allen, A. A. Barleycorn, S. Hofmann, K. A. McHugh, C. R. Smith, R. C. Lacy, and A. B. Irvine.  In preparation.  Life history, reproductive biology and demographic parameters for common bottlenose dolphins, (*Tursiops truncatus*), in Sarasota Bay, Florida.  *Frontiers in Marine Science, Marine Conservation and Sustainability*.
 
-Schwacke, L.H., L. Thomas, R.S. Wells, W.E. McFee, A.A. Hahn, K.D. Mullin, E.S. Zolman, B.M. Quigley, T.K. Rowles and J.H. Schwacke. 2017. An age-, sex- and class-structured population model for estimating nearshore common bottlenose dolphin injury following the Deepwater Horizon oil spill. *Endangered Species Research* **33**: 265-279. 
+Schwacke, L.H., L. Thomas, R.S. Wells, W.E. McFee, A.A. Hahn, K.D. Mullin, E.S. Zolman, B.M. Quigley, T.K. Rowles and J.H. Schwacke. 2017. An age-, sex- and class-structured population model for estimating nearshore common bottlenose dolphin injury following the Deepwater Horizon oil spill. *Endangered Species Research* **33**: 265-279. DOI: [10.3354/esr00777](https://doi.org/10.3354/esr00777).
