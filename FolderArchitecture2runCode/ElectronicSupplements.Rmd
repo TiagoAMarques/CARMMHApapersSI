@@ -15,13 +15,12 @@ library(knitr)
 
 # Preamble
 
-***This will be a general preable common to all the documents included as Electronic Supplements to CARMMHA's pelagic injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc. - this is the MASTER version of the preamble and it must be copied over to all other docs before submission***
+This is an Electronic Supplement to the manuscript Marques et al. "Quantifying Deepwater Horizon oil spill induced injury on pelagic cetaceans".
 
-This is an Electronic Supplement to the paper submited to MEPS on the ??-??-???? by Marques, T. A., Thomas, L., Booth, C., Garrison, L. P., Rosel, P. E., Mullin, K. D. & L. Schwacke entitled "Quantifying Deepwater Horizon oil spill induced injury on pelagic cetaceans".
+The master file containing links to all supplementary files related to this paper is this [Electronic Supplements master file](ElectronicSupplements.html).
 
-The master file with supplementary material is here: [Electronic Supplements master file](ElectronicSupplements.html).
-
-If you do happen to use this material, drop us a line at tiago.marques@st-andrews.ac.uk just so that we know it was useful to you. 
+If you make use of any of this material in your work, it would be appreciated if you would [contact Tiago
+Marques](mailto:tiago.marques@st-andrews.ac.uk) to let him know.
 
 # Introduction
 
@@ -31,20 +30,11 @@ All these files are created as dynamic reports using RMarkdown.
 
 The source .Rmd files are provided in the github repository:
 
-https://github.com/TiagoAMarques/CARMMHA
+https://github.com/TiagoAMarques/CARMMHApapersSI
 
 The above repository also includes all the code required for readers to reproduce independently the paper results. [Below](#how-to-reproduce-the-paper-results) is a quick description of how all the results in the paper might be recreated by the reader, within a framework of reproducible research.
 
 This means also that it should be straightforward for a reader to update the results with new information, be it new data that becomes available or different assumptions about the populations, allowing to explore both the consequences of new knowledge or the impact of the assumptions we made on the results presented.
-
-```{r fig1,eval=FALSE,echo=FALSE,fig.width=3,fig.align="center",fig.cap="\\label{fig:fig1}Artwork by @allison_horst at available at https://github.com/allisonhorst/stats-illustrations. This image illustrates the concept of reproducible research and is a tribute to Allison's work on combining art and science."}
-# All defaults
-include_graphics("figs/reproducibility_court.png")
-```
-
-![Artwork by @allison_horst at available at https://github.com/allisonhorst/stats-illustrations. This image illustrates the concept of reproducible research and is a tribute to Allison's work on combining art and science.](figs/reproducibility_court.png){width=50%}
-
-
 
 # List of Electronic Supplements
 
@@ -55,25 +45,23 @@ include_graphics("figs/reproducibility_court.png")
 
 The other Electronic Supplements files names and brief content descriptions follow:
 
-* [ElectronicSupplement1_EE.pdf](ElectronicSupplement1_EE.html) – Supplementary material about the expert elicitation exercises;
+* [ElectronicSupplement1_EE](ElectronicSupplement1_EE.html) – Supplementary material about the expert elicitation exercises.
 
-* [IniPopSizes.pdf](IniPopSizes.html) – Supplementary material about the initial population sizes and proportion of animals exposed to oil. Includes point estimates of the spatial models used to estimate the stock size, the oil footprint considered to have an impact on survival, and hence the delineation of the area including the proportion exposed for each of the species considered; Note that the initial population sizes and proportion exposed are provided as data. The reason we do not provide the code that allows the user to reproduce the objects is because the model and objects used to do so are not ours to distribute. For all taxonomic units not Barataria Bay BND these come from models reported by Roberts et al. (2015). For BB BND these come from a dedicated SECR analysis (Glennie et al., in preparation). This supplamentary material also includes the code required to generate the paper tables 1 and 2 as well as a table used in getInjury.Rmd.
+* [IniPopSizes](IniPopSizes.html) – Supplementary material about the initial population sizes and proportion of animals exposed to oil. Includes point estimates of the spatial models used to estimate the stock size, the oil footprint considered to have an impact on survival, and hence the delineation of the area including the proportion exposed for each of the species considered; Note that the initial population sizes and proportion exposed are provided as data. The reason we do not provide the code that allows the user to reproduce the objects is because the model and objects used to do so are not ours to distribute. For all taxonomic units not Barataria Bay BND these come from models reported by Roberts et al. (2015). For BB BND these come from a dedicated SCR analysis (Glennie et al., 2021). This supplementary material also includes the code required to generate the paper tables 1 and 2 as well as a table used in `getInjury.Rmd`.
 
-* [ElectronicSupplement4_GD.pdf](ElectronicSupplement4_GD.html)  - Supplementary material with details about how we obtained gestation duration for each taxonomic unit considered;
+* [ElectronicSupplement4_GD](ElectronicSupplement4_GD.html)  - Supplementary material with details about how we obtained gestation duration for each taxonomic unit considered.
 
-* [ComparingSurvivalsAcrossStocks.pdf](ComparingSurvivalsAcrossStocks.html) – Supplementary material about the stock specific survival probabilities given the scaling by gestation duration. Includes code to work with files containing the Siler model posterior parameters and for obtaining the proportion of animals alive at a given age and age specific survival for *Tursiops truncatus*;
+* [ComparingSurvivalsAcrossStocks](ComparingSurvivalsAcrossStocks.html) – Supplementary material about the stock specific survival probabilities given the scaling by gestation duration. Includes code to work with files containing the Siler model posterior parameters and for obtaining the proportion of animals alive at a given age and age specific survival for *Tursiops truncatus*.
 
-* [SurvivalReduction.pdf](SurvivalReduction.html) – Supplementary material about how we obtain the survival reduction factor. This combines baseline survival probability with post oil survival probability obtained by SCR. For the baseline survival propbability we describe the analysis that integrates the different components required . The survival post oil spill for Barataria Bay bottlenose dolphins is obtianed in a separate paper, Glennie et al (2021). The obtained survival reduction induced by oil is then scaled by gestation duration, obtained as described in [ElectronicSupplement4_GD.pdf](ElectronicSupplement4_GD.html), for all other taxonomic units, as described in the main paper.  
+* [SurvivalReduction](SurvivalReduction.html) – Supplementary material about how we obtain the survival reduction factor. This combines baseline survival probability with post oil survival probability obtained by SCR. For the baseline survival probability we describe the analysis that integrates the different components required . The survival post oil spill for Barataria Bay bottlenose dolphins is obtained in a separate paper, Glennie et al (2021). The obtained survival reduction induced by oil is then scaled by gestation duration, obtained as described in [ElectronicSupplement4_GD](ElectronicSupplement4_GD.html), for all other taxonomic units, as described in the main paper.  
 
-* [AgeOf1stReproduction.pdf](AgeOf1stReproduction.html) - Supplementary material with details about how we obtained the age at first reproduction for *Tursiops truncatus*; **(Work in Progress TAM)**
+* [AgeOfSexualMaturity](AgeOfSexualMaturity.html) - Supplementary material with details about how we obtained the age at sexual maturity for *Tursiops truncatus*.
 
 * [GetInjury.pdf](GetInjury.html)  - the code for the production of all the injury measures presented on the paper; **(work in progress TAM / TEAM)**
 
 * [ModelEvaluation.pdf](ModelEvaluation.html) - the code for the production of all the sensitivity and uncertainty presented on the paper; **(not done yet  TAM / TEAM)**
 
-* Analysis supporting the assumption that sperm whales were at carrying capacity in 2010. All other species are assumed to be at carrying capacity; **(Work in Progress Len)**
-
-* Shapefiles with the geographical boundaries defining the area occupied by each taxonomic unit, the oil footprint. From the overlap of these areas, the oil footprint and the spatial density models we obtained the initial population sizes and the proportion of he population exposed to oil for each taxonomic unit **(Work in Progress - Len / Lance)**
+* Shapefiles with the geographical boundaries defining the area occupied by each taxonomic unit, the oil footprint. From the overlap of these areas, the oil footprint and the spatial density models we obtained the initial population sizes and the proportion of the population exposed to oil for each taxonomic unit, as described in [IniPopSizes](IniPopSizes.html)
 
 # How to reproduce the paper results
 
@@ -85,13 +73,13 @@ All the results in the paper can be recreated by the reader by running the code 
 
 The results shown in the paper tables are produced by different bits of code from the supplementary material:
 
-* Table 1 and 2 are produced within  [IniPopSizes.pdf](IniPopSizes.html); In fact, we recommend you run this first as it also creates a table (Table4GetInjury.txt) required to run the code in GetInjury.pdf that creates Table 3 below.
+* Table 1 and 2 are produced within  [IniPopSizes.pdf](IniPopSizes.html); In fact, we recommend you run this first as it also creates a table (`Table4GetInjury.txt`) required to run the code in `GetInjury.pdf` that creates Table 3 below.
 
-* Table 3 is produced within [GetInjury.pdf](GetInjury.pdf). This can only be run after you have created the results. Note that it is fundamental that there is an object `ns` that defines in "GetInjury.Rmd" the correct number of iterations you used to run the code.
+* Table 3 is produced within [GetInjury.pdf](GetInjury.pdf). This can only be run after you have created the results. Note that it is fundamental that there is an object `ns` that defines in `GetInjury.Rmd` the correct number of iterations you used to run the code.
 
 To produce the results in Table 3 the user would have to run the code chunk `getresults` (in file [GetInjury.pdf](GetInjury.pdf)) that runs the actual simulations. That chunk is set to not run by default when you compile [GetInjury.pdf](GetInjury.pdf).
 
-Running that code is safer to be done directly on a console. If you compile [GetInjury.pdf](GetInjury.pdf) after turning the argument "eval=FALSE" into "eval=TRUE" you will also get as a bonus the GetInjury document, which has summary tables of all the results. 
+Running that code is safer to be done directly on a console. If you compile [GetInjury.pdf](GetInjury.pdf) after turning the argument `eval=FALSE` into `eval=TRUE` you will also get as a bonus the `GetInjury` document, which has summary tables of all the results. 
 
 The code chunk `getresults` loops over all the 15 taxonomic units, defined by the right 4 letter code inside the object `Sps`, going into the right folders for each taxonomic unit to find the required inputs and creating outputs (R workspaces) with simulation results in the right species folders.
 
@@ -113,15 +101,15 @@ runSims(Sp = i, nsims = ns, nyears = ny)
 }
 ```
 
-The folder structure and all files required to successfully run the code is in the above github repository (under folder "FolderArchitecture2runCode"). The recommended procedure is to download this entire folder into a local folder and then run `RunAllSims.R`.
+The folder structure and all files required to successfully run the code is in the above github repository (under folder `FolderArchitecture2runCode`). The recommended procedure is to download this entire folder into a local folder and then run `RunAllSims.R`.
 
 At a bare minimum running the code requires the following folders and the material provided in them:
 
-* InputFiles: this folder includes a number of files that are treated as data, iputs required to run the code, including the key file `SpeciesDefinitionFile4offshore.xlsx` that contains all the details for all the different taxonomic units
+* `InputFiles`: this folder includes a number of files that are treated as data, inputs required to run the code, including the key file `SpeciesDefinitionFile.xlsx` that contains all the details for all the different taxonomic units
 
-* InOutBySp:  a folder that also contains a specific set of subfolders with inputs per species, namely "N_boot.csv" and "N_boot_in_oil.csv", a distribution of initial population sizes of both all animals and exposed animals. This is also the folder where results for each taxonomic unit are outputed into
+* `InOutBySp`:  a folder that also contains a specific set of subfolders with inputs per species, namely `N_boot.csv` and `N_boot_in_oil.csv`, a distribution of initial population sizes of both all animals and exposed animals. This is also the folder where results for each taxonomic unit are outputted into
 
-* Functions: folder containing all the R code including functions required to run the simulations
+* `Functions`: folder containing all the R code including functions required to run the simulations
 
 Note that the chunk `getresults` (in file [GetInjury.pdf](GetInjury.pdf)) could take a considerable amount of time to run. The consequence of running said chunk will be to populate the folders inside `InOutBySp` with the R workspaces holding the results that the rest of the code in [GetInjury.pdf](GetInjury.pdf) uses to produce the tables with injury metrics.
 
@@ -137,7 +125,7 @@ sp <- "Pmac"
 #define number of years
 years <- 50
 #define number of iterations
-# Warning: starting with a small number of iterations is higly recommended.
+# Warning: starting with a small number of iterations is highly recommended.
 sims <- 3
 # this is also inside "RunAllSims.R"
 source("Functions/reqfuns.R")         # most functions are here
@@ -150,5 +138,17 @@ This code will nonetheless require the corresponding taxonomic unit specific par
 
 # References
 
-Roberts, J. J.; Best, B. D.; Mannocci, L.; Fujioka, E.; Halpin, P. N.; Palka, D. L.; Garrison, L. P.; Mullin, K. D.; Cole, T. V. N.; Khan, C. B.; McLellan, W. A.; Pabst, D. A. & Lockhart, G. G. 2016 Habitat-based cetacean density models for the U.S. Atlantic and Gulf of Mexico *Scientific Reports* **6**: 22615
+Glennie, R.; Thomas, L.; Speakman, T.; Garrison, L.; Takeshita, R. & Schwacke, L. 2021. Estimating spatially-varying density and time-varying demographics with open population spatial capture-recapture: a photo-ID case study on bottlenose dolphins in Barataria Bay, Louisiana, USA  [arXiv:2106.09579](https://arxiv.org/abs/2106.09579)
 
+Roberts, J. J.; Best, B. D.; Mannocci, L.; Fujioka, E.; Halpin, P. N.; Palka, D. L.; Garrison, L. P.; Mullin, K. D.; Cole, T. V. N.; Khan, C. B.; McLellan, W. A.; Pabst, D. A. & Lockhart, G. G. 2016 Habitat-based cetacean density models for the U.S. Atlantic and Gulf of Mexico *Scientific Reports* **6**: 22615 DOI: [10.1038/srep22615](https://www.nature.com/articles/srep22615)
+
+# Reproducible research
+
+We have invested a considerable amount of time to make our analysis reproducible. This means also that it should be relatively straightforward for a reader to update the results with new information, be it new data that becomes available or different assumptions about population, allowing to explore both the consequences of new knowledge or the impact of the assumptions we made on the results presented.
+
+```{r fig1,eval=FALSE,echo=FALSE,fig.width=3,fig.align="center",fig.cap="\\label{fig:fig1}Artwork by @allison_horst at available at https://github.com/allisonhorst/stats-illustrations. This image illustrates the concept of reproducible research and is a tribute to Allison's work on combining art and science."}
+# All defaults
+include_graphics("figs/reproducibility_court.png")
+```
+
+![Artwork by @allison_horst at available at https://github.com/allisonhorst/stats-illustrations. This image illustrates the concept of reproducible research and is a tribute to Allison's work on combining art and science.](figs/reproducibility_court.png){width=50%}
