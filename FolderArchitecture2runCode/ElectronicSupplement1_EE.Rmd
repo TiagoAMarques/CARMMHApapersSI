@@ -1,8 +1,17 @@
 ---
-title: "Supplementary Information - Expert Elicitation"
+title: "Supplementary Information about Expert Elicitation"
 author: ""
 date:  \today
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 3
+    number_sections: true
+    theme: lumen
+  pdf_document: default
+urlcolor: blue
 ---
 
 ```{r setup, include=FALSE}
@@ -14,11 +23,12 @@ library(latex2exp)  # for tex in plot labels
 
 # Preamble
 
-***This will be a general preable common to all the documents included as Electronic Supplements to CARMMHA's offshore injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc.***
+This is an Electronic Supplement to the manuscript Marques et al. "Quantifying Deepwater Horizon oil spill induced injury on pelagic cetaceans".
 
-This is an Electronic Supplement to the paper submited to MEPS on the ??-??-???? by Marques, T. A., Thomas, L., Booth, C., Garrison, L. P., Rosel, P. E., Mullin, K. D. & L. Schwacke entitled "Quantifying Deepwater Horizon oil spill induced injury on offshore cetaceans".
+The master file containing links to all supplementary files related to this paper is this [Electronic Supplements master file](ElectronicSupplements.html).
 
-The master file with supplementary material is here: [Electronic Supplements master file](ElectronicSupplements.html).
+If you make use of any of this material in your work, it would be appreciated if you would [contact Tiago
+Marques](mailto:tiago.marques@st-andrews.ac.uk) to let him know.
 
 # Introduction
 
@@ -181,7 +191,7 @@ ry2 <- (l2+rbeta(1000000, a2, b2)*u2)-l2
 
 The mean value of this distribution is `r round(mean(ry2),3)`, the corresponding mean `r round(median(ry2),3)` and 0.025% and 0.975% quantiles of the distribution are (`r round(quantile(ry2,p=0.025),3)`,`r round(quantile(ry2,p=0.975),3)`).
  
-# Literature Cited
+# References
 
 * Astfalck L., Cripps E., Gosling J., Hodkiewicz M., Milne I. (2018) Expert elicitation of directional metocean parameters. Ocean Engineering 161, 268-276.
 

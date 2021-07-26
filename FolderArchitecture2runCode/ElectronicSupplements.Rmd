@@ -2,8 +2,14 @@
 title: "Electronic supplements for CARMMHA's pelagic injury paper"
 author: ""
 date: \today
-output:
-  html_document: default
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 3
+    number_sections: true
+    theme: lumen
   pdf_document: default
 urlcolor: blue
 ---
@@ -47,7 +53,7 @@ The other Electronic Supplements files names and brief content descriptions foll
 
 * [ElectronicSupplement1_EE](ElectronicSupplement1_EE.html) – Supplementary material about the expert elicitation exercises.
 
-* [IniPopSizes](IniPopSizes.html) – Supplementary material about the initial population sizes and proportion of animals exposed to oil. Includes point estimates of the spatial models used to estimate the stock size, the oil footprint considered to have an impact on survival, and hence the delineation of the area including the proportion exposed for each of the species considered; Note that the initial population sizes and proportion exposed are provided as data. The reason we do not provide the code that allows the user to reproduce the objects is because the model and objects used to do so are not ours to distribute. For all taxonomic units not Barataria Bay BND these come from models reported by Roberts et al. (2015). For BB BND these come from a dedicated SCR analysis (Glennie et al., 2021). This supplementary material also includes the code required to generate the paper tables 1 and 2 as well as a table used in `getInjury.Rmd`.
+* [IniPopSizes](IniPopSizes.html) – Supplementary material about the initial population sizes and proportion of animals exposed to oil. Includes point estimates of the spatial models used to estimate the stock size, the oil footprint considered to have an impact on survival, and hence the delineation of the area including the proportion exposed for each of the species considered; Note that the initial population sizes and proportion exposed are provided as data. The reason we do not provide the code that allows the user to reproduce the objects is because the model and objects used to do so are not ours to distribute. For all taxonomic units these come from models reported by Roberts et al. (2015). This supplementary material also includes the code required to generate the paper tables 1 and 2 as well as a table used in `getInjury.Rmd`.
 
 * [ElectronicSupplement4_GD](ElectronicSupplement4_GD.html)  - Supplementary material with details about how we obtained gestation duration for each taxonomic unit considered.
 
@@ -60,8 +66,6 @@ The other Electronic Supplements files names and brief content descriptions foll
 * [GetInjury.pdf](GetInjury.html)  - the code for the production of all the injury measures presented on the paper; **(work in progress TAM / TEAM)**
 
 * [ModelEvaluation.pdf](ModelEvaluation.html) - the code for the production of all the sensitivity and uncertainty presented on the paper; **(not done yet  TAM / TEAM)**
-
-* Shapefiles with the geographical boundaries defining the area occupied by each taxonomic unit, the oil footprint. From the overlap of these areas, the oil footprint and the spatial density models we obtained the initial population sizes and the proportion of the population exposed to oil for each taxonomic unit, as described in [IniPopSizes](IniPopSizes.html)
 
 # How to reproduce the paper results
 

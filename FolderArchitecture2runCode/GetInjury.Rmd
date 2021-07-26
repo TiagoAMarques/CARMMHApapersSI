@@ -2,8 +2,14 @@
 title: "Assessing injury on GOM cetaceans"
 author: ""
 date: \today
-output:
-  html_document: default
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 3
+    number_sections: true
+    theme: lumen
   pdf_document: default
 urlcolor: blue
 ---
@@ -17,17 +23,18 @@ options(scipen=999)
 
 # Preamble
 
-***This will be a general preable common to all the documents included as Electronic Supplements to CARMMHA's offshore injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc.***
+This is an Electronic Supplement to the manuscript Marques et al. "Quantifying Deepwater Horizon oil spill induced injury on pelagic cetaceans".
 
-This is an Electronic Supplement to the paper submited to MEPS on the ??-??-???? by Marques, T. A., Thomas, L., Booth, C., Garrison, L. P., Rosel, P. E., Mullin, K. D. & L. Schwacke entitled "Quantifying Deepwater Horizon oil spill induced injury on offshore cetaceans".
+The master file containing links to all supplementary files related to this paper is this [Electronic Supplements master file](ElectronicSupplements.html).
 
-The master file with supplementary material is here: [Electronic Supplements master file](ElectronicSupplements.html).
+If you make use of any of this material in your work, it would be appreciated if you would [contact Tiago
+Marques](mailto:tiago.marques@st-andrews.ac.uk) to let him know.
 
 # Introduction
 
-In this document we present the results of the age structured model implemented for all species/stock in the GOM, in particular regarding the injury metrics considered:
+In this document we present the results of the age, sex and class structured model implemented for all species/stock in the GOM. 
 
-The three specific injury metrics originally considered in Schwacke et al. (2017) were estimated: (1) lost cetacean years (LCY), the difference between the baseline and injured population sizes, summed over the entire modeled time period; (2) years to recovery (YTR), the number of years required before the injured population trajectory reaches 95% of the baseline population trajectory; and (3) maximum proportional decrease (MPD), the difference between the 2 population trajectories when the injured trajectory is at its lowest point, divided by the baseline.  Note that LCY is intuitively the metric that is most dependent on initial population size.
+We report here the injury metrics originally considered in Schwacke et al. (2017): (1) lost cetacean years (LCY), the difference between the baseline and injured population sizes, summed over the entire modeled time period; (2) years to recovery (YTR), the number of years required before the injured population trajectory reaches 95% of the baseline population trajectory; and (3) maximum proportional decrease (MPD), the difference between the 2 population trajectories when the injured trajectory is at its lowest point, divided by the baseline.  Note that LCY is intuitively the metric that is most dependent on initial population size.
 
 # Running the simulations
 
@@ -35,27 +42,27 @@ The code below runs the simulations for all species, and stores the results in a
 
 ```{r}
 #define the species we run simulations for
-Sps <- c("Bwsp", "Fatt", "Ggri", "Gmac", "Kosp", "Pele", "Pmac", "Satt", "Sbre", "Scly", "Scoe", "Sfro", "Slon", "Ttro", "Ttrs","Ttru")
+Sps <- c("Bwsp", "Fatt", "Ggri", "Gmac", "Kosp", "Pele", "Pmac", "Satt", "Sbre", "Scly", "Scoe", "Sfro", "Slon", "Ttro", "Ttrs")
 #define the number of iterations to run
-ns <- 1000
+ns <- 10000
 # define the number of years each iteration is run for
-ny <- 100
+ny <- 75
 ```
 
 ```{r getresults,eval=FALSE}
-#this runs all the simulations and produces outputs for all species
-#this code chuck is a separate file: "RunAllSims.R"
+# this runs all the simulations and produces outputs for all species
+# this code chuck is a separate file: "RunAllSims.R"
 # that is the file that should be sourced to run the code
 # this code is therefore here just for completeness
 # DON NOT turn the "eval=FALSE" into "eval=TRUE"
 # unless you are willing to wait for many (many!) hours 
 # (or even days, depending on the "ns" you choose)
-# for yyour dynamic report to compile
+# for your dynamic report to compile
 source("Functions/reqfuns.R")         # most functions are here
 source("Functions/SilerFuns.R")       # Siler model functions are here
 source("Functions/runSims.R")         # To run the simulations for all species
 for (i in Sps){
-runSims(Sp = i, nsims = ns, nyears = ny)
+  runPopSims(Sp = i, nsims = ns, nyears = ny, seed = 7134672)
 }
 ```
 
@@ -63,6 +70,8 @@ runSims(Sp = i, nsims = ns, nyears = ny)
 ```{r,cache=FALSE}
 source("Functions/reqfuns.R")         # most functions are here
 ```
+
+Creating objects to hold summary results:
 
 ```{r,cache=FALSE}
 # Set up a table to hold summary statistics by species
@@ -76,7 +85,6 @@ inputs <- data.frame(Sp=Sps, gd = NA, sr = NA)
 
 The species/taxonomic units and the corresponding codes considered in this document are:
 
-* Ttru bottlenose dolphins BB *Tursiops truncatus*
 * Pmac sperm whale	*Physeter macrocephalus*
 * Kosp kogia	*Kogia* sp.
 * Scly Clymene dolphin	*Stenella clymene*
@@ -93,20 +101,18 @@ The species/taxonomic units and the corresponding codes considered in this docum
 * Sfro Atlantic spotted dolphin	*Stenella frontalis*
 * Bwsp beaked whales	Beaked whales spp
 
-Ttru, bottlenose dolphins in Barataria Bay, are not considered in the offshore paper, but dealt with in a separate paper by Schwacke et al. 
-
 We explicitly re-order the results tables upfront so that results are organized by alphabetical order of the 4 letter code used to describe the taxonomic unit (this is also the order that the species are reported in tables 1 to 3 of the offshore paper).
 
 ```{r}
 # note there is no effect if Sps is already in alphabetical order
-# but it's here to make sure that this code will work even if
-# the vectors Sps is changed
+# but it is here to make sure that this code will work even if
+# the vector Sps is changed
 injuryCI <- injuryCI[order(Sps),]
 sumres <- sumres[order(Sps),]
 inputs <- inputs[order(Sps),]
 ```
 
-Note that the initial population sizes and proportion exposed shown below are after removing the very rare instances where the population size would be considered too large to be reasonable. This is imported from a "txt" file produced inside "IniPopSizes.Rmd". See "IniPopSizes.Rmd" and main paper for details on this choice.
+Note that the initial population sizes and proportion exposed shown below are obtained after removing the very rare instances where the population size would be considered too large to be reasonable. This is imported from a `txt` file produced inside [IniPopSizes](IniPopSizes.html). See [IniPopSizes](IniPopSizes.html) and the main paper for details on this choice.
 
 ```{r}
 IniPopSizes <- read.table(file = "Table4GetInjury.txt",header=TRUE)
@@ -115,51 +121,14 @@ IniPopSizes <- IniPopSizes[order(Sps),]
 
 # Results by species
 
-## Bottlenose dolphins BB Tursiops truncatus
+We represent in turn, for each species, the simulated population trajectories under the oil spill and under the baseline scenarios, as well as the histograms of the distributions of the 3 injury metrics for each species.
 
-Note that, while we present here results for Barataria Bay botlenose dolphins, this taxonomic unit is not considered in the offshore paper. They are the subject of a separate dedicated paper by Schwacke et al.
+## *Physeter macrocephalus* (Pmac, sperm whale)
 
 ```{r,cache=FALSE}
-Sp <- "Ttru"
+gc();Sp <- "Pmac"
 SpInfo <- getSpData(Sp)
-load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, ".RData"))
-inputs$gd[inputs$Sp==Sp] <- SpInfo$gd
-inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+srl))
-```
-
-Population trajectories
-
-```{r,cache=FALSE}
-plotSims(simres)
-```
-
-Injury measures
-
-```{r,cache=FALSE}
-x <- getInjury(simres)
-colMeans(injury)
-apply(injury, 2, median)
-```
-
-Colect information to summary table
-
-```{r,cache=FALSE}
-sumres[sumres$Sp==Sp, 2:15]<-c(SpInfo$N, SpInfo$pe, SpInfo$LCY, SpInfo$MPD, SpInfo$YTR, IniPopSizes$N[IniPopSizes$Sp==Sp], IniPopSizes$Ne[IniPopSizes$Sp==Sp], IniPopSizes$Pe[IniPopSizes$Sp==Sp], mean(injury$LCY), mean(injury$MPD), mean(injury$YTR),  median(injury$LCY), median(injury$MPD), median(injury$YTR))
-```
-
-and collect information to injury summary table
-
-```{r}
-injuryCI[injuryCI$Sp==Sp, 2:10]<-c(median(injury$LCY), quantile(injury$LCY, probs=c(0.025,0.975)), median(injury$MPD), quantile(injury$MPD, probs = c(0.025, 0.975)), median(injury$YTR), quantile(injury$YTR,probs = c(0.025, 0.975)))
-```
-
-## Sperm whale	Physeter macrocephalus
-
-
-```{r,cache=FALSE}
-Sp <- "Pmac"
-SpInfo <- getSpData(Sp)
-load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, ".RData"))
+load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, "Sim.RData"))
 inputs$gd[inputs$Sp==Sp] <- SpInfo$gd 
 inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+srl))
 ```
@@ -178,16 +147,7 @@ colMeans(injury)
 apply(injury, 2, median)
 ```
 
-Fecundity and IBI
-
-```{r,cache=FALSE}
-par(mfrow=c(1,2))
-hist(fecs,main="Fecundity in year 0")
-hist(1/fecs,main="IBI in year 0")
-abline(v = SpInfo$ib.nom, lty = 2)
-```
-
-Colect information to summary table
+Collect information to summary table
 
 ```{r,cache=FALSE}
 sumres[sumres$Sp==Sp, 2:15]<-c(SpInfo$N, SpInfo$pe, SpInfo$LCY, SpInfo$MPD, SpInfo$YTR, IniPopSizes$N[IniPopSizes$Sp==Sp], IniPopSizes$Ne[IniPopSizes$Sp==Sp], IniPopSizes$Pe[IniPopSizes$Sp==Sp], mean(injury$LCY), mean(injury$MPD), mean(injury$YTR),  median(injury$LCY), median(injury$MPD), median(injury$YTR))
@@ -199,13 +159,12 @@ and collect information to injury summary table
 injuryCI[injuryCI$Sp==Sp, 2:10]<-c(median(injury$LCY), quantile(injury$LCY, probs=c(0.025,0.975)), median(injury$MPD), quantile(injury$MPD, probs = c(0.025, 0.975)), median(injury$YTR), quantile(injury$YTR,probs = c(0.025, 0.975)))
 ```
 
-## kogia	Kogia sp.
-
+## *Kogia* sp. (Kosp, kogia)
 
 ```{r,cache=FALSE}
-Sp <- "Kosp"
+gc();Sp <- "Kosp"
 SpInfo <- getSpData(Sp)
-load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, ".RData"))
+load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, "Sim.RData"))
 inputs$gd[inputs$Sp==Sp] <- SpInfo$gd
 inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+srl))
 ```
@@ -224,16 +183,7 @@ colMeans(injury)
 apply(injury, 2, median)
 ```
 
-Fecundity and IBI
-
-```{r, cache=FALSE}
-par(mfrow=c(1, 2))
-hist(fecs,main = "Fecundity in year 0")
-hist(1/fecs,main = "IBI in year 0")
-abline(v = SpInfo$ib.nom, lty = 2)
-```
-
-Colect information to summary table
+Collect information to summary table
 
 ```{r, cache=FALSE}
 sumres[sumres$Sp==Sp, 2:15]<-c(SpInfo$N, SpInfo$pe, SpInfo$LCY, SpInfo$MPD, SpInfo$YTR, IniPopSizes$N[IniPopSizes$Sp==Sp], IniPopSizes$Ne[IniPopSizes$Sp==Sp], IniPopSizes$Pe[IniPopSizes$Sp==Sp], mean(injury$LCY), mean(injury$MPD), mean(injury$YTR),  median(injury$LCY), median(injury$MPD), median(injury$YTR))
@@ -245,15 +195,12 @@ and collect information to injury summary table
 injuryCI[injuryCI$Sp==Sp, 2:10]<-c(median(injury$LCY), quantile(injury$LCY, probs=c(0.025,0.975)), median(injury$MPD), quantile(injury$MPD, probs = c(0.025, 0.975)), median(injury$YTR), quantile(injury$YTR,probs = c(0.025, 0.975)))
 ```
 
-
-## Clymene dolphin	Stenella clymene
-
-
+## *Stenella clymene* (Scly, Clymene dolphin)	
 
 ```{r,cache=FALSE}
-Sp <- "Scly"
+gc();Sp <- "Scly"
 SpInfo <- getSpData(Sp)
-load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, ".RData"))
+load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, "Sim.RData"))
 inputs$gd[inputs$Sp==Sp] <- SpInfo$gd
 inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+srl))
 ```
@@ -272,16 +219,7 @@ colMeans(injury)
 apply(injury, 2, median)
 ```
 
-Fecundity and IBI
-
-```{r,cache=FALSE}
-par(mfrow=c(1, 2))
-hist(fecs, main = "Fecundity in year 0")
-hist(1/fecs, main = "IBI in year 0")
-abline(v = SpInfo$ib.nom, lty = 2)
-```
-
-Colect information to summary table
+Collect information to summary table
 
 ```{r,cache=FALSE}
 sumres[sumres$Sp==Sp, 2:15]<-c(SpInfo$N, SpInfo$pe, SpInfo$LCY, SpInfo$MPD, SpInfo$YTR, IniPopSizes$N[IniPopSizes$Sp==Sp], IniPopSizes$Ne[IniPopSizes$Sp==Sp], IniPopSizes$Pe[IniPopSizes$Sp==Sp], mean(injury$LCY), mean(injury$MPD), mean(injury$YTR),  median(injury$LCY), median(injury$MPD), median(injury$YTR))
@@ -292,13 +230,12 @@ and collect information to injury summary table
 injuryCI[injuryCI$Sp==Sp, 2:10]<-c(median(injury$LCY), quantile(injury$LCY, probs=c(0.025,0.975)), median(injury$MPD), quantile(injury$MPD, probs = c(0.025, 0.975)), median(injury$YTR), quantile(injury$YTR,probs = c(0.025, 0.975)))
 ```
 
-## Melon-headed whale	Peponocephala electra
-
+## *Peponocephala electra* (Pele, melon-headed whale)	
 
 ```{r,cache=FALSE}
-Sp <- "Pele"
+gc();Sp <- "Pele"
 SpInfo <- getSpData(Sp)
-load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, ".RData"))
+load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, "Sim.RData"))
 inputs$gd[inputs$Sp==Sp] <- SpInfo$gd
 inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+srl))
 ```
@@ -317,32 +254,24 @@ colMeans(injury)
 apply(injury, 2, median)
 ```
 
-Fecundity and IBI
-
-```{r,cache=FALSE}
-par(mfrow=c(1,2))
-hist(fecs,main="Fecundity in year 0")
-hist(1/fecs,main="IBI in year 0")
-abline(v = SpInfo$ib.nom, lty = 2)
-```
-
-Colect information to summary table
+Collect information to summary table
 
 ```{r,cache=FALSE}
 sumres[sumres$Sp==Sp, 2:15]<-c(SpInfo$N, SpInfo$pe, SpInfo$LCY, SpInfo$MPD, SpInfo$YTR, IniPopSizes$N[IniPopSizes$Sp==Sp], IniPopSizes$Ne[IniPopSizes$Sp==Sp], IniPopSizes$Pe[IniPopSizes$Sp==Sp], mean(injury$LCY), mean(injury$MPD), mean(injury$YTR),  median(injury$LCY), median(injury$MPD), median(injury$YTR))
 ```
+
 and collect information to injury summary table
 
 ```{r}
 injuryCI[injuryCI$Sp==Sp, 2:10]<-c(median(injury$LCY), quantile(injury$LCY, probs=c(0.025,0.975)), median(injury$MPD), quantile(injury$MPD, probs = c(0.025, 0.975)), median(injury$YTR), quantile(injury$YTR,probs = c(0.025, 0.975)))
 ```
 
-## Offshore bottlenose dolphins	Tursiops truncatus
+## *Tursiops truncatus* (Ttro, offshore bottlenose dolphin)	
 
 ```{r,cache=FALSE}
-Sp <- "Ttro"
+gc();Sp <- "Ttro"
 SpInfo <- getSpData(Sp)
-load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, ".RData"))
+load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, "Sim.RData"))
 inputs$gd[inputs$Sp==Sp] <- SpInfo$gd
 inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+srl))
 ```
@@ -361,33 +290,24 @@ colMeans(injury)
 apply(injury, 2, median)
 ```
 
-Fecundity and IBI
-
-```{r,cache=FALSE}
-par(mfrow=c(1,2))
-hist(fecs,main="Fecundity in year 0")
-hist(1/fecs,main="IBI in year 0")
-abline(v = SpInfo$ib.nom, lty = 2)
-```
-
-Colect information to summary table
+Collect information to summary table
 
 ```{r,cache=FALSE}
 sumres[sumres$Sp==Sp, 2:15]<-c(SpInfo$N, SpInfo$pe, SpInfo$LCY, SpInfo$MPD, SpInfo$YTR, IniPopSizes$N[IniPopSizes$Sp==Sp], IniPopSizes$Ne[IniPopSizes$Sp==Sp], IniPopSizes$Pe[IniPopSizes$Sp==Sp], mean(injury$LCY), mean(injury$MPD), mean(injury$YTR),  median(injury$LCY), median(injury$MPD), median(injury$YTR))
 ```
+
 and collect information to injury summary table
 
 ```{r}
 injuryCI[injuryCI$Sp==Sp, 2:10]<-c(median(injury$LCY), quantile(injury$LCY, probs=c(0.025,0.975)), median(injury$MPD), quantile(injury$MPD, probs = c(0.025, 0.975)), median(injury$YTR), quantile(injury$YTR,probs = c(0.025, 0.975)))
 ```
 
-## Short finned Pilot whale Globicephala macrorhynchus
-
+## *Globicephala macrorhynchus* (Gmac, short finned pilot whale) 
 
 ```{r,cache=FALSE}
-Sp <- "Gmac"
+gc();Sp <- "Gmac"
 SpInfo <- getSpData(Sp)
-load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, ".RData"))
+load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, "Sim.RData"))
 inputs$gd[inputs$Sp==Sp] <- SpInfo$gd
 inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+srl))
 ```
@@ -406,33 +326,25 @@ colMeans(injury)
 apply(injury, 2, median)
 ```
 
-Fecundity and IBI
-
-```{r,cache=FALSE}
-par(mfrow=c(1,2))
-hist(fecs,main="Fecundity in year 0")
-hist(1/fecs,main="IBI in year 0")
-abline(v = SpInfo$ib.nom, lty = 2)
-```
-
-Colect information to summary table
+Collect information to summary table
 
 ```{r,cache=FALSE}
 sumres[sumres$Sp==Sp, 2:15]<-c(SpInfo$N, SpInfo$pe, SpInfo$LCY, SpInfo$MPD, SpInfo$YTR, IniPopSizes$N[IniPopSizes$Sp==Sp], IniPopSizes$Ne[IniPopSizes$Sp==Sp], IniPopSizes$Pe[IniPopSizes$Sp==Sp], mean(injury$LCY), mean(injury$MPD), mean(injury$YTR),  median(injury$LCY), median(injury$MPD), median(injury$YTR))
 ```
+
 and collect information to injury summary table
 
 ```{r}
 injuryCI[injuryCI$Sp==Sp, 2:10]<-c(median(injury$LCY), quantile(injury$LCY, probs=c(0.025,0.975)), median(injury$MPD), quantile(injury$MPD, probs = c(0.025, 0.975)), median(injury$YTR), quantile(injury$YTR,probs = c(0.025, 0.975)))
 ```
 
-## Pygmy killer whale	Feresa attenuata
+## *Feresa attenuata* (Fatt, pygmy killer whale)	
 
 
 ```{r,cache=FALSE}
-Sp <- "Fatt"
+gc();Sp <- "Fatt"
 SpInfo <- getSpData(Sp)
-load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, ".RData"))
+load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, "Sim.RData"))
 inputs$gd[inputs$Sp==Sp] <- SpInfo$gd
 inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+srl))
 ```
@@ -451,32 +363,24 @@ colMeans(injury)
 apply(injury, 2, median)
 ```
 
-Fecundity and IBI
-
-```{r,cache=FALSE}
-par(mfrow=c(1,2))
-hist(fecs,main="Fecundity in year 0")
-hist(1/fecs,main="IBI in year 0")
-abline(v = SpInfo$ib.nom, lty = 2)
-```
-
-Colect information to summary table
+Collect information to summary table
 
 ```{r,cache=FALSE}
 sumres[sumres$Sp==Sp, 2:15]<-c(SpInfo$N, SpInfo$pe, SpInfo$LCY, SpInfo$MPD, SpInfo$YTR, IniPopSizes$N[IniPopSizes$Sp==Sp], IniPopSizes$Ne[IniPopSizes$Sp==Sp], IniPopSizes$Pe[IniPopSizes$Sp==Sp], mean(injury$LCY), mean(injury$MPD), mean(injury$YTR),  median(injury$LCY), median(injury$MPD), median(injury$YTR))
 ```
+
 and collect information to injury summary table
 
 ```{r}
 injuryCI[injuryCI$Sp==Sp, 2:10]<-c(median(injury$LCY), quantile(injury$LCY, probs=c(0.025,0.975)), median(injury$MPD), quantile(injury$MPD, probs = c(0.025, 0.975)), median(injury$YTR), quantile(injury$YTR,probs = c(0.025, 0.975)))
 ```
 
-## Risso's dolphin	Grampus griseus
+## *Grampus griseus* (Ggri, Risso's dolphin)	
 
 ```{r}
-Sp <- "Ggri"
+gc();Sp <- "Ggri"
 SpInfo <- getSpData(Sp)
-load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, ".RData"))
+load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, "Sim.RData"))
 inputs$gd[inputs$Sp==Sp] <- SpInfo$gd
 inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+srl))
 ```
@@ -495,34 +399,24 @@ colMeans(injury)
 apply(injury, 2, median)
 ```
 
-Fecundity and IBI
-
-```{r}
-par(mfrow=c(1,2))
-hist(fecs,main="Fecundity in year 0")
-hist(1/fecs,main="IBI in year 0")
-abline(v = SpInfo$ib.nom, lty = 2)
-```
-
-Colect information to summary table
+Collect information to summary table
 
 ```{r}
 sumres[sumres$Sp==Sp, 2:15]<-c(SpInfo$N, SpInfo$pe, SpInfo$LCY, SpInfo$MPD, SpInfo$YTR, IniPopSizes$N[IniPopSizes$Sp==Sp], IniPopSizes$Ne[IniPopSizes$Sp==Sp], IniPopSizes$Pe[IniPopSizes$Sp==Sp], mean(injury$LCY), mean(injury$MPD), mean(injury$YTR),  median(injury$LCY), median(injury$MPD), median(injury$YTR))
 ```
+
 and collect information to injury summary table
 
 ```{r}
 injuryCI[injuryCI$Sp==Sp, 2:10]<-c(median(injury$LCY), quantile(injury$LCY, probs=c(0.025,0.975)), median(injury$MPD), quantile(injury$MPD, probs = c(0.025, 0.975)), median(injury$YTR), quantile(injury$YTR,probs = c(0.025, 0.975)))
 ```
 
-## Rough-toothed dolphin	Steno bredanensis
-
-
+## *Steno bredanensis* (Sbre, rough-toothed dolphin)	
 
 ```{r,cache=FALSE}
-Sp <- "Sbre"
+gc();Sp <- "Sbre"
 SpInfo <- getSpData(Sp)
-load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, ".RData"))
+load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, "Sim.RData"))
 inputs$gd[inputs$Sp==Sp] <- SpInfo$gd
 inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+srl))
 ```
@@ -541,34 +435,24 @@ colMeans(injury)
 apply(injury, 2, median)
 ```
 
-Fecundity and IBI
-
-```{r,cache=FALSE}
-par(mfrow=c(1,2))
-hist(fecs,main="Fecundity in year 0")
-hist(1/fecs,main="IBI in year 0")
-abline(v = SpInfo$ib.nom, lty = 2)
-```
-
-Colect information to summary table
+Collect information to summary table
 
 ```{r,cache=FALSE}
 sumres[sumres$Sp==Sp, 2:15]<-c(SpInfo$N, SpInfo$pe, SpInfo$LCY, SpInfo$MPD, SpInfo$YTR, IniPopSizes$N[IniPopSizes$Sp==Sp], IniPopSizes$Ne[IniPopSizes$Sp==Sp], IniPopSizes$Pe[IniPopSizes$Sp==Sp], mean(injury$LCY), mean(injury$MPD), mean(injury$YTR),  median(injury$LCY), median(injury$MPD), median(injury$YTR))
 ```
+
 and collect information to injury summary table
 
 ```{r}
 injuryCI[injuryCI$Sp==Sp, 2:10]<-c(median(injury$LCY), quantile(injury$LCY, probs=c(0.025,0.975)), median(injury$MPD), quantile(injury$MPD, probs = c(0.025, 0.975)), median(injury$YTR), quantile(injury$YTR,probs = c(0.025, 0.975)))
 ```
 
-## Pantropical spotted dolphin	Stenella attenuata
-
-
+## *Stenella attenuata* (Satt, pantropical spotted dolphin)	
 
 ```{r,cache=FALSE}
-Sp <- "Satt"
+gc();Sp <- "Satt"
 SpInfo <- getSpData(Sp)
-load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, ".RData"))
+load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, "Sim.RData"))
 inputs$gd[inputs$Sp==Sp] <- SpInfo$gd
 inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+srl))
 ```
@@ -587,16 +471,7 @@ colMeans(injury)
 apply(injury, 2, median)
 ```
 
-Fecundity and IBI
-
-```{r,cache=FALSE}
-par(mfrow=c(1,2))
-hist(fecs,main="Fecundity in year 0")
-hist(1/fecs,main="IBI in year 0")
-abline(v = SpInfo$ib.nom, lty = 2)
-```
-
-Colect information to summary table
+Collect information to summary table
 
 ```{r,cache=FALSE}
 sumres[sumres$Sp==Sp, 2:15]<-c(SpInfo$N, SpInfo$pe, SpInfo$LCY, SpInfo$MPD, SpInfo$YTR, IniPopSizes$N[IniPopSizes$Sp==Sp], IniPopSizes$Ne[IniPopSizes$Sp==Sp], IniPopSizes$Pe[IniPopSizes$Sp==Sp], mean(injury$LCY), mean(injury$MPD), mean(injury$YTR),  median(injury$LCY), median(injury$MPD), median(injury$YTR))
@@ -608,13 +483,12 @@ and collect information to injury summary table
 injuryCI[injuryCI$Sp==Sp, 2:10]<-c(median(injury$LCY), quantile(injury$LCY, probs=c(0.025,0.975)), median(injury$MPD), quantile(injury$MPD, probs = c(0.025, 0.975)), median(injury$YTR), quantile(injury$YTR,probs = c(0.025, 0.975)))
 ```
 
-## Shelf bottlenose dolphins	Tursiops truncatus
-
+## *Tursiops truncatus* (Ttrs, shelf bottlenose dolphin)	
 
 ```{r,cache=FALSE}
-Sp <- "Ttrs"
+gc();Sp <- "Ttrs"
 SpInfo <- getSpData(Sp)
-load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, ".RData"))
+load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, "Sim.RData"))
 inputs$gd[inputs$Sp==Sp] <- SpInfo$gd
 inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+srl))
 ```
@@ -633,16 +507,7 @@ colMeans(injury)
 apply(injury, 2, median)
 ```
 
-Fecundity and IBI
-
-```{r,cache=FALSE}
-par(mfrow=c(1,2))
-hist(fecs,main="Fecundity in year 0")
-hist(1/fecs,main="IBI in year 0")
-abline(v = SpInfo$ib.nom, lty = 2)
-```
-
-Colect information to summary table
+Collect information to summary table
 
 ```{r,cache=FALSE}
 sumres[sumres$Sp==Sp, 2:15]<-c(SpInfo$N, SpInfo$pe, SpInfo$LCY, SpInfo$MPD, SpInfo$YTR, IniPopSizes$N[IniPopSizes$Sp==Sp], IniPopSizes$Ne[IniPopSizes$Sp==Sp], IniPopSizes$Pe[IniPopSizes$Sp==Sp], mean(injury$LCY), mean(injury$MPD), mean(injury$YTR),  median(injury$LCY), median(injury$MPD), median(injury$YTR))
@@ -654,14 +519,12 @@ and collect information to injury summary table
 injuryCI[injuryCI$Sp==Sp, 2:10]<-c(median(injury$LCY), quantile(injury$LCY, probs=c(0.025,0.975)), median(injury$MPD), quantile(injury$MPD, probs = c(0.025, 0.975)), median(injury$YTR), quantile(injury$YTR,probs = c(0.025, 0.975)))
 ```
 
-## Spinner dolphin	Stenella longirostris
-
-
+## *Stenella longirostris* (Slon, spinner dolphin)	
 
 ```{r,cache=FALSE}
-Sp <- "Slon"
+gc();Sp <- "Slon"
 SpInfo <- getSpData(Sp)
-load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, ".RData"))
+load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, "Sim.RData"))
 inputs$gd[inputs$Sp==Sp] <- SpInfo$gd
 inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+srl))
 ```
@@ -680,16 +543,7 @@ colMeans(injury)
 apply(injury, 2, median)
 ```
 
-Fecundity and IBI
-
-```{r,cache=FALSE}
-par(mfrow=c(1,2))
-hist(fecs,main="Fecundity in year 0")
-hist(1/fecs,main="IBI in year 0")
-abline(v = SpInfo$ib.nom, lty = 2)
-```
-
-Colect information to summary table
+Collect information to summary table
 
 ```{r,cache=FALSE}
 sumres[sumres$Sp==Sp, 2:15]<-c(SpInfo$N, SpInfo$pe, SpInfo$LCY, SpInfo$MPD, SpInfo$YTR, IniPopSizes$N[IniPopSizes$Sp==Sp], IniPopSizes$Ne[IniPopSizes$Sp==Sp], IniPopSizes$Pe[IniPopSizes$Sp==Sp], mean(injury$LCY), mean(injury$MPD), mean(injury$YTR),  median(injury$LCY), median(injury$MPD), median(injury$YTR))
@@ -701,13 +555,13 @@ and collect information to injury summary table
 injuryCI[injuryCI$Sp==Sp, 2:10]<-c(median(injury$LCY), quantile(injury$LCY, probs=c(0.025,0.975)), median(injury$MPD), quantile(injury$MPD, probs = c(0.025, 0.975)), median(injury$YTR), quantile(injury$YTR,probs = c(0.025, 0.975)))
 ```
 
-## Striped dolphin	Stenella coeruleoalba
+## *Stenella coeruleoalba* (Scoe, striped dolphin)	
 
 
 ```{r,cache=FALSE}
-Sp <- "Scoe"
+gc();Sp <- "Scoe"
 SpInfo <- getSpData(Sp)
-load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, ".RData"))
+load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, "Sim.RData"))
 inputs$gd[inputs$Sp==Sp] <- SpInfo$gd
 inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+srl))
 ```
@@ -726,16 +580,7 @@ colMeans(injury)
 apply(injury, 2, median)
 ```
 
-Fecundity and IBI
-
-```{r,cache=FALSE}
-par(mfrow=c(1,2))
-hist(fecs,main="Fecundity in year 0")
-hist(1/fecs,main="IBI in year 0")
-abline(v = SpInfo$ib.nom, lty = 2)
-```
-
-Colect information to summary table
+Collect information to summary table
 
 ```{r,cache=FALSE}
 sumres[sumres$Sp==Sp, 2:15]<-c(SpInfo$N, SpInfo$pe, SpInfo$LCY, SpInfo$MPD, SpInfo$YTR, IniPopSizes$N[IniPopSizes$Sp==Sp], IniPopSizes$Ne[IniPopSizes$Sp==Sp], IniPopSizes$Pe[IniPopSizes$Sp==Sp], mean(injury$LCY), mean(injury$MPD), mean(injury$YTR),  median(injury$LCY), median(injury$MPD), median(injury$YTR))
@@ -748,13 +593,13 @@ and collect information to injury summary table
 injuryCI[injuryCI$Sp==Sp, 2:10]<-c(median(injury$LCY), quantile(injury$LCY, probs=c(0.025,0.975)), median(injury$MPD), quantile(injury$MPD, probs = c(0.025, 0.975)), median(injury$YTR), quantile(injury$YTR,probs = c(0.025, 0.975)))
 ```
 
-## Atlantic spotted dolphin	Stenella frontalis
+## *Stenella frontalis* (Sfro, Atlantic spotted dolphin)	
 
 
 ```{r,cache=FALSE}
-Sp <- "Sfro"
+gc();Sp <- "Sfro"
 SpInfo <- getSpData(Sp)
-load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, ".RData"))
+load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, "Sim.RData"))
 inputs$gd[inputs$Sp==Sp] <- SpInfo$gd
 inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+srl))
 ```
@@ -773,16 +618,7 @@ colMeans(injury)
 apply(injury, 2, median)
 ```
 
-Fecundity and IBI
-
-```{r,cache=FALSE}
-par(mfrow=c(1,2))
-hist(fecs,main="Fecundity in year 0")
-hist(1/fecs,main="IBI in year 0")
-abline(v = SpInfo$ib.nom, lty = 2)
-```
-
-Colect information to summary table
+Collect information to summary table
 
 ```{r,cache=FALSE}
 sumres[sumres$Sp==Sp, 2:15]<-c(SpInfo$N, SpInfo$pe, SpInfo$LCY, SpInfo$MPD, SpInfo$YTR, IniPopSizes$N[IniPopSizes$Sp==Sp], IniPopSizes$Ne[IniPopSizes$Sp==Sp], IniPopSizes$Pe[IniPopSizes$Sp==Sp], mean(injury$LCY), mean(injury$MPD), mean(injury$YTR),  median(injury$LCY), median(injury$MPD), median(injury$YTR))
@@ -794,13 +630,12 @@ and collect information to injury summary table
 injuryCI[injuryCI$Sp==Sp, 2:10]<-c(median(injury$LCY), quantile(injury$LCY, probs=c(0.025,0.975)), median(injury$MPD), quantile(injury$MPD, probs = c(0.025, 0.975)), median(injury$YTR), quantile(injury$YTR,probs = c(0.025, 0.975)))
 ```
 
-## Beaked whales	Beaked whales spp
+## Beaked whales spp (Bwsp)
  
-
 ```{r,cache=FALSE}
-Sp <- "Bwsp"
+gc();Sp <- "Bwsp"
 SpInfo <- getSpData(Sp)
-load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, ".RData"))
+load(file=paste0("InOutBySp/", SpInfo$folder, "/", Sp, "simres", ns, "Sim.RData"))
 inputs$gd[inputs$Sp==Sp] <- SpInfo$gd
 inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+srl))
 ```
@@ -819,16 +654,7 @@ colMeans(injury)
 apply(injury, 2, median)
 ```
 
-Fecundity and IBI
-
-```{r,cache=FALSE}
-par(mfrow=c(1,2))
-hist(fecs,main="Fecundity in year 0")
-hist(1/fecs,main="IBI in year 0")
-abline(v = SpInfo$ib.nom, lty = 2)
-```
-
-Colect information to summary table
+Collect information to summary table
 
 ```{r,cache=FALSE}
 sumres[sumres$Sp==Sp, 2:15]<-c(SpInfo$N, SpInfo$pe, SpInfo$LCY, SpInfo$MPD, SpInfo$YTR, IniPopSizes$N[IniPopSizes$Sp==Sp], IniPopSizes$Ne[IniPopSizes$Sp==Sp], IniPopSizes$Pe[IniPopSizes$Sp==Sp], mean(injury$LCY), mean(injury$MPD), mean(injury$YTR),  median(injury$LCY), median(injury$MPD), median(injury$YTR))
@@ -842,24 +668,25 @@ injuryCI[injuryCI$Sp==Sp, 2:10]<-c(median(injury$LCY), quantile(injury$LCY, prob
 
 # Comparisons across species
 
-
+In this section we present some summary analysis o the results across the 15 taxonomic units considered.
 
 ```{r}
+#just some rounding for nicer visualization below
 sumres$Nstart=round(sumres$Nstart)
 sumres$Pexp=round(sumres$Pexp,3)
 ```
 
-
 ## Initial population and proportion exposed
 
-The population size and the proportion exposed are a priori expected to be the key determinants of injury, since the population size will have a direct impact on LCY and the proportion exposed should have a direct impact on all 3 measures.
-
+The population size and the proportion exposed are $a priori$ expected to be key determinants of injury, since the population size will have a direct impact on LCY and the proportion exposed should have a direct impact on all 3 measures.
 
 ```{r,cache=FALSE}
 kable(sumres[, c(1, 2, 7, 3, 9)],caption = "Initial population size (N) and proportion exposed (pe or Pexp) for the different stocks considered.  The suffix o indicates old results from the MMIQT report and Schwacke et al. 2017",digits = c(0, 0, 0, 3, 3))
 ```
 
-The image below illustrates that there is no clear relationship between the initial population size assumed before and the one being currently considered. This was expected given the completely different way in which population sizes were obtained in this exercise (via a spatial model) and before (coarser stratification).
+***DELETE IMAGES BELOW AND REMOVE MMIQT RESULTS ABOVE?***
+
+The image below illustrates that there is no clear relationship between the initial population size assumed before (DWH MMIQT 2015) and the one being currently considered. This was expected given the completely different way in which population sizes were obtained in this exercise (via a spatial model) and before (a coarser stratification approach).
 
 ```{r,cache=FALSE}
 with(sumres, plot(No,Nstart))
@@ -873,11 +700,15 @@ with(sumres, plot(peo, Pexp))
 abline(0,1)
 ```
 
+This illustrates how direct comparisons of results between here and the previous DWH MMIQT (2015) results is far from straightforward, since not only the model has changed, but the inputs to the model have also changed.
+
+***DELETE IMAGES ABOVE AND REMOVE MMIQT RESULTS ABOVE?***
+
 ## Injury metrics
 
 ### Means and Medians
 
-In the following table we present the means and medians of the injury metrics for the current simulations (the old results are also shown for comparison)
+In the following table we present the means and medians of the injury metrics for the current simulations, while the previous DWH MMIQT (2015) results are also shown for comparison:
 
 ```{r,cache=FALSE}
 sumres$MPD <- -(sumres$MPD/100)
@@ -917,7 +748,7 @@ write.table(sumres,"sumres.txt")
 
 # Discussion (work in progress)
 
-To facilitate the discussion of the results obtained we present below explicitly comparisons between the old values of injury (Schwacke et al. 2017 for Barataria Bay, MMIQT report for offshore taxonomic units) and the current values for injury we are estimating.
+To facilitate the discussion of the results obtained we present below explicitly comparisons between the previous values of injury (DWH MMIQT , 2015) and the current values for injury we are estimating.
 
 We present such comparisons first for LCY
 
@@ -973,7 +804,7 @@ abline(lm(sumres$YTR~sumres$Pexp),col=4,lty=2)
 legend("topright",col=3:4,lty=2,c("old","new"),inset=0.05)
 ```
 
-As noted above, one can anticipate that LCY would be strongly dependent on the initial population size and the proportion exposed. Therefore, we fit a linear model to explain LCY as a function of these two quantities. The summary of the corresponding linear model follows. Then we present a plot representing the observed values of LCY and those obtained by predicting from fitting a linear model of LCY as explained by initial population size and the proportion exposed.  
+As noted above, one can anticipate that LCY would be strongly dependent on the initial population size and the proportion exposed. Therefore, we fit a linear model, treating species as sampling units, to explain LCY as a function of these two quantities. The summary of the corresponding linear model follows. Then we present a plot representing the observed values of LCY and those obtained by predicting from fitting a linear model of LCY as explained by initial population size and the proportion exposed.  
 
 ```{r}
 lmLCY <- lm(LCY ~ Pexp + Nstart, data = sumres)
@@ -983,15 +814,13 @@ plot(sumres$LCY, predict(lmLCY))
 
 The LCY is very well explained by these two variable alone. A bit surprisingly, adding the gestation duration (that scales survival across species) does not even seem to help in explaining the injury
 
-
 ```{r}
 lmLCY2 <- lm(LCY ~ Pexp + Nstart + inputs$gd, data = sumres)
 summary(lmLCY2)
 plot(sumres$LCY, predict(lmLCY2))
 ```
 
-The same seems to happen for the survival reduction
-
+The same seems to happen for the survival reduction, i.e., once poulation size and proportion exposed are acounted for, the remaining variation in LCY is negligible.
 
 ```{r}
 lmLCY3 <- lm(LCY ~ Pexp + Nstart + inputs$sr, data = sumres)
@@ -999,9 +828,7 @@ summary(lmLCY3)
 plot(sumres$LCY, predict(lmLCY3))
 ```
 
-We note that, when compared to the earlier assessments, the injury seems now considerably less than before. A large part of this was a bug in the calculation in the MMIQT values for LCY, but a part of it might be due to the modelling, and the many changes implemented from then to now.
-
-Until almost the last minute, when we were considering the decrease in the survival probability as before, the results for BND in BB were similar to those obtained before. However, after receiving the preliminary results from the SECR model implemented by Richard Glennie that we are hoping to use, it became apparent that the impact was much lower, essentially because the initial drop survival is estimated not to have been as strong as it was assumed before.
+We note that, when compared to the earlier assessments, the injury seems now considerably less than before. A large part of this was a bug in the calculation in the MMIQT values for LCY, but a part of it might be due to the modeling, and the many changes implemented from then to now.
 
 ## Species by species discussion
 
@@ -1018,7 +845,6 @@ We observe the following changes in injury and in key quantities that might affe
 * years to recovery came down from `r round(sumres$YTRo[sumres$Sp=="Bwsp"],1)` to `r round(sumres$YTR[sumres$Sp=="Bwsp"],1)`
 * The assumed initial population size changed from `r round(sumres$No[sumres$Sp=="Bwsp"],3)` to `r round(sumres$Nstart[sumres$Sp=="Bwsp"],3)`
 * The proportion of the population exposed before was `r round(sumres$peo[sumres$Sp=="Bwsp"],3)` and it is now `r round(sumres$Pexp[sumres$Sp=="Bwsp"],3)`.
-
 
 ### Fatt pygmy killer whale	*Feresa attenuata*
 
@@ -1105,7 +931,6 @@ We note that the assumed initial population size increased considerably compared
 
 While a drop in the LCY can be explained by the already mentioned bug in the LCY calculation, and the reduction in the proportion exposed is also relevant (before it was `r round(sumres$peo[sumres$Sp=="Satt"],3)`, now it is `r round(sumres$Pexp[sumres$Sp=="Satt"],3)`, these do not seem enough to justify the observed differences, namely in the YTR.
 
-
 ### Sbre rough-toothed dolphin	*Steno bredanensis*
 
 We observe the following changes in injury and in key quantities that might affect the injury (initial population size and the proportion of the population exposed):
@@ -1116,7 +941,7 @@ We observe the following changes in injury and in key quantities that might affe
 * The assumed initial population size changed from `r round(sumres$No[sumres$Sp=="Sbre"],3)` to `r round(sumres$Nstart[sumres$Sp=="Sbre"],3)`
 * The proportion of the population exposed before was `r round(sumres$peo[sumres$Sp=="Sbre"],3)` and it is now `r round(sumres$Pexp[sumres$Sp=="Sbre"],3)`.
 
-The major difference observed for the proportion exposed could explain most of the diferences.
+The major difference observed for the proportion exposed could explain most of the observed differences.
 
 ### Scly Clymene dolphin	*Stenella clymene*
 
@@ -1139,6 +964,8 @@ We observe the following changes in injury and in key quantities that might affe
 * The proportion of the population exposed before was `r round(sumres$peo[sumres$Sp=="Scoe"],3)` and it is now `r round(sumres$Pexp[sumres$Sp=="Scoe"],3)`.
 
 ### Sfro Atlantic spotted dolphin	*Stenella frontalis*
+
+For Sfro the comparison is not direct because in the MMIQT document the Ttrs and the Sfro were combined as "shelf dolphins", and here we considered each stock separately.
 
 We observe the following changes in injury and in key quantities that might affect the injury (initial population size and the proportion of the population exposed):
 
@@ -1170,18 +997,18 @@ We observe the following changes in injury and in key quantities that might affe
 
 ### Ttrs shelf bottlenose dolphins *Tursiops truncatus*
 
-For Ttrs the comparison is not direct because in the MMIQT document the Ttrs and the Sfro were combined as "shelf dolphins", and here we computed the two stocks separately
-
-### Ttru bottlenose dolphins BB *Tursiops truncatus*
-
-For Ttru results were very similar until the new estimates of drop in survival were used, and then the injury was much lower overall.
-
+For Ttrs the comparison is not direct because in the MMIQT document the Ttrs and the Sfro were combined as "shelf dolphins", and here we considered each stock separately.
 
 We observe the following changes in injury and in key quantities that might affect the injury (initial population size and the proportion of the population exposed):
 
-* lost cetacean years came down from `r round(sumres$LCYo[sumres$Sp=="Ttru"])` to `r round(sumres$LCY[sumres$Sp=="Ttru"])` 
-* maximum proportional decrease came down from `r round(sumres$MPDo[sumres$Sp=="Ttru"],3)` to `r round(sumres$MPD[sumres$Sp=="Ttru"],3)`
-* years to recovery came down from `r round(sumres$YTRo[sumres$Sp=="Ttru"],1)` to `r round(sumres$YTR[sumres$Sp=="Ttru"],1)`
-* The assumed initial population size changed from `r round(sumres$No[sumres$Sp=="Ttru"],3)` to `r round(sumres$Nstart[sumres$Sp=="Ttru"],3)`
-* The proportion of the population exposed before was `r round(sumres$peo[sumres$Sp=="Ttru"],3)` and it is now `r round(sumres$Pexp[sumres$Sp=="Ttru"],3)`.
+* lost cetacean years came down from `r round(sumres$LCYo[sumres$Sp=="Ttrs"])` to `r round(sumres$LCY[sumres$Sp=="Ttrs"])` 
+* maximum proportional decrease came down from `r round(sumres$MPDo[sumres$Sp=="Ttrs"],3)` to `r round(sumres$MPD[sumres$Sp=="Ttrs"],3)`
+* years to recovery came down from `r round(sumres$YTRo[sumres$Sp=="Ttrs"],1)` to `r round(sumres$YTR[sumres$Sp=="Ttrs"],1)`
+* The assumed initial population size changed from `r round(sumres$No[sumres$Sp=="Ttrs"],3)` to `r round(sumres$Nstart[sumres$Sp=="Ttrs"],3)`
+* The proportion of the population exposed before was `r round(sumres$peo[sumres$Sp=="Ttrs"],3)` and it is now `r round(sumres$Pexp[sumres$Sp=="Ttrs"],3)`.
 
+# References
+
+DWH MMIQT 2015, Models and analyses for the quantification of injury to Gulf of Mexico cetaceans from the Deepwater Horizon Oil Spill, MM_TR.01_Schwacke_Quantification.of.lnjury.to.GOM.Cetaceans [LINK](https://www.fws.gov/doiddata/dwh-ar-documents/876/DWH-AR0105866.pdf).
+
+Schwacke, L.H., L. Thomas, R.S. Wells, W.E. McFee, A.A. Hahn, K.D. Mullin, E.S. Zolman, B.M. Quigley, T.K. Rowles and J.H. Schwacke. 2017. An age-, sex- and class-structured population model for estimating nearshore common bottlenose dolphin injury following the Deepwater Horizon oil spill. *Endangered Species Research* **33**: 265-279. DOI: [10.3354/esr00777](https://doi.org/10.3354/esr00777).

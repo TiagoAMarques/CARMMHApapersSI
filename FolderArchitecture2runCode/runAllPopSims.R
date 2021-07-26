@@ -6,7 +6,7 @@ source("Functions/runPopSims.R")         # To run the simulations for all specie
 Sps <- c("Bwsp", "Fatt", "Ggri", "Gmac", "Kosp", "Pele", "Pmac", "Satt", "Sbre", "Scly", "Scoe", "Sfro", "Slon", "Ttro", "Ttrs")
 
 #define the number of iterations to run
-ns <- 9999
+ns <- 10000
 # define the number of years each iteration is run for
 ny <- 75
 for (i in Sps){

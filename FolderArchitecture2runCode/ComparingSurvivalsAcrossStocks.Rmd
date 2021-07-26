@@ -1,8 +1,17 @@
 ---
 title: "Scaling survival: comparing scaling based on gestation duration across species"
 author: ""
-date: "7/2/2020"
-output: html_document
+date: \today
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 3
+    number_sections: true
+    theme: lumen
+  pdf_document: default
+urlcolor: blue
 ---
 
 ```{r setup, include=FALSE}
@@ -11,17 +20,18 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Preamble
 
-***This will be a general preable common to all the documents included as Electronic Supplements to CARMMHA's pelagic injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc. - this is the MASTER version of the preamble and it must be copied over to all other docs before submission***
+This is an Electronic Supplement to the manuscript Marques et al. "Quantifying Deepwater Horizon oil spill induced injury on pelagic cetaceans".
 
-This is an Electronic Supplement to the paper submited to MEPS on the ??-??-???? by Marques, T. A., Thomas, L., Booth, C., Garrison, L. P., Rosel, P. E., Mullin, K. D. & L. Schwacke entitled "Quantifying Deepwater Horizon oil spill induced injury on pelagic cetaceans".
+The master file containing links to all supplementary files related to this paper is this [Electronic Supplements master file](ElectronicSupplements.html).
 
-The master file with supplementary material is here: [Electronic Supplements master file](ElectronicSupplements.html).
+If you make use of any of this material in your work, it would be appreciated if you would [contact Tiago
+Marques](mailto:tiago.marques@st-andrews.ac.uk) to let him know.
 
 # Introduction
 
 In this document we look at the age specific survival used for each species once scaled by the gestation duration, as described in the manuscript.
 
-To understand why we ended up here a relevant source is Marques(2020) On scaling survival and the Siler model. A CARMMHA working document. Despite being a working document not prepared for a wider distribution, please contact tiago.marques@st-andrews.ac.uk if you are interested in a copy of said document.
+To understand why we ended up here a relevant source is Marques (2020) On scaling survival and the Siler model. A CARMMHA working document. Despite being a working document not prepared for a wider distribution, please contact tiago.marques@st-andrews.ac.uk if you are interested in a copy of said document.
 
 # Reading relevant info
 
@@ -37,7 +47,7 @@ We read in the species details
 
 ```{r}
 #read the species definition file
-SDF <- read_excel("InputFiles/SpeciesDefinitionFile4offshore.xlsx",na="NA")
+SDF <- read_excel("InputFiles/SpeciesDefinitionFile.xlsx",na="NA")
 ```
 
 and we set the species which we want results for, and then filter the input data for those species only.
@@ -78,7 +88,7 @@ Here we represent the relevant functions and the associated variability is also 
 
 ## Survivorship function
 
-Plotting the age specific survival aka survivorship function for BND
+Plotting the age specific survival aka survivorship function for BND. See Schwacke et al. 2017 for details on how this was derived based on a Siler model fitted to strandings data. 
 
 ```{r,cache=TRUE,fig.width = 10}
 ages <- 0:70
@@ -117,7 +127,7 @@ ggplot(data=lxMF, aes(x=ages, y=mean, ymin=q025, ymax=q975, fill=sex, linetype=s
  ylab("Proportion surviving")
 ```
 
-# Age specific Survival
+## Age specific Survival
 
 ```{r,cache=TRUE,fig.width = 10}
 ages <- 0:70
@@ -186,15 +196,15 @@ lines(1:71,pxMs2[,32],lwd=3,col="blue")
 
 The scaling is done by gestation duration, so we look at the gestation duration considered for each of the species. The rationale for the gestation duration used is provided on a separate document included as a separate Electronic Supplement (ElectronicSupplement4_GD).
 
-The range in gestation duration is shown below, plotted against the proportion of the population exposed to oil (this second variable was chosen somewhat arbitrarily, just to allow a good spread of the data in a biplot).
+The range in gestation duration is shown below (note the x axis is just an index, species are shown from left to right in the increasing order of their gestation duration).
 
 ```{r, fig.width = 10, fig.height = 6}
-pes<-read.table(file="Pe4CSAS.txt",header=TRUE)
-plot(pes$x, SDF$gd, ylab = "Gestation duration", xlab = "Proportion exposed", type = "n")
-text(pes$x, SDF$gd, labels = SDF$Species)
+par(mfrow = c(1, 1),mar=c(0.2,4,0.2,0.2))
+plot(1:16, sort(SDF$gd), ylab = "Gestation duration (in days)", xlab = "", type = "n",xaxt="n",ylim=c(0,max(SDF$gd)+10))
+text(1:16, sort(SDF$gd), labels = SDF$Species[order(SDF$gd)])
 ```
 
-# Survivorship function
+## Survivorship function
 
 We present the scalled survivorship by function below. For reference BB BND shown in green, sperm whale in blue and spinner dolphin in light blue
 
@@ -215,7 +225,7 @@ lines(ages, lx(ages*(SDF$gd[1]/SDF$gd[i]), pm[1, 1], pm[1, 2], pm[1, 3], pm[1, 4
 legend("topright",legend=c("Pmac","Ttru","Slon"),col=c(4,3,5),lwd=2,inset=0.05)
 ```
 
-# Age specific survival
+## Age specific survival
 
 We present the scalled age specific survival by function below. For reference BB BND shown in green, sperm whale in blue and spinner dolphin in light blue
 
@@ -238,9 +248,7 @@ legend("topright",legend=c("Pmac","Ttru","Slon"),col=c(4,3,5),lwd=2,inset=0.05)
 
 # Comparing with survival values used in stage structured model
 
-The MMIQT report considered stage stuctured models. Here we considered age stuctured models. Here we compare the two types of survival functions for a couple of extreme species. Since This comparison only makes sense by species/stock we look in particular at the species with the largest and shortest gestation duration.
-
-For comparison, we overlay in the plots the stage-specific survival that was used in stage specific models that were referred to in DWH MMIQT 2015, Models and analyses for the quantification of injury to Gulf of Mexico cetaceans from the Deepwater Horizon Oil Spill, MM_TR.01 _Schwacke_Quantification.of.lnjury.to.GOM.Cetaceans.
+The [MMIQT report](https://www.fws.gov/doiddata/dwh-ar-documents/876/DWH-AR0105866.pdf) considered stage structured models. In this paper we considered age structured models. Here we compare the two types of survival functions for a couple of extreme species. Since This comparison only makes sense by species/stock we look in particular at the species with the largest and shortest gestation duration, namely the sperm whale and the spinner dolphin.For comparison, we overlay in the plots our survival by age and the stage-specific survival that was used in stage specific models that were referred to in DWH MMIQT 2015.
 
 
 ## Sperm whales
@@ -283,3 +291,11 @@ segments(x0=2,x1=9,y0=SlonSjuv,y1=SlonSjuv,lty=2,lwd=3)
 segments(x0=9,x1=100,y0=SlonSFemale,y1=SlonSFemale,lty=1,lwd=3)
 segments(x0=9,x1=100,y0=SlonSMale,y1=SlonSMale,lty=2,lwd=3)
 ```
+
+
+# References
+
+DWH MMIQT 2015, Models and analyses for the quantification of injury to Gulf of Mexico
+cetaceans from the Deepwater Horizon Oil Spill, MM_TR.01_Schwacke_Quantification.of.lnjury.to.GOM.Cetaceans [LINK](https://www.fws.gov/doiddata/dwh-ar-documents/876/DWH-AR0105866.pdf).
+
+Schwacke, L.H., L. Thomas, R.S. Wells, W.E. McFee, A.A. Hahn, K.D. Mullin, E.S. Zolman, B.M. Quigley, T.K. Rowles and J.H. Schwacke. 2017. An age-, sex- and class-structured population model for estimating nearshore common bottlenose dolphin injury following the Deepwater Horizon oil spill. *Endangered Species Research* **33**: 265-279. DOI: [10.3354/esr00777](https://doi.org/10.3354/esr00777).

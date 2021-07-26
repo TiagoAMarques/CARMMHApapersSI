@@ -1,8 +1,17 @@
 ---
 title: "Gestation duration"
 author: ""
-date: "7/7/2020"
-output: html_document
+date: \today
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 3
+    number_sections: true
+    theme: lumen
+  pdf_document: default
+urlcolor: blue
 ---
 
 ```{r setup, include=FALSE}
@@ -12,12 +21,12 @@ library(knitr)
 
 # Preamble
 
-***This will be a general preable common to all the documents included as Electronic Supplements to CARMMHA's offshore injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc.***
+This is an Electronic Supplement to the manuscript Marques et al. "Quantifying Deepwater Horizon oil spill induced injury on pelagic cetaceans".
 
-This is an Electronic Supplement to the paper submited to MEPS on the ??-??-???? by Marques, T. A., Thomas, L., Booth, C., Garrison, L. P., Rosel, P. E., Mullin, K. D. & L. Schwacke entitled "Quantifying Deepwater Horizon oil spill induced injury on offshore cetaceans".
+The master file containing links to all supplementary files related to this paper is this [Electronic Supplements master file](ElectronicSupplements.html).
 
-The master file with supplementary material is here: [Electronic Supplements master file](ElectronicSupplements.html).
-
+If you make use of any of this material in your work, it would be appreciated if you would [contact Tiago
+Marques](mailto:tiago.marques@st-andrews.ac.uk) to let him know.
 
 # Background
 
@@ -32,7 +41,7 @@ Note these are the values present in the column for gestation duration (gd) in t
 ```{r}
 library(knitr)
 library(readxl)
-temp <- read_excel("InputFiles/SpeciesDefinitionFile4offshore.xlsx",na = "NA")
+temp <- read_excel("InputFiles/SpeciesDefinitionFile.xlsx",na = "NA")
 Sps <- c("Bwsp", "Fatt", "Gmac", "Ggri", "Kosp", "Pele", "Pmac", "Satt", "Sbre", "Scly", "Scoe", "Sfro", "Slon", "Ttro", "Ttrs", "Ttru")
 temp <- temp[temp$Species %in% Sps,]
 temp <- temp[order(temp$Species),]

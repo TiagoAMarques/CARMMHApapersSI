@@ -2,21 +2,38 @@
 title: "Initial population sizes"
 author: ""
 date:  \today
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 3
+    number_sections: true
+    theme: lumen
+  pdf_document: default
+urlcolor: blue
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 library(knitr)
+#For reading and manipulating the GAMs
+library(mgcv)
+#For reading the raster data
+library(rgdal)
+library(raster)
+library(viridis)
+library(stringr)
+library(kableExtra)
 ```
 
 # Preamble
 
-***This will be a general preable common to all the documents included as Electronic Supplements to CARMMHA's pelagic injury paper. The exact preamble will be finalized at the time of submission to reflect the submission date and final title, structure, authors etc. - this is the MASTER version of the preamble and it must be copied over to all other docs before submission***
+This is an Electronic Supplement to the manuscript Marques et al. "Quantifying Deepwater Horizon oil spill induced injury on pelagic cetaceans".
 
-This is an Electronic Supplement to the paper submited to MEPS on the ??-??-???? by Marques, T. A., Thomas, L., Booth, C., Garrison, L. P., Rosel, P. E., Mullin, K. D. & L. Schwacke entitled "Quantifying Deepwater Horizon oil spill induced injury on pelagic cetaceans".
+The master file containing links to all supplementary files related to this paper is this [Electronic Supplements master file](ElectronicSupplements.html).
 
-The master file with supplementary material is here: [Electronic Supplements master file](ElectronicSupplements.html).
+If you make use of any of this material in your work, it would be appreciated if you would [contact Tiago
+Marques](mailto:tiago.marques@st-andrews.ac.uk) to let him know.
 
 # Introduction
 
@@ -24,7 +41,7 @@ In this document we present the distribution for the initial population sizes, p
 
 These population sizes were obtained from the models of 
 
-Roberts, J. J.; Best, B. D.; Mannocci, L.; Fujioka, E.; Halpin, P. N.; Palka, D. L.; Garrison, L. P.; Mullin, K. D.; Cole, T. V. N.; Khan, C. B.; McLellan, W. A.; Pabst, D. A. & Lockhart, G. G. (2016) Habitat-based cetacean density models for the U.S. Atlantic and Gulf of Mexico. Scientific Reports 6: 22615 
+Roberts, J. J.; Best, B. D.; Mannocci, L.; Fujioka, E.; Halpin, P. N.; Palka, D. L.; Garrison, L. P.; Mullin, K. D.; Cole, T. V. N.; Khan, C. B.; McLellan, W. A.; Pabst, D. A. & Lockhart, G. G. 2016 Habitat-based cetacean density models for the U.S. Atlantic and Gulf of Mexico *Scientific Reports* **6**: 22615 DOI: [10.1038/srep22615](https://www.nature.com/articles/srep22615)
 
 To obtain the number of animals exposed to oil (and hence the proportion of the population exposed to oil) the estimated fraction of the population based on the density surfaces that was contained in the area considered to be affected by oil was quantified. Said area is shown in the image below
 
@@ -32,8 +49,48 @@ To obtain the number of animals exposed to oil (and hence the proportion of the 
 include_graphics(path = "figs/Figure1.JPG")
 ```
 
-# Reading in data and creating plots
+The taxonomic units considered and the corresponding codes are:
 
+* Bwsp beaked whales	Beaked whales spp
+* Fatt pygmy killer whale	*Feresa attenuata*
+* Gmac short-finned pilot whale	*Globicephala macrorhynchus*
+* Ggri Risso's dolphin	*Grampus griseus*
+* Kosp kogia	*Kogia* sp.
+* Pele melon-headed whale	*Peponocephala electra*
+* Pmac sperm whale	*Physeter macrocephalus*
+* Satt pantropical spotted dolphin *Stenella attenuata*
+* Sbre rough-toothed dolphin	*Steno bredanensis*
+* Scly Clymene dolphin	*Stenella clymene*
+* Scoe striped dolphin	*Stenella coeruleoalba*
+* Sfro Atlantic spotted dolphin	*Stenella frontalis*
+* Slon spinner dolphin	*Stenella longirostris*
+* Ttro offshore bottlenose dolphins	*Tursiops truncatus*
+* Ttrs shelf bottlenose dolphins *Tursiops truncatus*
+
+# Population sizes
+
+We begin by presenting a non-spatial perspective of the data, since that is simpler and our population dynamics model itself is intrinsically non-spatial, but we also present abundance over space, since that is what underlies the numbers we use, in particular since we need to overlay over space the oil footprint and the animal density surface.
+
+The objects containing realizations of population size, both for the total abundance as well as the proportion of animals exposed to oil, are in 2 separate objects:
+
+* `N_boot.csv` - 10000 bootstrap replicates of the initial population size
+* `N_boot_in_oil.csv` - 10000 bootstrap replicates of the initial exposed population size
+
+To present a spatial perspective of the abundances we require 2 shapefiles common to all pelagic taxonomic units:
+
+* `OilCoverage.shp` - the oil coverage / footprint (in the folder `InputFiles`)
+* `Study_Area_GOM_10km_Polygon` - the study area in 10 km grid cells (in the folder `InputFiles`)
+
+and a couple of files per pelagic taxonomic unit:
+
+* `N_bycell.csv` - the point estimate of the number of animals per grid cell, where grid cells are defined in `Study_Area_GOM_10km_Polygon`; 
+* `Prediction_Area.img` - the prediction area for each species
+
+All the taxonomic units specific files are in the folder `InOutBySp`, stored under a sub-folder corresponding to each taxonomic unit. 
+
+The code to create all the above objects, as well as the actual density surface models from Roberts et al. 2016 over which they are based upon are not shared, since they are not ours to share. In that sense these should be taken as data.
+
+We can plot these abundance distributions and density estimates over spece in turn for each taxonomic unit.
 
 ```{r, cache = TRUE, echo = FALSE}
 # Define the species we run simulations for
@@ -52,33 +109,19 @@ sumNsPes <- data.frame(Sp = Sps, NL = NA, N = NA, NU = NA, Ncv = NA, NeL = NA, N
 nonsense <- data.frame(Sp = Sps, limit=NA, above.limit = NA)
 ```
 
-The objects containing realizations of population size, both for the total abundance as well as the proportion of animals exposed to oil, are in **2/3** separate objects:
 
-* N_boot.csv - the population size
-* N_boot_in_oil.csv - the exposed population size
-* N_bycell.csv - the estimated number of animals per grid cell (**not used in runSims.Rmd... why do we share this? might not make sense to do so? - on hold, now we need to get the code working!**)
+In the following we produce a plot for the initial population versus the exposed population and for the initial population versus the proportion exposed for each of the stocks considered. We also output the (usually 0 or very small) number of bootstrap resamples that were removed from further analysis for each species because they represented unrealistically large population sizes. These unrealistic realizations were created due to correspondingly unrealistic GAM extrapolations in the limits of the study area. 
 
-These are in folder "InOutBySp", stored under a sub-folder corresponding to each taxonomic unit. The code to create these objects, as well as the actual density surface models from Roberts et al. 2016 over which they are based upon are not shared, since they are not ours to share. In that sense these should be taken as data.
 
-The species considered and the corresponding codes are:
+```{r setup2}
+#Define paths and filenames
+supp.data.path <- "InputFiles/shapefiles"
+#Read in oil coverage polygon
+oil.coverage <- readOGR(supp.data.path, "OilCoverage")
+#Read in study area polygon for later plotting
+study.area <- readOGR(supp.data.path, "Study_Area_GOM_10km_Polygon")
+```
 
-* Bwsp beaked whales	Beaked whales spp
-* Fatt pygmy killer whale	*Feresa attenuata*
-* Gmac short-finned pilot whale	*Globicephala macrorhynchus*
-* Ggri Risso's dolphin	*Grampus griseus*
-* Kosp kogia	*Kogia* sp.
-* Pele melon-headed whale	*Peponocephala electra*
-* Pmac sperm whale	*Physeter macrocephalus*
-* Satt pantropical spotted dolphin *Stenella attenuata*
-* Sbre rough-toothed dolphin	*Steno bredanensis*
-* Scly Clymene dolphin	*Stenella clymene*
-* Scoe striped dolphin	*Stenella coeruleoalba*
-* Sfro Atlantic spotted dolphin	*Stenella frontalis*
-* Slon spinner dolphin	*Stenella longirostris*
-* Ttro offshore bottlenose dolphins	*Tursiops truncatus*
-* Ttrs shelf bottlenose dolphins *Tursiops truncatus*
-
-In the following we produce a plot for the initial population versus the exposed population and for the initial population versus the proportion exposed for each of the stocks considered.
 
 ```{r, cache = TRUE, warnings = FALSE, message = FALSE, echo = FALSE}
 for (j in 1:length(Sps)){
@@ -127,23 +170,46 @@ sumNsPes$PeL[j] <-  quantile(Nexp/Nstart, 0.025)
 sumNsPes$Pe[j] <- mean(Nexp/Nstart)
 sumNsPes$PeU[j] <-  quantile(Nexp/Nstart, 0.975)
 sumNsPes$Pecv[j] <- 100*sd(Nexp/Nstart)/mean(Nexp/Nstart)
+
+ print(paste0("The spatial distribution for ", Sps[j]))
+  # Initial population size
+  predictionArea <- raster(paste0("InOutBySp/", SpInfo$folder, "/Prediction_Area.img"))
+  is.in.range <- getValues(predictionArea) == 1
+  is.in.range[is.na(is.in.range)] <- FALSE
+  n.grid.in.range <- sum(is.in.range)
+  #Get oiled portion
+  oiled.predictionArea <- mask(predictionArea, oil.coverage)
+  is.in.oil <- getValues(oiled.predictionArea) == 1
+  is.in.oil[is.na(is.in.oil)] <- FALSE
+  #Get index to oiled portion within prediction area
+  is.in.oil.within.range <- is.in.oil[is.in.range]
+ 
+  N.raster <- read.csv(file = paste0("InOutBySp/", SpInfo$folder, "/N_bycell.csv"))$V1
+  values(predictionArea)[is.in.range] <- N.raster
+  plot(study.area, col = "grey", main = paste0(Sp, " (Animals / 100 km2)"))
+  plot(predictionArea, col = viridis(100), add = TRUE)
+  plot(oil.coverage, border = "red", add = TRUE)
+
 }
 ```
 
 
-A summary table, with the estimated mean for the initial population size, the exposed population size and the proportion exposed for each of the stocks considered. The sufix L and U stand for Lower and Upper confidence interval bounds, respectively. These were obntained by the quantile method. The empirical coefficient of variation of each quantity is also shown.
+A summary table, with the estimated mean for the initial population size (N), the exposed population size (Ne) and the proportion exposed (Pe) for each of the stocks considered. The sufix cv, L and U stand for the empirical Coefficient of Variation and Lower and Upper confidence interval bounds. These intervals were obtained by the quantile method.
 
 ```{r, echo = FALSE}
-kable(sumNsPes, digits = c(0, rep(0, 3), 1, rep(0, 3), 1,rep(3, 3), 1))
-```
-
-A quick check to see how many iterations were above the limit considered to be unrealistic and caused by GAM extrapolations
-
-```{r}
-kable(nonsense, digits = c(0, 0, 0), caption = "Limit beyond which values for each species were removed given they were considered nonsensical values caused by GAM extrapolations, and corresponding number of iterations that were removed.")
+kable(sumNsPes, digits = c(0, rep(0, 3), 1, rep(0, 3), 1,rep(3, 3), 1)) %>%
+kable_styling(font_size = 12,latex_options = "striped") %>%
+row_spec(seq(2,14,by=2), color = 'white', background = 'black') 
 ```
 
 
+A quick check to see how many iterations were above the limit considered to be unrealistic and caused by GAM extrapolations and hence were removed from the analysis
+
+```{r, echo = FALSE}
+kable(nonsense, digits = c(0, 0, 0), booktabs = TRUE) %>%
+kable_styling(font_size = 12,latex_options = "striped") %>%
+row_spec(seq(2,14,by=2), color = 'white', background = 'black') 
+```
 
 # Producing values for tables in the paper
 
@@ -176,9 +242,6 @@ write.table(Table2[-length(Sps)],"Table2.txt",sep="\t",row.names = FALSE,quote =
 write.table(sumNsPes,"Table4GetInjury.txt",sep="\t",row.names = FALSE,quote = FALSE,col.names = TRUE)
 ```
 
+# References
 
-## For "ComparingSurvivalsAcrossStocks.html"
-
-```{r}
-write.table(sumNsPes$Pe,"Pe4CSAS.txt",sep="\t",row.names = FALSE,quote = FALSE,col.names = TRUE)
-```
+Roberts, J. J.; Best, B. D.; Mannocci, L.; Fujioka, E.; Halpin, P. N.; Palka, D. L.; Garrison, L. P.; Mullin, K. D.; Cole, T. V. N.; Khan, C. B.; McLellan, W. A.; Pabst, D. A. & Lockhart, G. G. 2016 Habitat-based cetacean density models for the U.S. Atlantic and Gulf of Mexico *Scientific Reports* **6**: 22615 DOI: [10.1038/srep22615](https://www.nature.com/articles/srep22615)

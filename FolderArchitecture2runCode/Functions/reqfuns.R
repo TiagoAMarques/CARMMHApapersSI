@@ -39,7 +39,7 @@ getbeta <- function(Fmax, rho, Fnom, Nnom) {
 }
 
 
-# 2. Function ft ------------------------------------------
+#---- 2. Function ft ------------------------------------------
 ft <- function(Nt, Fmax, rho, Nnom, Fnom) {
   
   # get fecundity given population size (and the other relevant parameters)
