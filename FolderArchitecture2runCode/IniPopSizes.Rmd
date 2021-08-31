@@ -53,8 +53,8 @@ The taxonomic units considered and the corresponding codes are:
 
 * Bwsp beaked whales	Beaked whales spp
 * Fatt pygmy killer whale	*Feresa attenuata*
-* Gmac short-finned pilot whale	*Globicephala macrorhynchus*
 * Ggri Risso's dolphin	*Grampus griseus*
+* Gmac short-finned pilot whale	*Globicephala macrorhynchus*
 * Kosp kogia	*Kogia* sp.
 * Pele melon-headed whale	*Peponocephala electra*
 * Pmac sperm whale	*Physeter macrocephalus*

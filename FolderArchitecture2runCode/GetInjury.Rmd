@@ -82,24 +82,23 @@ injuryCI <- data.frame(Sp=Sps, LCYmed = NA, LCYl = NA, LCYu = NA, MPDmed = NA, M
 inputs <- data.frame(Sp=Sps, gd = NA, sr = NA)
 ```
 
+The taxonomic units and the corresponding codes considered in this document are:
 
-The species/taxonomic units and the corresponding codes considered in this document are:
-
-* Pmac sperm whale	*Physeter macrocephalus*
-* Kosp kogia	*Kogia* sp.
-* Scly Clymene dolphin	*Stenella clymene*
-* Pele melon-headed whale	*Peponocephala electra*
-* Ttro offshore bottlenose dolphins	*Tursiops truncatus*
-* Gmac short-finned pilot whale	*Globicephala macrorhynchus*
+* Bwsp beaked whales	Beaked whales spp
 * Fatt pygmy killer whale	*Feresa attenuata*
 * Ggri Risso's dolphin	*Grampus griseus*
-* Sbre rough-toothed dolphin	*Steno bredanensis*
+* Gmac short-finned pilot whale	*Globicephala macrorhynchus*
+* Kosp kogia	*Kogia* sp.
+* Pele melon-headed whale	*Peponocephala electra*
+* Pmac sperm whale	*Physeter macrocephalus*
 * Satt pantropical spotted dolphin *Stenella attenuata*
-* Ttrs shelf bottlenose dolphins *Tursiops truncatus*
-* Slon spinner dolphin	*Stenella longirostris*
+* Sbre rough-toothed dolphin	*Steno bredanensis*
+* Scly Clymene dolphin	*Stenella clymene*
 * Scoe striped dolphin	*Stenella coeruleoalba*
 * Sfro Atlantic spotted dolphin	*Stenella frontalis*
-* Bwsp beaked whales	Beaked whales spp
+* Slon spinner dolphin	*Stenella longirostris*
+* Ttro offshore bottlenose dolphins	*Tursiops truncatus*
+* Ttrs shelf bottlenose dolphins *Tursiops truncatus*
 
 We explicitly re-order the results tables upfront so that results are organized by alphabetical order of the 4 letter code used to describe the taxonomic unit (this is also the order that the species are reported in tables 1 to 3 of the offshore paper).
 
@@ -684,6 +683,14 @@ The population size and the proportion exposed are $a priori$ expected to be key
 kable(sumres[, c(1, 2, 7, 3, 9)],caption = "Initial population size (N) and proportion exposed (pe or Pexp) for the different stocks considered.  The suffix o indicates old results from the MMIQT report and Schwacke et al. 2017",digits = c(0, 0, 0, 3, 3))
 ```
 
+The proportion exposed against the initial population size is shown here for the 15 taxonomic units
+
+```{r}
+plot(sumres[, c(7,9)],xlab="Initial population size",ylab="Proportion exposed",type="n")
+text(x = sumres[, 7],y=sumres[, 9],labels = sumres[, 1])
+```
+
+
 ***DELETE IMAGES BELOW AND REMOVE MMIQT RESULTS ABOVE?***
 
 The image below illustrates that there is no clear relationship between the initial population size assumed before (DWH MMIQT 2015) and the one being currently considered. This was expected given the completely different way in which population sizes were obtained in this exercise (via a spatial model) and before (a coarser stratification approach).
@@ -804,6 +811,10 @@ abline(lm(sumres$YTR~sumres$Pexp),col=4,lty=2)
 legend("topright",col=3:4,lty=2,c("old","new"),inset=0.05)
 ```
 
+## Explaining injury metrics across species
+
+### LCY
+
 As noted above, one can anticipate that LCY would be strongly dependent on the initial population size and the proportion exposed. Therefore, we fit a linear model, treating species as sampling units, to explain LCY as a function of these two quantities. The summary of the corresponding linear model follows. Then we present a plot representing the observed values of LCY and those obtained by predicting from fitting a linear model of LCY as explained by initial population size and the proportion exposed.  
 
 ```{r}
@@ -820,7 +831,7 @@ summary(lmLCY2)
 plot(sumres$LCY, predict(lmLCY2))
 ```
 
-The same seems to happen for the survival reduction, i.e., once poulation size and proportion exposed are acounted for, the remaining variation in LCY is negligible.
+The same seems to happen for the survival reduction, i.e., once population size and proportion exposed are accounted for, the remaining variation in LCY is negligible.
 
 ```{r}
 lmLCY3 <- lm(LCY ~ Pexp + Nstart + inputs$sr, data = sumres)
@@ -829,6 +840,41 @@ plot(sumres$LCY, predict(lmLCY3))
 ```
 
 We note that, when compared to the earlier assessments, the injury seems now considerably less than before. A large part of this was a bug in the calculation in the MMIQT values for LCY, but a part of it might be due to the modeling, and the many changes implemented from then to now.
+
+
+### YTR
+
+Same idea for YTR, checking what determines that 
+
+```{r}
+lmYTR <- lm(YTR ~ Pexp + Nstart + inputs$gd + inputs$sr, data = sumres)
+summary(lmYTR)
+plot(sumres$YTR, predict(lmYTR))
+```
+
+removing initial population size and survival reduction just to check if it helps
+
+```{r}
+lmYTR <- lm(YTR ~ Pexp + inputs$gd, data = sumres)
+summary(lmYTR)
+plot(sumres$YTR, predict(lmYTR))
+```
+
+### MPD
+
+```{r}
+lmMPD <- lm(MPD ~ Pexp + Nstart + inputs$gd + inputs$sr, data = sumres)
+summary(lmMPD)
+plot(sumres$MPD, predict(lmMPD))
+```
+
+removing initial population size  just to check if it helps
+
+```{r}
+lmMPD <- lm(MPD ~ Pexp + inputs$gd + inputs$sr, data = sumres)
+summary(lmMPD)
+plot(sumres$MPD, predict(lmMPD))
+```
 
 ## Species by species discussion
 
