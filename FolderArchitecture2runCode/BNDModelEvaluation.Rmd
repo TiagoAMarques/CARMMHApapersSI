@@ -203,7 +203,7 @@ for (i in 1:nfiles) {
     if (length(unique(inj))<=3) {
       mod <- lm(inj ~ par, data = dat4mod)
     } else {
-      mod <- gam(inj ~ s(par), data = dat4mod)
+      mod <- gam(inj ~ s(par,k=5), data = dat4mod)
     }
     seqpars <- seq(min(p2spar), max(p2spar), length = 500)
     preds <- predict(mod, newdata = data.frame(par = seqpars), type = "response")
@@ -378,7 +378,9 @@ points(agesBND,pxMs[,pars2save$iS[iMIN]],col="red",type="l",lty=2)
 legend("bottomleft",inset=0.05,legend=c("Female max MPD","Male max MPD","Female min MPD","Male min MPD"),lty=c(1,2,1,2),col=c("green","green","red","red"))
 ```
 
-```{r,eval=FALSE}
+
+```{r,eval=FALSE,echo=FALSE}
+#just taking a peak at these iteration parameters
 pars2save[c(iMIN,iMAX),]
 ```
 

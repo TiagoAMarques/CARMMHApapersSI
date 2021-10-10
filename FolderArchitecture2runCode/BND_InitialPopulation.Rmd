@@ -24,11 +24,11 @@ Marques](mailto:tiago.marques@st-andrews.ac.uk) to let him know.
 
 # Introduction
 
-This document briefly describes the inital population size and the the post oil population averaged survival. 
+This document briefly describes the initial population size and the the post oil population averaged survival. 
 
 It simply reads in and then displays the distributions that we use as data.
 
-For how these distributions are generated please see the dedicated spatial capture recapture (SCR) study by Glennie et al. 2021. 
+For how these distributions are generated please see the dedicated spatial capture recapture (SCR) study by Glennie et al. 2021. In particular, we considered that the average of the population sizes in primary occasions 6 and 7 were a sensible approximation to the initial population size in April 2010.
 
 # Population size
 

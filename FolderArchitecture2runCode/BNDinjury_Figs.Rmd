@@ -136,7 +136,10 @@ library(ggplot2)
 library(ggpubr)
 library(readr)
 library(gridExtra)
-source("Functions/reqfuns.R")         # most functions are here
+```
+
+
+```{r,message=FALSE,warning=FALSE}
 source("Functions/SilerFuns.R")       # Siler model functions are here
 ```
 
@@ -397,11 +400,11 @@ summarise(Mean=mean(x), Max=max(x), Min=min(x), Median=median(x), Std=sd(x),quan
  ggplot() + 
   #geom_ribbon(data = subset(data4,year<= YTR),aes(ymin = ymin,ymax=ymax,x=year), fill = "red", alpha = .4)+ 
   #geom_ribbon(data = subset(data4,year>= YTR),aes(ymin = ymin,ymax=ymax,x=year), fill = "blue", alpha = .4)+
-annotate("segment",x=MPD-1,xend=MPD-1,yend=data4$y,y=data4$yend,colour="black",linetype = "dashed", arrow = arrow(type="closed", length = unit(0.1, "inches")))+
+annotate("segment",x=MPD-1,xend=MPD-1,yend=data4$y,y=data4$yend,colour="black",linetype = "dashed", lwd=2, arrow = arrow(type="closed", length = unit(0.2, "inches")))+
   geom_line(aes(x=data4$year-1,y=data4$population,color=data4$oil,lwd=2),size=1.4)+
   theme_bw()+
  #   annotate("segment", yend = 1000, y = 4500, x = YTR, xend = YTR,colour = "black", arrow = arrow(type="closed", length = unit(0.1, "inches")),linetype="dashed") +
-  geom_vline(xintercept=YTR-1,linetype="dashed")+
+  geom_vline(xintercept=YTR-1,linetype="dashed",lwd=2)+
   labs(colour="")+
   scale_color_manual(values=c("darkblue","brown3"))+
   ylab("Population size")+
@@ -441,8 +444,8 @@ The mean initial population size was `r round(mean(N_boot$x))` (SD: `r round(sd(
 prop.in.2019<-100*(bas2019$x-N_boot$x)/N_boot$x
 ```
 
-The population size in 2019 was `r round(mean(prop.in.2019),2)` % lower (95% percentile CI `r round(quantile(prop.in.2019, probs=0.025),1)`,`r round(quantile(prop.in.2019, probs=0.975),1)`) than that of 2010.
+The mean population size in 2019, estimated by SCR, was `r round(mean(bas2019$x))` animals (95% percentile CI `r round(quantile(bas2019$x, probs=0.025))`,`r round(quantile(bas2019$x, probs=0.975))`). In comparison, that value given our model would be `r round(mean(colSums(simres[,9,,1])))` (95% percentile CI `r round(quantile(colSums(simres[,9,,1]), probs=0.025))`,`r round(quantile(colSums(simres[,9,,1]), probs=0.975))`).
 
 # Acknowledgments
 
-We would like to thank Carolina Marques for the code and data wrangling that made this plot.
+We would like to thank Carolina Marques for the code and data wrangling that made the last plot.

@@ -151,14 +151,23 @@ y4 <- dbeta(x, a4, b4)/(u4-l4)
 lines(x* (u4-l4) + l4, y4, type = "l", col = "dodgerblue",lwd=3)
 
 m4 <- mean(rbeta(10000,a4,b4)*(u4-l4)+l4)
-segments(m4,0,m4,2,col="dodgerblue",lty=2,lwd=3)
 
+#segments(m4,0,m4,2,col="dodgerblue",lty=2,lwd=3)
+
+#to have MMIQT results uncomment
 #Schwacke et al. values
-segments(0.88,0,0.88,2,col="darkblue",lty=2,lwd=3)
+#segments(0.88,0,0.88,2,col="darkblue",lty=2,lwd=3)
 
 legend("topleft",inset=0.03,
-       legend = c("Pelagic dolphins", "Mesopelagic divers", "Sperm & beaked whales","Sperm whale DWH MMIQT"), 
-col = c("deeppink", "darkorchid1", "dodgerblue","darkblue"), lty = c(1,1,1,1,2),lwd=3,cex=1)
+       legend = c("Pelagic dolphins", "Mesopelagic divers", "Bathypelagic divers"), 
+col = c("deeppink", "darkorchid1", "dodgerblue"), lty = c(1,1,1),lwd=3,cex=1)
+
+
+#to have MMIQT results uncomment
+#legend("topleft",inset=0.03,
+#       legend = c("Pelagic dolphins", "Mesopelagic divers", "Sperm & beaked whales","Sperm whale DWH MMIQT"), 
+#col = c("deeppink", "darkorchid1", "dodgerblue","darkblue"), lty = c(1,1,1,1,2),lwd=3,cex=1)
+
 ```
 
 Figure S1.2 - Probability  distributions  showing  the  consensus  of  the  EE  for  the proportional reduction in survival for each species group, as a consequence of exposure to DWH oil.
@@ -168,7 +177,7 @@ Given the possible health consequences of exposure to DWH oiling and the likelih
  
 ## Proportional recovery following DWH oiling
 
-To estimate the proportional recovery (in survival probability) of those aﬀected by DWH oiling, experts agreed the wording of and provided judgements to the following question: “Think about an offshore Gulf of Mexico cetacean species whose health has been impacted by the DWH oil spill and has a guarded, poor or grave prognosis in the ﬁrst year or two after the DWH spill. Going forward, in the animal’s lifetime, what is the probability that it has a good or fair prognosis?”
+To estimate the proportional recovery (in survival probability) of those affected by DWH oiling, experts agreed the wording of and provided judgments to the following question: “Think about an offshore Gulf of Mexico cetacean species whose health has been impacted by the DWH oil spill and has a guarded, poor or grave prognosis in the first year or two after the DWH spill. Going forward, in the animal’s lifetime, what is the probability that it has a good or fair prognosis?”
 
 Experts were briefed on the veterinary prognosis scores from health assessments for Bay, Sound and Estuary bottlenose dolphins in the Gulf of Mexico (see Schwacke et al. in review) and asked to consider the mechanisms driving health prognosis for offshore cetacean species. Experts considered ill-effects of impacted pulmonary, cardiac and endocrine systems (e.g. pneumonia, pulmonary fibrosis, anemia, impaired stress response etc.) and the probability that such conditions were recoverable in an unpredictable open-ocean environment.  In general, experts considered that it was unlikely that most offshore cetacean species would recover (Figure S1.3) but that animals with a guarded prognosis might be more likely to recover. This resulted in a skewed distribution with some weight allowing for the greater likelihood that animals might recover. This tail was driven by the scientific uncertainty about the recoverability of some health conditions and therefore the likelihood of improved prognosis for animals in the ‘guarded’  category. There was also concern that the dynamic prey environment in the open ocean, coupled with the potential that the effects of oiling may compromise dive performance (and so foraging efficiency) could make recovery challenging for most animals.
 
@@ -189,7 +198,7 @@ Figure S1.3 - Probability  distribution  showing  the  consensus  of  the  EE  f
 ry2 <- (l2+rbeta(1000000, a2, b2)*u2)-l2
 ```
 
-The mean value of this distribution is `r round(mean(ry2),3)`, the corresponding mean `r round(median(ry2),3)` and 0.025% and 0.975% quantiles of the distribution are (`r round(quantile(ry2,p=0.025),3)`,`r round(quantile(ry2,p=0.975),3)`).
+The mean value of this distribution is `r round(mean(ry2),3)`, the corresponding median `r round(median(ry2),3)` and 0.025% and 0.975% quantiles of the distribution are (`r round(quantile(ry2,p=0.025),3)`,`r round(quantile(ry2,p=0.975),3)`).
  
 # References
 

@@ -1,0 +1,182 @@
+---
+title: 'Fecundity reduction due to oil in bottlenose dolphins in Barataria Bay'
+author: ""
+date: \today
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(stringr)
+library(mgcv)
+options("scipen" = 100, "digits" = 4)
+```
+
+
+# Preamble
+
+This is an Electronic Supplement to the manuscript Schwacke, L.A. et al.  "Modeling population impacts of the Deepwater Horizon oil spill on a long-lived species: implications and recommendations for future environmental disasters"
+
+The master file containing links to all supplementary files related to this paper is [BND_Electronic Supplements master file](BND_ElectronicSupplements.html).
+
+If you make use of any of this material in your work, it would be appreciated if you would [contact Tiago
+Marques](mailto:tiago.marques@st-andrews.ac.uk) to let him know.
+
+# Introduction
+
+This document briefly describes the assumed fecundity reduction factor induced by oil exposure. This reduction is the quotient of two independent random variables with a Beta distribution, describing reproductive success probabilities before and after oil exposure.
+
+The raw data we have for parametrizing the reduction in fecundity is the number of trials and successes for females, before and after the oil. See main paper for details and data sources.
+
+```{r}
+#no oil spill trials - baseline
+n4brs<-34
+#no oil spill successes - baseline
+suc4brs<-22
+#oil spill trials - impact
+n4pors<-36
+#oil spill successes - impact
+suc4pors<-7
+```
+
+From these values one can generate random deviates with a mean and variance consistent with the observed proportion of successes. 
+
+This would be achieved by generating a binomial random variable with the number of trials and successes observed, and dividing it by the number of trials. However, the resulting quantity is not a binomial random variable, and it is a discrete approximation for a quantity that we know is continuous, given it is a probability, in the population. 
+
+Hence we opted by approximating that probability by a beta random variable with the empirical mean and variance induced by the number of trials and number of successes observed, in the absence and in the presence of oil.
+
+
+## Abcense of oil
+
+The original number of trials and successes in the absence of oil was `r n4brs` and `r suc4brs`, corresponding to a probability of success of `r round(suc4brs/n4brs,3)`. We can check what is the corresponding mean and precision  that we get when we generate draws from such a binomial divided by the observed number of trials
+
+```{r}
+#empirical mean and variance of the proportion
+B<-1000000
+#mean
+psuc<-rbinom(B,size=n4brs,prob = suc4brs/n4brs)/n4brs
+mpsuc<-mean(psuc)
+#variance
+vpsuc<-var(psuc)
+#standard deviation
+spsuc<-sd(psuc)
+```
+
+a mean of `r round(mpsuc,4)`, a variance of `r  round(vpsuc,4)` and a standard deviation of `r round(spsuc,4)`.
+
+The values in file `SpeciesDefinitionFile4.xlsx` for `meanpors` and `sdpors` are
+
+```{r}
+p<-0.6471866	
+sd.p<-0.08194595
+```
+
+We can compute the values for the parameters of the corresponding Beta that shares the same mean and standard deviation
+
+```{r}
+# transform to corresponding beta parameters
+alpha <- ((1 - p) / sd.p^2 - 1 / p) * p ^ 2 
+beta <- alpha * (1 / p - 1) 
+# get Baseline reproductive success rate
+pRepbasesims <- rbeta(B, alpha, beta) 
+#check empirical mean and variance
+```
+
+which naturally, by construction, will have the desired original mean and variance
+
+```{r}
+mean(pRepbasesims)
+var(pRepbasesims)
+```
+
+We can take a look at the realizations of the simulated values from this distribution
+
+```{r}
+#look at the histogram of random deviates
+hist(pRepbasesims,breaks=seq(0,1,by=0.05),main="",xlab="Success probability",freq=FALSE)
+```
+
+## Presence of oil
+
+The original number of trials and successes was `r n4pors` and `r suc4pors`, corresponding to a probability of success of `r round(suc4pors/n4pors,3)`. As above, the empirical mean and precision measures for the proportion that we get from simulating probabilities from these are
+
+```{r}
+#empirical mean and variance of the proportion
+B<-1000000
+#mean
+psuco<-rbinom(B,size=n4pors,prob = suc4pors/n4pors)/n4pors
+mpsuco<-mean(psuco)
+#variance
+vpsuco<-var(psuco)
+#standard deviation
+spsuco<-sd(psuco)
+```
+
+a mean of `r round(mpsuco,4)`, a variance of `r  round(vpsuco,4)` and a standard deviation of `r round(spsuco,4)`.
+
+
+The values in file `SpeciesDefinitionFile.xlsx` for `meanpors` and `sdpors` are
+
+```{r}
+p<-0.1944686	
+sd.p<-0.06596507
+```
+
+These are the values for the parameters of the corresponding Beta
+
+```{r}
+# transform to corresponding beta parameters
+alpha <- ((1 - p) / sd.p^2 - 1 / p) * p ^ 2 
+beta <- alpha * (1 / p - 1) 
+# get Baseline reproductive success rate
+pRepbasesims <- rbeta(B, alpha, beta) 
+#check empirical mean and variance
+```
+
+We can compute the mean and variance from the corresponding Beta
+
+```{r}
+mean(pRepbasesims)
+var(pRepbasesims)
+```
+
+We can take a look at the realizations of the simulated values.
+
+```{r}
+#look at the histogram of random deviates
+hist(pRepbasesims,breaks=seq(0,1,by=0.05),main="",xlab="Success probability",freq=FALSE)
+```
+
+# The fecundity reduction factor
+
+The fecundity pre- and post-spill are represented below
+
+```{r}
+source("Functions/reqfuns.R") # most functions are here
+SpInfo <- getSpData("Ttru")
+par(mfrow=c(1,1),mar=c(4,4,0.5,0.5))
+xs<-seq(0,1,by=0.001)
+ # get parameters of binomial
+beta.pars.pre <- getBetaDistPars(SpInfo$meanbrs, SpInfo$sdbrs^2)
+# get Baseline reproductive success rate
+preoil <- dbeta(xs, beta.pars.pre$alpha, beta.pars.pre$beta)
+ # get parameters of binomial
+beta.pars.pos <- getBetaDistPars(SpInfo$meanpors, SpInfo$sdpors^2)
+# get post spill reproductive success rate
+postoil <- dbeta(xs, beta.pars.pos$alpha, beta.pars.pos$beta)
+plot(xs,postoil,col=2,ylab="f(x)",xlab="Probability of reproductive success",type="l")
+lines(xs,preoil,col=3)
+legend("topright",col=3:2,lty=1,legend=c("No Oil","Oil"),inset=0.05)
+```
+
+and the corresponding fecundity reduction factor density plot is
+
+```{r}
+#note strictly we are approximating empirically the distribution of the reduction factor
+set.seed(123)
+n<-10000000
+fecRed<-1-rbeta(n, beta.pars.pos$alpha, beta.pars.pos$beta)/rbeta(n, beta.pars.pre$alpha, beta.pars.pre$beta)
+hist(fecRed,freq=FALSE,main="",xlab="Fecundity reduction factor")
+```
+
+which leads to a mean reduction factor of `r round(mean(fecRed),3)` (95% CI `r round(quantile(fecRed, probs=0.025),3)`,`r round(quantile(fecRed, probs=0.975),3)`).

@@ -43,6 +43,8 @@ Other key files names and brief content descriptions follow:
 
 * [SurvivalReduction](SurvivalReduction.html) – Supplementary material about how we obtain the survival reduction factor. This combines baseline survival probability with post-spill  survival probability obtained by spatial capture recapture (SCR). For the baseline survival probability we describe the analysis that integrates the different components required. The  post-spill survival for Barataria Bay bottlenose dolphins is obtained in a separate paper, Glennie et al (2021).
 
+* [BND_FecundityReduction](BND_FecundityReduction.html) – Supplementary material about how we approximate the reproduction success with a Beta random variable and how we derive from it the fecundity reduction factor.
+
 * [AgeOfSexualMaturity](AgeOfSexualMaturity.html) - Supplementary material with details about how we obtained the age at first reproduction for *Tursiops truncatus*.
 
 * [BNDinjury_Figs](BNDinjury_Figs.html) - R code for obtaining figures 3, 4 and 5, as well as the injury metrics results presented on the paper.
