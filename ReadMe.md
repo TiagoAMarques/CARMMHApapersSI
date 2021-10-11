@@ -15,12 +15,12 @@ Hence, the results for both papers can  be obtained by running the same code jus
 
 There are two master files that facilitate access to the material provided:
 
-* :dolphin: [Bottlenose dolphin Barataria Bay paper master file](https://htmlpreview.github.io/?https://github.com/TiagoAMarques/CARMMHApapersSI/blob/master/FolderArchitecture2runCode/BND_ElectronicSupplements.html)
+* :boom: :fire: :arrow_right: :dolphin: [Bottlenose dolphin Barataria Bay paper master file](https://htmlpreview.github.io/?https://github.com/TiagoAMarques/CARMMHApapersSI/blob/master/FolderArchitecture2runCode/BND_ElectronicSupplements.html)
 
-* :whale: [Pelagic paper master file](https://htmlpreview.github.io/?https://github.com/TiagoAMarques/CARMMHApapersSI/blob/master/FolderArchitecture2runCode/ElectronicSupplements.html)
+* :boom: :fire: :arrow_right: :whale: [Pelagic paper master file](https://htmlpreview.github.io/?https://github.com/TiagoAMarques/CARMMHApapersSI/blob/master/FolderArchitecture2runCode/ElectronicSupplements.html)
 
 A short paper submitted as a letter to MMS, describing the effects on Bottlenose dolphin Barataria Bay population dynamics of increased low salinity due to river diversions also uses a slight adaptation of the code required for the main papers. The master file to navigate those files is here:
 
-* :droplet: :dolphin: [Bottlenose dolphin Barataria Bay diversion paper master file](https://htmlpreview.github.io/?https://github.com/TiagoAMarques/CARMMHApapersSI/blob/master/FolderArchitecture2runCode/Diversion_ElectronicSupplements.html)
+* :droplet: :arrow_right: :dolphin: [Bottlenose dolphin Barataria Bay diversion paper master file](https://htmlpreview.github.io/?https://github.com/TiagoAMarques/CARMMHApapersSI/blob/master/FolderArchitecture2runCode/Diversion_ElectronicSupplements.html)
 
 Feel free to drop us any comments at tiago.marques at st-andrews.ac.uk
