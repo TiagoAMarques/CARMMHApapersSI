@@ -1,0 +1,378 @@
+---
+title: Predicted population consequences of low salinity associated with the proposed
+  Mid-Barataria Sediment Diversion project on bottlenose dolphins in the Barataria
+  Bay Estuarine System Stock
+author: Len Thomas$^1$, Tiago Marques$^1$, Cormac Booth$^2$, Ryan Takeshita$^3$ and
+  Lori Schwacke$^3$
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(echo = FALSE, fig.width = 7, fig.height = 5, fig.align = 'center')
+```
+
+\begin{center}
+$^1$Centre for Research into Ecological and Environmental Modelling, University of St Andrews. 
+$^2$SMRU Consulting. $^3$National Marine Mammal Foundation. 
+\end{center}
+
+\begin{center}
+13th May 2021
+\end{center}
+
+```{r}
+#Define some constants
+alpha <- 0.05
+diversion.start.year <- 2027 - 2010 + 1
+diversion.n.years <- 50
+diversion.end.year <- (2027 + diversion.n.years - 1) - 2010 + 1
+functional.extinction <- 30
+yrs.after.diversion <- 10
+
+#Read in population run results -- creates objects res.mort and res.pop
+load(file = "out.Rdata")
+#Truncate to just the part we are interested in
+res.mort <- res.mort[1:diversion.end.year, , , ]
+res.pop <- res.pop[1:diversion.end.year, , , ]
+
+year <- 2010 : (2010 - 1 + dim(res.mort)[1])
+
+#Read in stratum survival change
+strata <- c("Island", "Southeast", "Central", "West")
+n.strata <- length(strata)
+LowSalS <- read.csv("BB_AllRegions_Survival.csv", header = TRUE)
+# Percentage survival difference per stratum
+PSD <- ((LowSalS[LowSalS$scenario == "APA", strata] - LowSalS[LowSalS$scenario == "NAA", strata]) / LowSalS[LowSalS$scenario == "NAA", strata]) * 100
+```
+
+```{r}
+#Compute appropriate summaries
+
+#Population summaries
+pop.strat.med <- apply(res.pop, c(1, 3, 4), median)
+pop.strat.lcl <- apply(res.pop, c(1, 3, 4), quantile, alpha / 2)
+pop.strat.ucl <- apply(res.pop, c(1, 3, 4), quantile, 1 - alpha / 2)
+pop.tot <- apply(res.pop, c(1, 2, 4), sum)
+pop.tot.med <- apply(pop.tot, c(1, 3), median)
+pop.tot.lcl <- apply(pop.tot, c(1, 3), quantile, alpha / 2)
+pop.tot.ucl <- apply(pop.tot, c(1, 3), quantile, 1 - alpha / 2)
+
+#Mortality summary - just need year of diversion
+excess.mort.diversion.start <- res.mort[diversion.start.year, , , 1] - 
+  res.mort[diversion.start.year, , , 2]
+excess.mort.strat.diversion.start.med <- apply(excess.mort.diversion.start, 2, median)
+excess.mort.strat.diversion.start.lcl <- apply(excess.mort.diversion.start, 2, quantile, alpha / 2)
+excess.mort.strat.diversion.start.ucl <- apply(excess.mort.diversion.start, 2, quantile, 1 - alpha / 2)
+excess.mort.diversion.start <- apply(excess.mort.diversion.start, 1, sum)
+excess.mort.tot.diversion.start.med <- median(excess.mort.diversion.start)
+excess.mort.tot.diversion.start.lcl <- quantile(excess.mort.diversion.start, alpha / 2)
+excess.mort.tot.diversion.start.ucl <- quantile(excess.mort.diversion.start, 1 - alpha / 2)
+```
+
+# Summary
+
+1. The proposed Mid-Barataria Sediment Diversion (MBSD) project will result in decreased levels of salinity in Barataria Bay, Louisiana. This decreased salinity has been predicted by the National Oceanographic and Atmospheric Administration (NOAA) to cause increased mortality of bottlenose dolphins in the Barataria Bay Estuarine System (BBES) Stock.  
+
+2. We used an existing model for the population dynamics of this stock to predict the population consequences of the increased mortality.  We compared population projections under two scenarios (described in the Draft Environmental Impact Statement for the proposed project), "Applicants Preferred Alternative" (APA) and "No Action Alternative" (NAA), using the same four geographic regions ("strata") as NOAA and assuming no movement of animals among strata.
+
+```{r}
+#Calculate population decline statistics used in next bullet
+pop.ch.apa <- ((pop.tot[diversion.start.year + 1, , 1] -
+                 pop.tot[diversion.start.year, , 1]) /
+                 pop.tot[diversion.start.year, , 1])
+pop.ch.apa.med <- median(pop.ch.apa)
+pop.ch.apa.lcl <- quantile(pop.ch.apa, alpha / 2)
+pop.ch.apa.ucl <- quantile(pop.ch.apa, 1 - alpha / 2)
+pop.ch.naa <- ((pop.tot[diversion.start.year + 1, , 2] -
+                 pop.tot[diversion.start.year, , 2]) /
+                 pop.tot[diversion.start.year, , 2])
+pop.ch.naa.med <- median(pop.ch.naa)
+pop.ch.naa.lcl <- quantile(pop.ch.naa, alpha / 2)
+pop.ch.naa.ucl <- quantile(pop.ch.naa, 1 - alpha / 2)
+pop.apa.vs.naa <- (pop.tot[diversion.start.year + 1, , 1] /
+                        pop.tot[diversion.start.year + 1, , 2])
+pop.apa.vs.naa.med <- median(pop.apa.vs.naa)
+pop.apa.vs.naa.lcl <- quantile(pop.apa.vs.naa, alpha / 2)
+pop.apa.vs.naa.ucl <- quantile(pop.apa.vs.naa, 1 - alpha / 2)
+```
+
+3. The model predicts an immediate and severe population-level decline under the APA.  In the first year of operation under the APA (2027), median predicted excess mortality under the APA is `r round(excess.mort.tot.diversion.start.med)` dolphins (95% confidence interval [CI] `r round(excess.mort.tot.diversion.start.lcl)`-`r round(excess.mort.tot.diversion.start.ucl)`), leading to a median stock decline of `r round(-pop.ch.apa.med * 100)`% (95% CI `r round(-pop.ch.apa.ucl * 100)`-`r round(-pop.ch.apa.lcl * 100)`). By contrast, under the NAA the stock is predicted to increase by `r round(pop.ch.naa.med * 100)`% (95% CI `r round(pop.ch.naa.lcl * 100)`-`r round(pop.ch.naa.ucl * 100)`) -- the increase is because the stock is estimated to still be in recovery from the *Deepwater Horizon* oil spill.  Therefore, after one year of operation, the stock is predicted to be `r round((1 - pop.apa.vs.naa.med) * 100)`% smaller (95% CI `r round((1 - pop.apa.vs.naa.ucl) * 100)`-`r round((1 - pop.apa.vs.naa.lcl) * 100)`) under the APA than under the NAA.
+
+```{r}
+#Calculate statistics required for next bullet
+is.extinct <- function(x, limit){
+  return(sum(x < limit) / length(x) )
+}
+p.extinct.10 <- apply(res.pop[diversion.start.year + yrs.after.diversion, , , 1], 2, is.extinct, limit = functional.extinction)
+
+pop.apa.vs.naa.strat.10 <- res.pop[diversion.start.year + yrs.after.diversion, , , 1] / res.pop[diversion.start.year + yrs.after.diversion, , , 2]
+pop.apa.vs.naa.strat.10.med <- apply(pop.apa.vs.naa.strat.10, 2, median)
+pop.apa.vs.naa.strat.10.lcl <- apply(pop.apa.vs.naa.strat.10, 2, quantile, alpha / 2)
+pop.apa.vs.naa.strat.10.ucl <- apply(pop.apa.vs.naa.strat.10, 2, quantile, 1 - alpha / 2)
+```
+
+4. After `r yrs.after.diversion` years of operation, the parts of the stock in the Central and West strata are predicted to be functionally extinct (probability of < `r functional.extinction` animals remaining is `r round(p.extinct.10["Central"], 2)` in the Central stratum and `r round(p.extinct.10["West"], 2)` in the West stratum). The part in the Southeast stratum, while not extinct, is predicted to be `r round((1 - pop.apa.vs.naa.strat.10.med["Southeast"]) * 100)`% lower (95% CI `r round((1 - pop.apa.vs.naa.strat.10.ucl["Southeast"]) * 100)`-`r round((1 - pop.apa.vs.naa.strat.10.lcl["Southeast"]) * 100)`) under the APA than under the NAA. The Island stratum is less severely affected with a median predicted decline of `r round((1 - pop.apa.vs.naa.strat.10.med["Island"]) * 100)`% (95% CI `r round((1 - pop.apa.vs.naa.strat.10.ucl["Island"]) * 100)`-`r round((1 - pop.apa.vs.naa.strat.10.lcl["Island"]) * 100)`).
+
+```{r}
+#Calculate population decline statistics used in next bullet
+pop.apa.vs.naa.strat.end <- res.pop[diversion.end.year, , , 1] / res.pop[diversion.end.year, , , 2]
+pop.apa.vs.naa.strat.end.med <- apply(pop.apa.vs.naa.strat.end, 2, median)
+pop.apa.vs.naa.strat.end.lcl <- apply(pop.apa.vs.naa.strat.end, 2, quantile, alpha / 2)
+pop.apa.vs.naa.strat.end.ucl <- apply(pop.apa.vs.naa.strat.end, 2, quantile, 1 - alpha / 2)
+
+pop.tot.apa.vs.naa.perc <- (1 - pop.tot[diversion.end.year, , 1] / pop.tot[diversion.end.year, , 2]) * 100
+```
+
+5. After the planned 50 years of operation, dolphins in three out of the four strata are predicted to be functionally extinct under the APA, with the remaining Island stratum being severely reduced relative to the NAA (median predicted population size of Island stratum is `r round((1 - pop.apa.vs.naa.strat.end.med["Island"]) * 100)`% lower [95% CI `r round((1 - pop.apa.vs.naa.strat.end.ucl["Island"]) * 100)`-`r round((1 - pop.apa.vs.naa.strat.end.lcl["Island"]) * 100)`] under the APA than under the NAA).  Overall, by the year `r 2010 + diversion.end.year - 1`, the median predicted stock size across all of Barataria Bay under the APA is `r round(median(pop.tot[diversion.end.year, , 1]))` dolphins (95% CI `r round(quantile(pop.tot[diversion.end.year, , 1], alpha / 2))`-`r round(quantile(pop.tot[diversion.end.year, , 1], 1 - alpha / 2))`) compared to `r round(median(pop.tot[diversion.end.year, , 2]))` (95% CI `r round(quantile(pop.tot[diversion.end.year, , 2], alpha / 2))`-`r round(quantile(pop.tot[diversion.end.year, , 2], 1 - alpha / 2))`) under the NAA.  In other words, the stock is predicted to be `r round(median(pop.tot.apa.vs.naa.perc))`% smaller (95% CI `r round(quantile(pop.tot.apa.vs.naa.perc, alpha / 2))`-`r round(quantile(pop.tot.apa.vs.naa.perc, 1 - alpha / 2))`) under the APA than then NAA.
+
+# Introduction
+
+The Barataria Bay Estuarine System (BBES) Stock of bottlenose dolphins was heavily impacted by the *Deepwater Horizon* (DWH) oil spill. A population model (Schwacke et al. 2017) was developed to quantify the impact, and this model has recently been updated as part of a Gulf of Mexico Research Institute consortium project (CARMMHA) to collect additional information and refine the impact quantification (Schwacke et al. in preparation).
+
+One proposed habitat restoration effort is the proposed Mid-Barataria Sediment Diversion (MBSD) project, which proposes to intermittently release water from the Mississippi River into the upper Barataria Basin.  This will result in decreased levels of salinity in the basin that, in turn, will cause mortality of dolphins in the BBES Stock. The potential extent of this mortality was examined in a recent report by the National Oceanographic and Atmospheric Administration (NOAA; Garrison et al. 2020). That report gave predictions of annual survival rates in four geographic regions ("strata") within the Barataria Basin (Island, Southeast, Central and West) under two scenarios presented in the Draft Environmental Impact Statement for the proposed project: the "Applicants Preferred Alternative", where the MBSD is constructed and begins operation in 2027, and the "No Action Alternative", where the MBSD is not constructed.
+
+In this report, we integrate the annual survival of dolphins in each of the four strata from the two scenarios of Garrison et al. (2020) into the population model developed under the CARMMHA project, and use this to predict the consequences of the proposed MBSD project for the dolphin stock.
+
+# Methods
+
+## Impact on survival from NOAA analysis
+
+We obtained from NOAA 1,000 replicate predictions of estimated annual survival under APA and NAA scenarios in each of the four strata, derived from the model of Garrison et al. (2020).  The replicate predictions represent the range of scientific uncertainty on possible impacts, accounting for factors such as uncertainty on the salinity field for a given set of hydrographic conditions, uncertainty on animal movement and hence exposure, and uncertainty on the effect of low salinity on dolphin survival (see Garrison et al. 2020 for details).  Note that all predictions are based on a single assumed annual hydrograph, that for 1970 (Garrison et al. 2020), and so do not account for uncertainty in future hydrographic conditions (see Discussion).
+
+For each replicate prediction and stratum, we calculated the percentage difference in survival between the APA and the NAA as follows: 
+$$
+\mbox{\% difference in survival} = \frac{\mbox{survival under APA - survival under NAA}}{\mbox{survival under NAA}} \times 100
+$$
+
+The resulting distribution of percentage difference in survival in each stratum is shown in Figure 1, with associated summary statistics in Table 1. For the Island stratum, the median prediction is of a 2% decline in survival under the APA relative to the NAA, although in 10% of replicates the predicted survival decline is greater than 20%. For the Southeast stratum, the median prediction is of a 14% decline in survival with 40% of replicates predicting a survival decline of greater than 20%. Note, however, that 24% of replicates in this stratum predict an increase in survival under APA relative to the NAA. For the Central and West strata there is a large predicted decline in survival under almost all replicates.
+
+```{r, fig.cap = "Predicted percentage difference in dolphin annual survival under the Applicant Preferred Alternative (APA) compared with the No Action Alternative (NAA). One thousand predicted survival rates were provided by NOAA and were derived from the model of Garrison et al. (2020)."}
+par(mfrow = c(2, 2))
+for (i in 1:n.strata){
+  hist(PSD[, strata[i]], main = strata[i], xlab = "% Difference in Survival", probability = FALSE, xlim = range(PSD))
+}
+par(mfrow = c(1, 1))
+```
+
+```{r}
+tmp <- data.frame(stratum = strata)
+tmp$median_PSD <- apply(PSD, 2, median)
+tmp$perc_lt_0.8 <- apply(PSD, 2, function(x){sum(x < -20) / length(x) * 100})
+tmp$perc_gt_1 <- apply(PSD, 2, function(x){sum(x > 0)/length(x) * 100})
+kable(tmp, digits = 0, longtable = FALSE, col.names = c("Stratum", "median % diff", "% (diff < -20%)", "% (diff > 0)"), caption = "Summary statistics on predicted percentage difference in dolphin annual survival under the APA relative to the NAA.  First column is median predicted percentage difference, second is percentage of replicates that predict a decline in survival of 20% or more, third is percentage of replicates that predict an increase in survival.")
+```
+
+## Population consequences
+
+The population model of Schwacke et al. (in prep.) gives estimates of the population trajectory of BBES dolphins from 2010 onwards, accounting for the estimated effect of the DWH oil spill. We used this model as the basis to predict the estimated effect of the proposed MBSD project (APA) on the dolphin population. Like the APA survival predictions from Garrison et al. (2020), the population model accounts for scientific uncertainty in predictions by allowing multiple replicates to be drawn. We therefore based our predictions on 1,000 replicate samples. 
+
+For each sample, we partitioned the BBES dolphin population into the same four strata as Garrison et al. (2020), using estimates of the proportion of the total population with home range centers in each of the four strata. These estimates come from a spatial capture recapture analysis (Glennie et al. in prep.) that forms part of the inputs to the Schwacke et al. model. For the purposes of this analysis, we assumed that each stratum is demographically independent -- i.e., that dolphins in the BBES stock do not move from one stratum to another. For each stratum, we ran the Schwacke et al. model for 75 years (2010-2076), under two scenarios. In the first scenario, representing the APA, for each year after the proposed MBSD project begins in 2027 we adjusted the survival values from the Schwacke et al. model using a random draw from the 1,000 values of percentage difference in survival for that stratum. In the second scenario, representing the NAA, we ran the Schwacke et al. model without modification.
+
+We calculated the following metrics to summarize outcomes from the population model:
+
+- In the first year of operation of the MBSD (i.e., 2027-2028)
+  - Excess mortality: the total number of dolphins that are expected to die this year under the APA minus the number that are expected to die in the same year under the NAA.
+  - Change in population size under the APA and under the NAA.
+  - Percentage difference in population size in 2028 between APA and NAA.
+
+- After 10 years of operation of the MBSD (i.e., in 2037)
+  - Probability of functional extinction, where functional extinction is defined as < 30 animals.
+  - Percentage difference in population size in 2037 between the APA and NAA.
+
+- In the final year of operation the MBSD operations planning horizon (i.e., 2076)
+  - Probability of funtional extinction.
+  - Population size under the APA and under the NAA.
+  
+In each case, we report the median value from the 1,000 replicate simulations, together with the lowest 2.5th and highest 97.5th percentile -- these latter values represent a 95% confidence interval on the prediction.
+
+# Results
+
+We first present graphical representations and a qualitative description of the results, before presenting the summary metrics described in the Methods. 
+
+```{r}
+alpha <- 0.05
+n.toshow <- 10
+```
+
+Figure 2 summarizes the population trajectories over all 1,000 realizations under APA (red) and NAA (black) scenarios.  The populations follow the same trajectory under both scenarios up until 2027, when proposed MBSD operations start.  During this period (2010-2027) the populations experience the negative effect of the DWH oil spill and, starting around 2020, begin to recover. After 2027 under the NAA, the populations continue to recover and reach a steady state long before the end of the simulation time period.  Under the APA the median prediction for the Island stratum is of a steady decline, while the other strata experience rapid declines to extinction.  The prediction at stock level, i.e., summing across strata, is shown in Figure 3.  Under the APA, the stock is predicted to decline precipitously at first and then more gradually, reaching very low levels relative to the NAA by the end of the simulation time period.
+
+```{r, fig.cap = "Summary of predicted population trajectories by stratum under the Applicant Preferred Alternative (red) and No Action Alternative (black) scenarios.  Solid line shows median; dashed lines show 95\\% confidence limits."}
+par(mfrow = c(2, 2))
+for(i in 1:n.strata){
+  ylim <- range(c(pop.strat.med[, i, ], pop.strat.lcl[, i, ], pop.strat.ucl[, i, ]))
+  plot(year, pop.strat.med[, i, 2], main = strata[i], type = "l", ylim = ylim, ylab = "dolphins")
+  lines(year, pop.strat.lcl[, i, 2], lty = 2)
+  lines(year, pop.strat.ucl[, i, 2], lty = 2)
+  lines(year, pop.strat.med[, i, 1], col = "red")
+  lines(year, pop.strat.lcl[, i, 1], col = "red", lty = 2)
+  lines(year, pop.strat.ucl[, i, 1], col = "red", lty = 2)
+}
+par(mfrow = c(1, 1))
+```
+
+
+```{r, fig.cap = "Summary of predicted stock trajectory under the Applicant Preferred Alternative (red) and No Action Alternative (black) scenarios.  Solid line shows median; dashed lines show 95\\% confidence limits."}
+ylim <- range(c(pop.tot.med, pop.tot.lcl, pop.tot.ucl))
+plot(year, pop.tot.med[, 2], main = "Barataria Bay Estuarine System Stock", type = "l", ylim = ylim, ylab = "dolphins")
+lines(year, pop.tot.lcl[, 2], lty = 2)
+lines(year, pop.tot.ucl[, 2], lty = 2)
+lines(year, pop.tot.med[, 1], col = "red")
+lines(year, pop.tot.lcl[, 1], col = "red", lty = 2)
+lines(year, pop.tot.ucl[, 1], col = "red", lty = 2)
+```
+
+The summaries given in Figures 2 and 3 are computed from 1,000 random realizations of the model.  Figure 4 shows `r n.toshow` example realizations.  The part of the stock in the Island stratum experiences occasional large population decreases associated with years where there is a large decline in survival under the APA; in most years, however, there is little or no decline.  After 50 years of operation, all realizations have experienced an overall decline and none are at the level of the corresponding NAA.  The part of the stock in the Southeast stratum experiences frequent stronger declines, but also occasional increases associated with survival increase under the APA.  Nevertheless, after 50 years of operation, all realizations are at or close to zero.  The parts of the stock in the Central and West strata experience rapid declines towards zero in all realizations.
+
+```{r, fig.cap = "Ten example realizations of the population simulation under the Applicant Preferred Alternative (red) and No Action Alternative (black) scenarios."}
+par(mfrow = c(2, 2))
+for(i in 1:n.strata){
+  ylim <- range(res.pop[, 1:n.toshow, i, ])
+  plot(year, res.pop[, 1, i, 2], main = strata[i], type = "l", ylim = ylim, ylab = "dolphins")
+  for(j in 1:n.toshow){
+    lines(year, res.pop[, j, i, 2])
+    lines(year, res.pop[, j, i, 1], col = "red")
+  }
+}
+par(mfrow = c(1, 1))
+```
+
+
+```{r}
+#Work out proportion of population killed by APA
+prop.excess <- excess.mort.diversion.start / pop.tot[diversion.start.year, , 1]
+perc.excess <- prop.excess * 100
+```
+
+Quantitative summaries of the results are given in Tables 2-6^[Note that in all these tables, the median shown in the "Total" row is calculated by first aggregating the strata and then calculating the median.  This is not the same as simply summing the stratum medians.  The same is true for the confidence limits.].  Table 2 shows the predicted mortalities in the first year of the proposed MBSD operation (2027) under APA, NAA and the difference between the two, which represents the predicted excess mortalities under the APA scenario.  In this first year of MBSD operation, the median predicted excess mortality under the APA is `r round(excess.mort.tot.diversion.start.med)` dolphins with 95% CI `r round(excess.mort.tot.diversion.start.lcl)`-`r round(excess.mort.tot.diversion.start.ucl)`.  This excess mortality represents a median of `r format(median(perc.excess), digits = 0)`% of the stock (95% CI `r format(quantile(perc.excess, alpha / 2), digits = 0)`-`r format(quantile(perc.excess, 1 - alpha / 2), digits = 0)`) killed by the MBSD in its first year of operation.
+
+```{r}
+#Table 2
+make.outstring <- function(est, lcl, ucl){
+  return(paste0(est, " (", lcl, " — ", ucl, ")"))
+}
+
+res.mort.tot.diversion.start <- apply(res.mort[diversion.start.year, , , ], c(1, 3), sum)
+
+res.mort.apa.med <- round(apply(res.mort[diversion.start.year, , , 1], 2, median))
+res.mort.apa.med <- c(res.mort.apa.med, round(median(res.mort.tot.diversion.start[, 1])))
+res.mort.apa.lcl <- round(apply(res.mort[diversion.start.year, , , 1], 2, quantile, alpha / 2))
+res.more.apa.lcl <- c(res.mort.apa.lcl, round(quantile(res.mort.tot.diversion.start[, 1]), alpha / 2))
+res.mort.apa.ucl <- round(apply(res.mort[diversion.start.year, , , 1], 2, quantile, 1 - alpha / 2))
+res.more.apa.ucl <- c(res.mort.apa.ucl, round(quantile(res.mort.tot.diversion.start[, 1]), 1 - alpha / 2))
+res.mort.naa.med <- round(apply(res.mort[diversion.start.year, , , 2], 2, median))
+res.mort.naa.med <- c(res.mort.naa.med, round(median(res.mort.tot.diversion.start[, 2])))
+res.mort.naa.lcl <- round(apply(res.mort[diversion.start.year, , , 2], 2, quantile, alpha / 2))
+res.more.naa.lcl <- c(res.mort.naa.lcl, round(quantile(res.mort.tot.diversion.start[, 2]), alpha / 2))
+res.mort.naa.ucl <- round(apply(res.mort[diversion.start.year, , , 2], 2, quantile, 1 - alpha / 2))
+res.more.naa.ucl <- c(res.mort.naa.ucl, round(quantile(res.mort.tot.diversion.start[, 2]), 1 - alpha / 2))
+tmp <- data.frame(stratum = c(strata, "Total"))
+tmp$apa <- make.outstring(res.mort.apa.med, res.mort.apa.lcl, res.mort.apa.ucl)
+tmp$naa <- make.outstring(res.mort.naa.med, res.mort.naa.lcl, res.mort.naa.ucl)
+tmp$excess <- make.outstring(round(c(excess.mort.strat.diversion.start.med, excess.mort.tot.diversion.start.med)), round(c(excess.mort.strat.diversion.start.lcl, excess.mort.tot.diversion.start.lcl)), round(c(excess.mort.strat.diversion.start.ucl, excess.mort.tot.diversion.start.ucl)))
+kable(tmp, col.names = c("Stratum", "APA mortality", "NAA mortality", "excess mortality (APA-NAA)"), caption = "Predicted dolphin mortality in 2027 under APA and NAA scenarios.  Last column shows excess mortality -- i.e., mortality under APA minus mortality under NAA.  Values are medians from the model simulations, with 95% confidence intervals in brackets.")
+```
+
+Estimated stock size in the 2027, before operation of the proposed MBSD, was `r round(pop.tot.med[diversion.start.year, 1])` animals (95% CI `r round(pop.tot.lcl[diversion.start.year, 1])`-`r round(pop.tot.ucl[diversion.start.year, 1])`).  Estimated stock sizes in 2028 under the APA and NAA are shown in Table 3.  Under the APA, the stock is predicted to decline by `r round(-pop.ch.apa.med * 100)`% (95% CI `r round(-pop.ch.apa.ucl * 100)`-`r round(-pop.ch.apa.lcl * 100)`) due to mortalities caused by the MBSD operation.  By contrast, under the NAA the stock is predicted to increase by  `r round(pop.ch.naa.med * 100)`% (95% CI `r round(pop.ch.naa.lcl * 100)`-`r round(pop.ch.naa.ucl * 100)`) -- the increase is because the stock is estimated be still in recovery from the DWH oil spill.  Therefore, by the end of the first year of MBSD operations, the stock is predicted to be `r round((1 - pop.apa.vs.naa.med) * 100)`% smaller (95% CI `r round((1 - pop.apa.vs.naa.ucl) * 100)`-`r round((1 - pop.apa.vs.naa.lcl) * 100)`) under the APA than under the NAA (Table 3).
+
+
+```{r}
+get.str.pop.size <- function(res.pop, strata, stratum, yr, alpha){
+  #Returns median population size under diversion and no_diversion, and perc.diff
+  # in yr y; also alpha-level CI. All rounded to nearest integer and formatted
+  # for inclusion in a table.
+  #If stratum = 0 then for all strata, otherwise for particular stratum
+  if(stratum == 0) {
+    res.pop <- apply(res.pop[yr, , , ], c(1, 3), sum)
+    str <- "Total"
+  } else {
+    res.pop <- res.pop[yr, , stratum, ]
+    str <- strata[stratum]
+  }
+  perc.diff <- (res.pop[, 1] - res.pop[, 2]) / res.pop[, 2] * 100
+  return(list(stratum = str, 
+         apa = paste0(round(median(res.pop[, 1])), " (",
+                      round(quantile(res.pop[, 1], alpha / 2)), " — ",
+                      round(quantile(res.pop[, 1], 1 - alpha / 2)), ")"),  
+         naa = paste0(round(median(res.pop[, 2])), " (",
+                      round(quantile(res.pop[, 2], alpha / 2)), " — ",
+                      round(quantile(res.pop[, 2], 1 - alpha / 2)), ")"),  
+         perc.diff = paste0(round(median(perc.diff)), " (",
+                            round(quantile(perc.diff, alpha / 2))," — ",
+                            round(quantile(perc.diff, 1 - alpha / 2)), ")")))
+}
+get.pop.size <- function(res.pop, yr, strata, alpha){
+  #Wrapper function to get pop size for a particular year
+  tmp <- data.frame(get.str.pop.size(res.pop, strata, 1, yr, alpha))
+  for(i in 2:n.strata){
+    tmp <- rbind(tmp, get.str.pop.size(res.pop, strata, i, yr, alpha))
+  }
+  tmp <- rbind(tmp, get.str.pop.size(res.pop, strata, 0, yr, alpha))
+  return(tmp)
+}
+```
+```{r}
+#Table 3
+tmp <- get.pop.size(res.pop, diversion.start.year + 1, strata, alpha)
+kable(tmp, col.names = c("Stratum", "APA dolphins", "NAA dolphins", "% difference"), caption = "Predicted number of dolphins in 2028 (after 1 year of operation of the MBSD) by stratum and overall under APA and NAA scenarios, and percentage difference between scenarios.  Values are medians with 95% confidence intervals in brackets.")
+```
+
+Tables 4 and 5 show the predicted population size in 2038 and 2076 respectively (i.e., after 10 years of operation of the MBSD and at the end of the 50 year planning horizon) under APA and NAA, as well as the difference between the two scenarios.
+
+\newpage
+
+```{r}
+#Table 4
+tmp <- get.pop.size(res.pop, diversion.start.year + yrs.after.diversion, strata, alpha)
+kable(tmp, col.names = c("Stratum", "APA dolphins", "NAA dolphins", "% difference"), caption = "Predicted number of dolphins in 2038 (after 10 years of operation of the MBSD) by stratum and overall under APA and NAA scenarios, and percentage difference between scenarios.  Values are medians with 95% confidence intervals in brackets.")
+```
+
+```{r}
+#Table 5
+tmp <- get.pop.size(res.pop, diversion.end.year, strata, alpha)
+kable(tmp, col.names = c("Stratum", "APA dolphins", "NAA dolphins", "% difference"),  caption = "Predicted number of dolphins in 2076 (at the end of the planning horizon for the MBSD) by stratum and overall under APA and NAA scenarios, and percentage difference between scenarios.  Values are medians with 95% confidence intervals in brackets.")
+```
+
+Table 6 shows the predicted probability of functional extinction (i.e., proportion of simulation runs where the number of dolphins is less than `r functional.extinction`) in each stratum in 2038 and 2076.
+
+```{r}
+p.extinct.end <- apply(res.pop[diversion.end.year, , , 1], 2, is.extinct, limit = functional.extinction)
+tmp <- data.frame(stratum = strata, p.10 = p.extinct.10, p.end = p.extinct.end)
+rownames(tmp) <- NULL
+kable(tmp, row.names = NA, col.names = c("Stratum", "p(extinct) in 2038", "p(extinct) in 2076"), digits = 2, caption = "Predicted probability of functional extinction (i.e., fewer than 30 dolphins remaining) by stratum in 2038 (after 10 years of operation of the MBSD under APA) and 2076 (at the end of the planning horizon for the MBSD)")
+```
+
+# Discussion
+
+Under the assumptions of this model, there is predicted to be a severe decline in stock size caused by the MBSD under the APA scenario.  The stock is predicted to become functionally extinct in three out of four strata and severely reduced in the fourth.  The declines are more severe than those estimated to have been caused by the DWH oil spill and will take place just as the stock is starting to recover from the oil spill.  While the stock is estimated to recover fully from the DWH oil spill under the NAA scenario, this will not happen under the APA scenario.
+
+We set a limit for "functional extinction" of `r functional.extinction` animals.  To our knowledge there is no agreed threshold, and other reasonable values could have been used to indicate the point at which there are so few animals they no longer form a functioning part of the ecosystem.  Regardless of the value used, the above findings would be qualitatively the same
+
+These results were generated by combining two separate analyses: the survival predictions from Garrison et al. (2020) and the population model of Schwacke et al. (in prep., updating Schwacke et al. 2017).  These use some overlapping information -- the photo-ID surveys undertaken in Barataria Bay from 2010-2019.  Hence it would be possible, with more modelling effort, to integrate the two more closely by building components of the Garrison et al. model into the population model.  However, this is not expected to make a qualitative difference to the population predictions.
+
+The analysis undertaken here sampled values at random each year from the predicted survival effects under the APA and NAA generated by Garrison et al. (2020).  This is equivalent to assuming the factors driving the uncertainty in predicted survival effects vary each year.  While this is correct for some sources of uncertainty (e.g., uncertainty in salinity field given hydrography; animal movement and hence exposure), it is not fully correct for others (e.g., uncertainty on dolphin survival response given exposure).  Ideally, the different components of uncertainty in the Garrison et al. model would be separated and then we could sample as appropriate at the annual level or just once per population projection.  This reduction in annual variability would be expected to produce a somewhat more positive population projection, particularly in the Island stratum.  However, one very important source of annual variability was neglected in these simulations: annual change in hydrography.  The predictions we used from Garrison et al. model were based on a single annual hydrograph, from 1970 (cycle0, Garrison et al. 2020), when in reality hydrography is expected to vary substantially between years.  This variability will mean that there are years of worse survival than predicted by Garrison et al. and years of better survival.  The overall effect of this on the dolphin population will be to produce a more negative trajectory, because years of poor survival produce large decreases in population size, but in years of good survival the population can only increase by a small amount as it is constrained by the birth rate.  The population can decline by 25% in a bad year but it cannot increase by 25% in a good year.  Given this, we anticipate that addressing all of the issues related to uncertainty discussed in this paragraph will lead overall to more negative population predictions.
+
+Another factor that makes our projections optimistic is that the population dynamics model is deterministic -- it does not account for the random nature of births and deaths, and also allows non-integer population counts.  Incorporating demographic stochasticity in the model, and restricting population sizes to be whole numbers will produce more negative predictions, although the difference will not be significant until the populations become small.
+
+The analysis also assumed that the four strata are demographically independent.  If dolphins move away from the three more affected strata into the Island stratum in response to low salinity then the stock-level effects may be lower; on the other hand, if dolphins disperse between strata without regard to salinity changes then more animals will move into the strongly-affected strata from the less-affected Island stratum and the stock-level effects may be greater.  Genetic analyses have supported spatial structure within the Barataria Basin population, and have identified genetically distinct dolphin groups in the Western, East/Central, and Island portions of the basin (Rosel et al. 2017, Speakman et al. in prep.). Tracking of Barataria Basin dolphin movement patterns via satellite-linked tags has shown multi-year site fidelity to small home ranges (Wells et al. 2017), and have not shown changes in movement that are coincident with fluctuating salinity (Takeshita et al. submitted).
+
+# Literature cited
+
+Garrison, L.P., J. Litz and C. Sinclair. 2020. Predicting the effects of low salinity associated with the MBSD project on resident common bottlenose dolphins (_Tursiops truncatus_) in Barataria Bay, LA. NOAA Technical Memorandum NMFS-SEFSC-748
+
+Glennie, R., L. Thomas, T. Speakman, L. Garrison, R. Takeshita and L.H. Schwacke. Manuscript in preparation.  Estimating spatially-varying density and time-varying deographics with open population spatial capture-recapture: a photograhic ID case study on bottlenose dolphins in Barataria Bay, USA.
+
+Rosel P.E., L.A. Wilcox , C. Sinclair, T.R. Speakman, M.C. Tumlin, J.A. Litz and E.S. Zolman. 2017. Genetic assignment to stock of stranded common bottlenose dolphins in southeastern Louisiana after the *Deepwater Horizon* oil spill. Endangered Species Research 33: 231-234.
+
+Schwacke, L.H., L. Thomas, R.S. Wells, W.E. McFee, A.A. Hahn, K.D. Mullin, E.S. Zolman, B.M. Quigley, T.K. Rowles and J.H. Schwacke. 2017. An age-, sex- and class-structured population model for estimating nearshore common bottlenose dolphin injury following the *Deepwater Horizon* oil spill. Endangered Species Research 33: 265-279. 
+
+Schwacke, L.H., T.A. Marques, C. Booth, B. Balmer, A. Barratclough, K. Colegrove, S. De Guise, L. Garrison, F. Gomez, J. Morey, K. D. Mullin, B. M. Quigley, P. Rosel, T. Rowles, R. Takeshita, L. Thomas, F. Townsend, T. Speakman, R. Wells, E. Zolman, C. Smith. Manuscript in preparation. Why bottlenose dolphin populations have still not recovered a decade after the *Deepwater Horizon* oil spill: implications and recommendations for future oil spill response.
+
+Speakman, T.R., L.A. Wilcox, B.C. Balmer, K.P. Barry, C. Paterson, B.M. Quigley, L.H. Schwacke, C. Sinclair, R. Takeshita, N.L. Vollmer, E.S. Zolman, P.E. Rosel. Manuscript in preparation. Fine-scale social and genetic structure of common bottlenose dolphins (*Tursiops truncatus*) in the Barataria Basin, Louisiana, USA.
+
+Takeshita, R., B.C. Balmer, F. Messina, E.S. Zolman, L. THomas, R.S. Wells, C.R. Smith, T.K. Rowles and L.H. Schwacke.  Submitted.  High site-fidelity in common bottlenose dolphins (*Tursiops truncatus*) despite seasonal low salinity exposure in Barataria Bay, LA and indicators of compromised health.
+
+Wells, R.S., L.H. Schwacke, T.K. Rowles, B.C. Balmer, E. Zolman, T. Speakman, F.I. Townsend, M.C. Tumlin, A. Barleycorn and K.A. Wilkinson. 2017. Ranging patterns of common bottlenose dolphins Tursiops truncatus in Barataria Bay, Louisiana, following the *Deepwater Horizon* oil spill. Endangered Species Research 33: 159-180.
+

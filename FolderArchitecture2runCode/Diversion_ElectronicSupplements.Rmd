@@ -1,0 +1,91 @@
+---
+title: "Electronic supplements for CARMMHA's Barataria Bay common bottlenose dolphin diversion effect paper"
+author: ""
+date: \today
+output:
+  html_document: default
+  pdf_document: default
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+```
+
+# Preamble
+
+This is an Electronic Supplement to the manuscript Thomas et al.  "Population model predicts catastrophic impact of proposed habitat restoration project for common bottlenose dolphin (Tursiops truncatus) in Barataria Bay, Louisiana, USA"
+
+The master file containing links to all supplementary files related to this paper is [Diversion_Electronic Supplements master file](Diversion_ElectronicSupplements.html).
+
+If you make use of any of this material in your work, it would be appreciated if you would [contact Tiago
+Marques](mailto:tiago.marques@st-andrews.ac.uk) to let him know.
+
+
+# Introduction
+
+This document is a master file that presents a full list of [Electronic Supplements available](#list-of-key-documents-on-this-repository). 
+
+All these files are created as dynamic reports using RMarkdown. 
+
+The source .Rmd files are provided in the github repository:
+
+https://github.com/TiagoAMarques/CARMMHApapersSI
+
+The above repository also includes all the code required for readers to reproduce independently the paper results. [Below](#how-to-reproduce-the-paper-results) is a quick description of how all the results in the paper might be recreated by the reader, within a framework of [reproducible research](#reproducible-research).
+
+Note the analysis on this paper are heavily based on the code and model fully described in Schwacke et al. (submitted); the analyses undertaken here formed the basis for a letter submitted to the Marine Mammal Commission (Thomas et al. 2021).
+
+# List of key documents on this repository
+
+Other key files names and brief content descriptions follow:
+
+* `runLowSalSims.R` - driver file
+
+* `BB_AllRegions_Survival.csv` - contains predicted survival post MSBD for each region
+
+* `D_str.csv` - contains estimated density per stratum at the beginning of the simulations
+
+* `MS_RiverDiversion_v5.Rmd` - Rmarkdown file used to produce the letter submitted to the Marine Mammal Commission (Thomas et al. 2021).
+
+# How to reproduce the paper results
+
+All the results in the paper can be recreated by the reader by running the code provided. Having the code also facilitates extending and using the code under different scenarios, species and locations.
+
+To get the paper results you need to run:
+
+* `runLowSalSims.R` - to get the main results, saved to a file `out.Rdata` in the `InOutBySp\LowSal` folder.
+
+* `MS_RiverDiversion_v5.Rmd` - to take `out.Rdata` and provide summary of the results
+
+The folder structure and all files required to successfully run the code is in the above github repository (under folder `FolderArchitecture2runCode`). The recommended procedure is to download this entire folder into a local folder and then run the above files.
+
+At a bare minimum running the code requires the following folders and the material provided in them:
+
+* `InputFiles`: this folder includes a number of files that are treated as data, inputs required to run the code, including the key file `SpeciesDefinitionFile.xlsx` that contains parameters for all the different taxonomic units in CARMMHA project, including the Barataria Bay bottlenose dolphins.
+
+* `InOutBySp\Bottlenose_dolphin_BB`:  a folder that also contains species specific input files, namely "N_boot.csv" and "N_boot_in_oil.csv", a distribution of initial population sizes of both all animals and exposed animals. This is also the folder where results are outputted to by default.
+
+* `InOutBySp\LowSal`: a folder that contains specific input files `BB_AllRegions_Survival.csv` and `D_str.csv`, and is where the output file `out.Rdata` is saved to.
+
+* `Functions`: folder containing all the R code including functions required to run the simulations
+
+Note that the code could take a considerable amount of time to run. The consequence of running the code will be to populate the folder `InOutBySp\Bottlenose_dolphin_BB` with the R workspaces holding the results that the rest of the code in [BNDinjury_Figs.Rmd](BNDinjury_Figs.pdf) and [BNDModelEvaluation.Rmd](BNDModelEvaluation.pdf) uses to produce the tables with injury metrics.
+
+# References
+
+Schwacke et al. (submitted)
+
+Thomas, L., T. Marques, C. Booth, R. Takeshita and L. Schwacke. 2001.  Predicted population consequences of low salinity associated with the proposed Mid-Barataria Sediment Diversion project on bottlenose dolphins in the Barataria Bay Estuarine System Stock.  Letter submitted to Marine Mammal Commission, dated 13th May 2021.
+
+# Reproducible research
+
+We have invested a considerable amount of time to make our analysis reproducible. This means also that it should be relatively straightforward for a reader to update the results with new information, be it new data that becomes available or different assumptions about the population, allowing to explore both the consequences of new knowledge or the impact of the assumptions we made on the results presented.
+
+```{r fig1,eval=FALSE,echo=FALSE,fig.width=3,fig.align="center",fig.cap="\\label{fig:fig1}Artwork by @allison_horst at available at https://github.com/allisonhorst/stats-illustrations. This image illustrates the concept of reproducible research and is a tribute to Allison's work on combining art and science."}
+# All defaults
+include_graphics("figs/reproducibility_court.png")
+```
+
+![Artwork by @allison_horst at available at https://github.com/allisonhorst/stats-illustrations. This image illustrates the concept of reproducible research and is a tribute to Allison's work on combining art and science.](figs/reproducibility_court.png){width=50%}
