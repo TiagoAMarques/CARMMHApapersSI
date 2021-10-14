@@ -71,13 +71,13 @@ At a bare minimum running the code requires the following folders and the materi
 
 * `Functions`: folder containing all the R code including functions required to run the simulations
 
-Note that the code could take a considerable amount of time to run. The consequence of running the code will be to populate the folder `InOutBySp\Bottlenose_dolphin_BB` with the R workspaces holding the results that the rest of the code in [BNDinjury_Figs.Rmd](BNDinjury_Figs.pdf) and [BNDModelEvaluation.Rmd](BNDModelEvaluation.pdf) uses to produce the tables with injury metrics.
+Note that the code could take a considerable amount of time to run. The consequence of running the code will be to populate the folder `InOutBySp\Bottlenose_dolphin_BB` with the R workspaces holding the results that the rest of the code in [MS_RiverDiversion_v5.Rmd](MS_RiverDiversion_v5.Rmd) uses to produce the letter to the MMC that forms the basis of the paper.
 
 # References
 
-Schwacke et al. (submitted)
+Schwacke et al. Modeling population impacts of the Deepwater Horizon oil spill on a long-lived species with implications and recommendations for future environmental disasters. Submitted to Conservation Biology.
 
-Thomas, L., T. Marques, C. Booth, R. Takeshita and L. Schwacke. 2001.  Predicted population consequences of low salinity associated with the proposed Mid-Barataria Sediment Diversion project on bottlenose dolphins in the Barataria Bay Estuarine System Stock.  Letter submitted to Marine Mammal Commission, dated 13th May 2021.
+Thomas, L., T. A. Marques, C. Booth, R. Takeshita and L. Schwacke. 2001.  Predicted population consequences of low salinity associated with the proposed Mid-Barataria Sediment Diversion project on bottlenose dolphins in the Barataria Bay Estuarine System Stock.  Letter submitted to Marine Mammal Commission, dated 13th May 2021.
 
 # Reproducible research
 
