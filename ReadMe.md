@@ -19,8 +19,8 @@ There are two master files that facilitate access to the material provided:
 
 * :boom: :fire: :arrow_right: :whale: [Pelagic paper master file](https://htmlpreview.github.io/?https://github.com/TiagoAMarques/CARMMHApapersSI/blob/master/FolderArchitecture2runCode/ElectronicSupplements.html)
 
-A short paper submitted as a letter to MMS, describing the effects on Bottlenose dolphin Barataria Bay population dynamics of increased low salinity due to river diversions also uses a slight adaptation of the code required for the main papers. The master file to navigate those files is here:
+A short paper submitted as a letter to Marine Mammal Science, describing the effects on Bottlenose dolphin Barataria Bay population dynamics of increased low salinity due to the proposed Mississippi river diversion project also uses a slight adaptation of the code required for the main papers. The master file to navigate those files is here:
 
-* :droplet: :arrow_right: :dolphin: [Bottlenose dolphin Barataria Bay diversion paper master file](https://htmlpreview.github.io/?https://github.com/TiagoAMarques/CARMMHApapersSI/blob/master/FolderArchitecture2runCode/Diversion_ElectronicSupplements.html)
+* :droplet: :arrow_right: :dolphin: [Bottlenose dolphin Barataria Bay MS river diversion paper master file](https://htmlpreview.github.io/?https://github.com/TiagoAMarques/CARMMHApapersSI/blob/master/FolderArchitecture2runCode/Diversion_ElectronicSupplements.html)
 
 Feel free to drop us any comments at tiago.marques at st-andrews.ac.uk
