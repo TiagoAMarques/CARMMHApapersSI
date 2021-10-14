@@ -71,7 +71,7 @@ At a bare minimum running the code requires the following folders and the materi
 
 * `Functions`: folder containing all the R code including functions required to run the simulations
 
-Note that the code could take a considerable amount of time to run. The consequence of running the code will be to populate the folder `InOutBySp\Bottlenose_dolphin_BB` with the R workspaces holding the results that the rest of the code in [BNDinjury_Figs.Rmd](BNDinjury_Figs.pdf) and [BNDModelEvaluation.Rmd](BNDModelEvaluation.pdf) uses to produce the tables with injury metrics.
+With everything in the correct places, then running `runLowSalSims.R` should produce a file `out.RData` in the folder `InOutBySp\LowSal`.  This should be copied into the folder containing `MS_RiverDiversion_v5.Rmd` and that `.Rmd` file run.  This will produce an output file in the same format as the Thomas et al. (2001) letter.  Note that the results will be slightly different due to a small correction to the input files made since the letter was submitted.
 
 # References
 
