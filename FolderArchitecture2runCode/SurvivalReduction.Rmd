@@ -27,7 +27,7 @@ The master file containing links to all supplementary files related to this pape
 If you make use of any of this material in your work, it would be appreciated if you would [contact Tiago
 Marques](mailto:tiago.marques@st-andrews.ac.uk) to let him know.
 
-In case you are reading this document on git while browsing the material for the pelagic paper, the master file with supplementary material for the pelagic paper is here: [Electronic Supplements master file](ElectronicSupplements.html).
+In case you are reading this document on git while browsing the material for the pelagic paper, the master file with supplementary material for the pelagic paper is here: [Electronic Supplements master file](ES0_ElectronicSupplements.html).
 
 # Background
 
