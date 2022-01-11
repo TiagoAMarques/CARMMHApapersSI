@@ -61,7 +61,7 @@ There are 6 other main Electronic Supplements files submitted as such to MEPS. W
 
 * [ES2_InitialPopulationSizes](ES2_InitialPopulationSizes.html) – Supplementary material about the initial population sizes and proportion of animals exposed to oil. Includes point estimates of the spatial models used to estimate the stock size, the oil footprint considered to have an impact on survival, and hence the delineation of the area including the proportion exposed for each of the species considered; Note that the initial population sizes and proportion exposed are provided as data. The reason we do not provide the code that allows the user to reproduce the objects is because the model and objects used to do so are not ours to distribute. For all taxonomic units these come from models reported by Roberts et al. (2015). This supplementary material also includes the code required to generate the paper tables 1 and 2 as well as a table used in `getInjury.Rmd`.
 
-* [ES3_GestationDuration](ES3_GestationDuration.html)  - Supplementary material with details about how we obtained gestation duration for each taxonomic unit considered, which gets used to scale survival and fecundity/reproduction related parameters.
+* [ES3_GestationDuration](ES3_GestationDuration.html)  - Supplementary material with details about how we obtained gestation duration for each taxonomic unit considered, which gets used to scale survival and fecundity/reproduction related parameters with respect to *Tursiops truncatus*.
 
 * [ES4_ComparingSurvivalsAcrossStocks](ES4_ComparingSurvivalsAcrossStocks.html) – Supplementary material about the stock specific survival probabilities given the scaling by gestation duration. Includes code to work with files containing the Siler model posterior parameters and for obtaining the proportion of animals alive at a given age and age specific survival for *Tursiops truncatus*.
 
@@ -69,9 +69,12 @@ There are 6 other main Electronic Supplements files submitted as such to MEPS. W
 
 * [ES6_ModelEvaluation](ES6_ModelEvaluation.html) - the code for the production of all the sensitivity and uncertainty results presented on the paper.
 
-An additional file might be relevant since it refers to the Age of Sexual Maturity (ASM) for *Tursiops truncatus*. We scale the values for *Tursiops truncatus* according to the gestation duration described in [ES3_GestationDuration](ES3_GestationDuration.html) 
+A couple of additional files regarding *Tursiops truncatus* used in Schwacke et al. (2021) might also be relevant, since we build on values and parameters on these to get components of the model parametrization of the different taxonomic units in the pelagic paper:
 
-* [AgeOfSexualMaturity](AgeOfSexualMaturity.html) - Supplementary material with details about how we obtained the age at sexual maturity for *Tursiops truncatus*. This is a file that was also used for Schwacke et al. (2021). 
+* [AgeOfSexualMaturity](AgeOfSexualMaturity.html) - Supplementary material with details about how we obtained the age at sexual maturity for *Tursiops truncatus*. 
+
+* [SurvivalReduction](SurvivalReduction.html) – Supplementary material about how we obtain the survival reduction factor for *Tursiops truncatus*. This combines baseline survival probability with post-spill  survival probability obtained by spatial capture recapture (SCR). For the baseline survival probability we describe the analysis that integrates the different components required. The  post-spill survival for Barataria Bay bottlenose dolphins is obtained in a separate paper, Glennie et al (2021).
+
 
 # How to reproduce the paper results
 
