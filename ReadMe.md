@@ -17,7 +17,7 @@ There are two master files that facilitate access to the material provided:
 
 * :boom: :fire: :arrow_right: :dolphin: [Bottlenose dolphin Barataria Bay paper master file](https://htmlpreview.github.io/?https://github.com/TiagoAMarques/CARMMHApapersSI/blob/master/FolderArchitecture2runCode/BND_ElectronicSupplements.html)
 
-* :boom: :fire: :arrow_right: :whale: [Pelagic paper master file](https://htmlpreview.github.io/?https://github.com/TiagoAMarques/CARMMHApapersSI/blob/master/FolderArchitecture2runCode/ElectronicSupplements.html)
+* :boom: :fire: :arrow_right: :whale: [Pelagic paper master file](https://htmlpreview.github.io/?https://github.com/TiagoAMarques/CARMMHApapersSI/blob/master/FolderArchitecture2runCode/ES0_ElectronicSupplements.html)
 
 A short paper submitted to Marine Mammal Science, describing the effects on Bottlenose dolphin Barataria Bay population dynamics of a proposed Mississippi river diversion project (Mid-Barataria Sediment Diversion) also uses a slight adaptation of the code required for the main papers. The master file to navigate those files is here:
 
