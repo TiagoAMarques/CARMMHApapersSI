@@ -2264,7 +2264,7 @@ for (i in 1:nfiles) {
     # if there are not enough unique values of the parameter being evaluated
     # only happens if the parameter is ASM (2-3 unique values)
     # force a linear model fit, else a relatively inflexible GAM
-    if (length(unique(inj))<=3) {
+    if (length(unique(inj))<=4) {
       mod <- lm(inj ~ par, data = dat4mod)
     } else {
       mod <- gam(inj ~ s(par,k=3), data = dat4mod)
@@ -2633,9 +2633,6 @@ for (i in 1:nrow(elasticity)) {
 }
 legend("bottomleft", col = c(4, 2, 1), pt.bg = c(4, 2, 1), legend = metrics, inset = 0.2, cex = 1.2, pch = 22)
 ```
-
-
-
 
 
 # References

@@ -73,7 +73,7 @@ for (i in Sps){
 
 
 ```{r,cache=FALSE}
-source("Functions/reqfuns.R")         # most functions are here
+source("Functions/reqfuns_1.R")         # most functions are here
 ```
 
 Creating objects to hold summary results:
@@ -116,7 +116,7 @@ sumres <- sumres[order(Sps),]
 inputs <- inputs[order(Sps),]
 ```
 
-Note that the initial population sizes and proportion exposed shown below are obtained after removing the very rare instances where the population size would be considered too large to be reasonable. This is imported from a `txt` file produced inside [IniPopSizes](IniPopSizes.html). See [IniPopSizes](IniPopSizes.html) and the main paper for details on this choice.
+Note that the initial population sizes and proportion exposed shown below are obtained after removing the very rare instances where the population size would be considered too large to be reasonable. This is imported from a `txt` file produced inside [ES2_ElectronicSupplements](ES2_InitialPopulationSizes.html). See [ES2_ElectronicSupplements](ES2_InitialPopulationSizes.html) and the main paper for details on this choice.
 
 ```{r}
 IniPopSizes <- read.table(file = "Table4GetInjury.txt",header=TRUE)
@@ -140,6 +140,7 @@ inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+s
 Population trajectories
 
 ```{r,cache=FALSE}
+windowsFonts(A = windowsFont("Times New Roman"))  
 plotSims(simres)
 ```
 
@@ -672,7 +673,7 @@ injuryCI[injuryCI$Sp==Sp, 2:10]<-c(median(injury$LCY), quantile(injury$LCY, prob
 
 # Comparisons across species
 
-In this section we present some summary analysis o the results across the 15 taxonomic units considered.
+In this section we present some summary analysis of the results across the 15 taxonomic units considered.
 
 ```{r}
 #just some rounding for nicer visualization below
@@ -684,52 +685,27 @@ sumres$Pexp=round(sumres$Pexp,3)
 
 The population size and the proportion exposed are $a priori$ expected to be key determinants of injury, since the population size will have a direct impact on LCY and the proportion exposed should have a direct impact on all 3 measures.
 
-```{r,cache=FALSE}
-kable(sumres[, c(1, 2, 7, 3, 9)],caption = "Initial population size (N) and proportion exposed (pe or Pexp) for the different stocks considered.  The suffix o indicates old results from the MMIQT report and Schwacke et al. 2017",digits = c(0, 0, 0, 3, 3))
+```{r}
+kable(sumres[, c(1, 7, 9)],caption = "Initial population size (N) and proportion exposed (Pexp) for the different stocks considered.",digits = c(0, 0, 3, 3))
 ```
 
 The proportion exposed against the initial population size is shown here for the 15 taxonomic units
 
 ```{r}
-plot(sumres[, c(7,9)],xlab="Initial population size",ylab="Proportion exposed",type="n")
-text(x = sumres[, 7],y=sumres[, 9],labels = sumres[, 1])
+plot(sumres[, c(7,9)],xlab="Initial population size",ylab="Proportion exposed",type="n", las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
+text(x = sumres[, 7],y=sumres[, 9],labels = sumres[, 1], family="A")
 ```
-
-
-***DELETE IMAGES BELOW AND REMOVE MMIQT RESULTS ABOVE?***
-
-The image below illustrates that there is no clear relationship between the initial population size assumed before (DWH MMIQT 2015) and the one being currently considered. This was expected given the completely different way in which population sizes were obtained in this exercise (via a spatial model) and before (a coarser stratification approach).
-
-```{r,cache=FALSE}
-with(sumres, plot(No,Nstart))
-abline(0, 1)
-```
-
-The same happens for the proportion exposed, for the same reasons.
-
-```{r,cache=FALSE}
-with(sumres, plot(peo, Pexp))
-abline(0,1)
-```
-
-This illustrates how direct comparisons of results between here and the previous DWH MMIQT (2015) results is far from straightforward, since not only the model has changed, but the inputs to the model have also changed.
-
-***DELETE IMAGES ABOVE AND REMOVE MMIQT RESULTS ABOVE?***
 
 ## Injury metrics
 
-### Means and Medians
-
-In the following table we present the means and medians of the injury metrics for the current simulations, while the previous DWH MMIQT (2015) results are also shown for comparison:
+In the following table we present the means and medians of the 3 injury metrics:
 
 ```{r,cache=FALSE}
 sumres$MPD <- -(sumres$MPD/100)
-kable(sumres[, c(1, 4, 10, 13, 5, 11, 6, 12)],caption = "Injury results for the different stocks considered. The suffix o indicates old results MMIQT, med means median",digits = c(0, 0, 0, 0, 3, 3, 1, 1))
+kable(sumres[, c(1, 10, 13, 11, 12)],caption = "Injury results for the different stocks considered.",digits = c(0, 0, 0, 3, 1))
 ```
 
-### Precision
-
-In this following table we present also the 95% confidence intervals for our current estimates of injury. Note this corresponds to the results in table 3 in the main paper.
+In the following table we present  the 95% confidence intervals for our current estimates of injury. These correspond to the results in table 3 in the main paper.
 
 ```{r}
 kable(injuryCI, caption = "Median injury results for the different stocks considered and respective 95% confidence intervals by the percentile method",digits = c(0, 0, 0, 0, 3, 3, 3, 1, 1, 1))
@@ -751,182 +727,172 @@ write.table(Table3MPD[-16],"Table3MPD.txt",sep="\t",row.names = FALSE,quote = FA
 write.table(Table3YTR[-16],"Table3YTR.txt",sep="\t",row.names = FALSE,quote = FALSE,col.names = FALSE)
 ```
 
-
 ```{r}
 #creating output tables for others to use
 write.table(injuryCI,"injuryCI.txt")
 write.table(sumres,"sumres.txt")
 ```
 
-We can also represent the above information visually
+Representing the above information visually, focusing on each of the 3 injury metrics:
 
 ```{r}
 par(mfrow=c(1,1),mar=c(4,4,0.5,0.5))
-plot(sort(injuryCI$LCYmed),1:15,xlab="Lost Cetacean Years",ylab="Taxonomic unit",yaxt="n",xlim=c(0,72000))
+plot(sort(injuryCI$LCYmed),1:15,xlab="Lost Cetacean Years",ylab="Taxonomic unit",yaxt="n",xlim=c(0,72000), las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 order.index<-order(injuryCI$LCYmed)
-axis(2,at=1:15,labels=injuryCI$Sp[order.index],las=2)
+axis(2,at=1:15,labels=injuryCI$Sp[order.index],las=1,family="A")
 for(i in 1:15){
-  segments(x0=injuryCI$LCYl[i],y0=(1:15)[order.index[i]],x1=injuryCI$LCYu[i],y1=(1:15)[order.index[i]])
+  segments(x0=injuryCI$LCYl[order.index[i]],y0=i,x1=injuryCI$LCYu[order.index[i]],y1=i)
+}
+```
+
+```{r}
+par(mfrow=c(1,1),mar=c(4,4,0.5,0.5))
+plot(sort(injuryCI$YTRmed),1:15,xlab="Years to Recovery",ylab="Taxonomic unit",yaxt="n",xlim=c(0,25), las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
+order.index<-order(injuryCI$YTRmed)
+axis(2,at=1:15,labels=injuryCI$Sp[order.index],las=1,family="A")
+for(i in 1:15){
+  segments(x0=injuryCI$YTRl[order.index[i]],y0=i,x1=injuryCI$YTRu[order.index[i]],y1=i)
+}
+abline(v=0,lty=2)
+```
+
+```{r}
+par(mfrow=c(1,1),mar=c(4,4,0.5,0.5))
+plot(sort(injuryCI$MPDmed),1:15,xlab="Maximum Proportional Decrease",ylab="Taxonomic unit",yaxt="n",xlim=c(0,20), las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
+order.index<-order(injuryCI$MPDmed)
+axis(2,at=1:15,labels=injuryCI$Sp[order.index],las=1,family="A")
+for(i in 1:15){
+  segments(x0=injuryCI$MPDl[order.index[i]],y0=i,x1=injuryCI$MPDu[order.index[i]],y1=i)
 }
 abline(v=0,lty=2)
 ```
 
 
-# Discussion (work in progress)
+# Exploring the injury metric results
 
-To facilitate the discussion of the results obtained we present below explicitly comparisons between the previous values of injury (DWH MMIQT , 2015) and the current values for injury we are estimating.
+## Exploratory analysis
 
-We present such comparisons first for LCY
+We can look at the values of the injury metrics as a function of the key parameters going in the model:
 
-```{r,cache=FALSE}
-with(sumres,plot(LCYo,LCY,type="n"))
-with(sumres,text(LCYo,LCY,Sp))
-abline(0,1,lty=2)
-#text(70000,2000,"Kogia")
-#text(75000,15000,"Shelf dolphins")
-#text(120000,3000,"rough-toothed dolphins")
-#text(46000,36000,"BB BND")
-```
-
-followed by MPD
-
-```{r}
-with(sumres,plot(MPDo,MPD,type="n"))
-with(sumres,text(MPDo,MPD,Sp))
-abline(0, 1, lty = 2)
-```
-
-and finally YTR
-
-```{r,cache=FALSE}
-with(sumres,plot(YTRo,YTR,type="n"))
-with(sumres,text(YTRo,YTR,Sp))
-abline(0, 1, lty = 2)
-```
-
-We also present the values of the injury metrics as a function of the key parameters going in the model:
-
-the proportion exposed
+### Proportion exposed
 
 ```{r}
 #if you uncomment several lines  below you see the plot contrasting with DWH MMIQT (2015) results
 #LCY
-plot(sumres$Pexp,sumres$LCY, type="n",col=3, xlab="P(exposed)",ylab="LCY")
+plot(sumres$Pexp,sumres$LCY, type="n",col=3, xlab="P(exposed)",ylab="LCY", las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 #plot(c(sumres$peo,sumres$Pexp), c(sumres$LCYo,sumres$LCY), type="n",col=3, xlab="P(exposed)",ylab="LCY")
 #points(sumres$peo, sumres$LCYo, col=3)
 #abline(lm(sumres$LCYo~sumres$peo),col=3,lty=2)
-points(sumres$Pexp, sumres$LCY,col=4)
+points(sumres$Pexp, sumres$LCY,col=4, las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 abline(lm(sumres$LCY~sumres$Pexp),col=4,lty=2)
 #legend("topright",col=3:4,lty=2,c("old","new"),inset=0.05)
 #MPD
-plot(sumres$Pexp, sumres$MPD, type="n",col=3, xlab="P(exposed)",ylab="MPD")
+plot(sumres$Pexp, sumres$MPD, type="n",col=3, xlab="P(exposed)",ylab="MPD", las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 #plot(c(sumres$peo,sumres$Pexp), c(sumres$MPDo,sumres$MPD), type="n",col=3, xlab="P(exposed)",ylab="MPD")
 #points(sumres$peo, sumres$MPDo, col=3)
 #abline(lm(sumres$MPDo~sumres$peo),col=3,lty=2)
-points(sumres$Pexp, sumres$MPD,col=4)
+points(sumres$Pexp, sumres$MPD,col=4, las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 abline(lm(sumres$MPD~sumres$Pexp),col=4,lty=2)
 #legend("topright",col=3:4,lty=2,c("old","new"),inset=0.05)
 #YTR
-plot(sumres$Pexp, sumres$YTR, type="n",col=3, xlab="P(exposed)",ylab="YTR")
+plot(sumres$Pexp, sumres$YTR, type="n",col=3, xlab="P(exposed)",ylab="YTR", las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 #plot(c(sumres$peo,sumres$Pexp), c(sumres$YTRo,sumres$YTR), type="n",col=3, xlab="P(exposed)",ylab="YTR")
 #points(sumres$peo, sumres$YTRo, col=3)
 #abline(lm(sumres$YTRo~sumres$peo),col=3,lty=2)
-points(sumres$Pexp, sumres$YTR,col=4)
+points(sumres$Pexp, sumres$YTR,col=4, las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 abline(lm(sumres$YTR~sumres$Pexp),col=4,lty=2)
 #legend("topright",col=3:4,lty=2,c("old","new"),inset=0.05)
 ```
 
-initial population size
+### Initial population size
 
 ```{r}
 #if you uncomment several lines  below you see the plot contrasting with DWH MMIQT (2015) results
 #LCY
-plot(sumres$Nstart,sumres$LCY, type="n",col=3, xlab="initial population size",ylab="LCY")
+plot(sumres$Nstart,sumres$LCY, type="n",col=3, xlab="initial population size",ylab="LCY", las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 #plot(c(sumres$peo,sumres$Pexp), c(sumres$LCYo,sumres$LCY), type="n",col=3, xlab="P(exposed)",ylab="LCY")
 #points(sumres$peo, sumres$LCYo, col=3)
 #abline(lm(sumres$LCYo~sumres$peo),col=3,lty=2)
-points(sumres$Nstart, sumres$LCY,col=4)
+points(sumres$Nstart, sumres$LCY,col=4, las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 abline(lm(sumres$LCY~sumres$Nstart),col=4,lty=2)
 #legend("topright",col=3:4,lty=2,c("old","new"),inset=0.05)
 #MPD
-plot(sumres$Nstart, sumres$MPD, type="n",col=3, xlab="initial population size",ylab="MPD")
+plot(sumres$Nstart, sumres$MPD, type="n",col=3, xlab="initial population size",ylab="MPD", las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 #plot(c(sumres$peo,sumres$Pexp), c(sumres$MPDo,sumres$MPD), type="n",col=3, xlab="P(exposed)",ylab="MPD")
 #points(sumres$peo, sumres$MPDo, col=3)
 #abline(lm(sumres$MPDo~sumres$peo),col=3,lty=2)
-points(sumres$Nstart, sumres$MPD,col=4)
+points(sumres$Nstart, sumres$MPD,col=4, las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 abline(lm(sumres$MPD~sumres$Nstart),col=4,lty=2)
 #legend("topright",col=3:4,lty=2,c("old","new"),inset=0.05)
 #YTR
-plot(sumres$Nstart, sumres$YTR, type="n",col=3, xlab="initial population size",ylab="YTR")
+plot(sumres$Nstart, sumres$YTR, type="n",col=3, xlab="initial population size",ylab="YTR", las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 #plot(c(sumres$peo,sumres$Pexp), c(sumres$YTRo,sumres$YTR), type="n",col=3, xlab="P(exposed)",ylab="YTR")
 #points(sumres$peo, sumres$YTRo, col=3)
 #abline(lm(sumres$YTRo~sumres$peo),col=3,lty=2)
-points(sumres$Nstart, sumres$YTR,col=4)
+points(sumres$Nstart, sumres$YTR,col=4, las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 abline(lm(sumres$YTR~sumres$Nstart),col=4,lty=2)
 #legend("topright",col=3:4,lty=2,c("old","new"),inset=0.05)
 ```
 
-gestation duration
+### Gestation duration
 
 ```{r}
 #if you uncomment several lines  below you see the plot contrasting with DWH MMIQT (2015) results
 #LCY
-plot(inputs$gd,sumres$LCY, type="n",col=3, xlab="gestation duration",ylab="LCY")
+plot(inputs$gd,sumres$LCY, type="n",col=3, xlab="gestation duration",ylab="LCY", las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 #plot(c(sumres$peo,sumres$Pexp), c(sumres$LCYo,sumres$LCY), type="n",col=3, xlab="P(exposed)",ylab="LCY")
 #points(sumres$peo, sumres$LCYo, col=3)
 #abline(lm(sumres$LCYo~sumres$peo),col=3,lty=2)
-points(inputs$gd, sumres$LCY,col=4)
+points(inputs$gd, sumres$LCY,col=4, las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 abline(lm(sumres$LCY~inputs$gd),col=4,lty=2)
 #legend("topright",col=3:4,lty=2,c("old","new"),inset=0.05)
 #MPD
-plot(inputs$gd, sumres$MPD, type="n",col=3, xlab="gestation duration",ylab="MPD")
+plot(inputs$gd, sumres$MPD, type="n",col=3, xlab="gestation duration",ylab="MPD", las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 #plot(c(sumres$peo,sumres$Pexp), c(sumres$MPDo,sumres$MPD), type="n",col=3, xlab="P(exposed)",ylab="MPD")
 #points(sumres$peo, sumres$MPDo, col=3)
 #abline(lm(sumres$MPDo~sumres$peo),col=3,lty=2)
-points(inputs$gd, sumres$MPD,col=4)
+points(inputs$gd, sumres$MPD,col=4, las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 abline(lm(sumres$MPD~inputs$gd),col=4,lty=2)
 #legend("topright",col=3:4,lty=2,c("old","new"),inset=0.05)
 #YTR
-plot(inputs$gd, sumres$YTR, type="n",col=3, xlab="gestation duration",ylab="YTR")
+plot(inputs$gd, sumres$YTR, type="n",col=3, xlab="gestation duration",ylab="YTR", las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 #plot(c(sumres$peo,sumres$Pexp), c(sumres$YTRo,sumres$YTR), type="n",col=3, xlab="P(exposed)",ylab="YTR")
 #points(sumres$peo, sumres$YTRo, col=3)
 #abline(lm(sumres$YTRo~sumres$peo),col=3,lty=2)
-points(inputs$gd, sumres$YTR,col=4)
+points(inputs$gd, sumres$YTR,col=4, las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 abline(lm(sumres$YTR~inputs$gd),col=4,lty=2)
 #legend("topright",col=3:4,lty=2,c("old","new"),inset=0.05)
 ```
 
-and survival reduction
+### Survival reduction
 
 ```{r}
 #if you uncomment several lines  below you see the plot contrasting with DWH MMIQT (2015) results
 #LCY
-plot(inputs$sr,sumres$LCY, type="n",col=3, xlab="survival reduction",ylab="LCY")
+plot(inputs$sr,sumres$LCY, type="n",col=3, xlab="survival reduction",ylab="LCY", las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 #plot(c(sumres$peo,sumres$Pexp), c(sumres$LCYo,sumres$LCY), type="n",col=3, xlab="P(exposed)",ylab="LCY")
 #points(sumres$peo, sumres$LCYo, col=3)
 #abline(lm(sumres$LCYo~sumres$peo),col=3,lty=2)
-points(inputs$sr, sumres$LCY,col=4)
+points(inputs$sr, sumres$LCY,col=4, las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 abline(lm(sumres$LCY~inputs$sr),col=4,lty=2)
 #legend("topright",col=3:4,lty=2,c("old","new"),inset=0.05)
 #MPD
-plot(inputs$sr, sumres$MPD, type="n",col=3, xlab="survival reduction",ylab="MPD")
+plot(inputs$sr, sumres$MPD, type="n",col=3, xlab="survival reduction",ylab="MPD", las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 #plot(c(sumres$peo,sumres$Pexp), c(sumres$MPDo,sumres$MPD), type="n",col=3, xlab="P(exposed)",ylab="MPD")
 #points(sumres$peo, sumres$MPDo, col=3)
 #abline(lm(sumres$MPDo~sumres$peo),col=3,lty=2)
-points(inputs$sr, sumres$MPD,col=4)
+points(inputs$sr, sumres$MPD,col=4, las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 abline(lm(sumres$MPD~inputs$sr),col=4,lty=2)
 #legend("topright",col=3:4,lty=2,c("old","new"),inset=0.05)
 #YTR
-plot(inputs$sr, sumres$YTR, type="n",col=3, xlab="survival reduction",ylab="YTR")
+plot(inputs$sr, sumres$YTR, type="n",col=3, xlab="survival reduction",ylab="YTR", las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 #plot(c(sumres$peo,sumres$Pexp), c(sumres$YTRo,sumres$YTR), type="n",col=3, xlab="P(exposed)",ylab="YTR")
 #points(sumres$peo, sumres$YTRo, col=3)
 #abline(lm(sumres$YTRo~sumres$peo),col=3,lty=2)
-points(inputs$sr, sumres$YTR,col=4)
+points(inputs$sr, sumres$YTR,col=4, las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 abline(lm(sumres$YTR~inputs$sr),col=4,lty=2)
 #legend("topright",col=3:4,lty=2,c("old","new"),inset=0.05)
 ```
-
-
 
 ## Explaining injury metrics across species
 
@@ -937,7 +903,7 @@ As noted above, one can anticipate that LCY would be strongly dependent on the i
 ```{r}
 lmLCY <- lm(LCY ~ Pexp + Nstart, data = sumres)
 summary(lmLCY)
-plot(sumres$LCY, predict(lmLCY))
+plot(sumres$LCY, predict(lmLCY), las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 ```
 
 The LCY is very well explained by these two variable alone. A bit surprisingly, adding the gestation duration (that scales survival across species) does not even seem to help in explaining the injury
@@ -945,7 +911,7 @@ The LCY is very well explained by these two variable alone. A bit surprisingly, 
 ```{r}
 lmLCY2 <- lm(LCY ~ Pexp + Nstart + inputs$gd, data = sumres)
 summary(lmLCY2)
-plot(sumres$LCY, predict(lmLCY2))
+plot(sumres$LCY, predict(lmLCY2), las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 ```
 
 The same seems to happen for the survival reduction, i.e., once population size and proportion exposed are accounted for, the remaining variation in LCY is negligible.
@@ -953,10 +919,8 @@ The same seems to happen for the survival reduction, i.e., once population size 
 ```{r}
 lmLCY3 <- lm(LCY ~ Pexp + Nstart + inputs$sr, data = sumres)
 summary(lmLCY3)
-plot(sumres$LCY, predict(lmLCY3))
+plot(sumres$LCY, predict(lmLCY3), las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 ```
-
-We note that, when compared to the earlier assessments, the injury seems now considerably less than before. A large part of this was a bug in the calculation in the MMIQT values for LCY, but a part of it might be due to the modeling, and the many changes implemented from then to now.
 
 Using the model considered best, what is the component of variability explained by each variable?
 
@@ -970,7 +934,6 @@ The proportion of the variability explained by each input retained in the regres
 100*anova(lmLCY)$'Sum Sq'/sum(anova(lmLCY)$'Sum Sq')
 ```
 
-
 ### YTR
 
 Same idea for YTR, checking what determines that 
@@ -978,7 +941,7 @@ Same idea for YTR, checking what determines that
 ```{r}
 lmYTR <- lm(YTR ~ Pexp + Nstart + inputs$gd + inputs$sr, data = sumres)
 summary(lmYTR)
-plot(sumres$YTR, predict(lmYTR))
+plot(sumres$YTR, predict(lmYTR), las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 ```
 
 removing initial population size and survival reduction just to check if it helps
@@ -986,7 +949,7 @@ removing initial population size and survival reduction just to check if it help
 ```{r}
 lmYTR <- lm(YTR ~ Pexp + inputs$gd, data = sumres)
 summary(lmYTR)
-plot(sumres$YTR, predict(lmYTR))
+plot(sumres$YTR, predict(lmYTR), las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 ```
 
 
@@ -1007,7 +970,7 @@ The proportion of the variability explained by each input retained in the regres
 ```{r}
 lmMPD <- lm(MPD ~ Pexp + Nstart + inputs$gd + inputs$sr, data = sumres)
 summary(lmMPD)
-plot(sumres$MPD, predict(lmMPD))
+plot(sumres$MPD, predict(lmMPD), las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 ```
 
 removing initial population size  just to check if it helps
@@ -1015,7 +978,7 @@ removing initial population size  just to check if it helps
 ```{r}
 lmMPD <- lm(MPD ~ Pexp + inputs$gd + inputs$sr, data = sumres)
 summary(lmMPD)
-plot(sumres$MPD, predict(lmMPD))
+plot(sumres$MPD, predict(lmMPD), las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 ```
 
 
@@ -1023,191 +986,11 @@ plot(sumres$MPD, predict(lmMPD))
 anova(lmMPD)
 ```
 
-
 The proportion of the variability explained by each input retained in the regression model and the remaining unexplained variation is shown below
 
 ```{r}
 100*anova(lmMPD)$'Sum Sq'/sum(anova(lmMPD)$'Sum Sq')
 ```
-
-
-
-## Species by species discussion
-
-Here we compare the results for each of the species with those obtained before, trying to shed light on what the differences found might be due to.
-
-To do so we show again the before and after key values for each species.
-
-### Bwsp beaked whales	Beaked whales spp
-
-We observe the following changes in injury and in key quantities that might affect the injury (initial population size and the proportion of the population exposed):
-
-* lost cetacean years came down from `r round(sumres$LCYo[sumres$Sp=="Bwsp"])` to `r round(sumres$LCY[sumres$Sp=="Bwsp"])` 
-* maximum proportional decrease came down from `r round(sumres$MPDo[sumres$Sp=="Bwsp"],3)` to `r round(sumres$MPD[sumres$Sp=="Bwsp"],3)`
-* years to recovery came down from `r round(sumres$YTRo[sumres$Sp=="Bwsp"],1)` to `r round(sumres$YTR[sumres$Sp=="Bwsp"],1)`
-* The assumed initial population size changed from `r round(sumres$No[sumres$Sp=="Bwsp"],3)` to `r round(sumres$Nstart[sumres$Sp=="Bwsp"],3)`
-* The proportion of the population exposed before was `r round(sumres$peo[sumres$Sp=="Bwsp"],3)` and it is now `r round(sumres$Pexp[sumres$Sp=="Bwsp"],3)`.
-
-### Fatt pygmy killer whale	*Feresa attenuata*
-
-We observe the following changes in injury and in key quantities that might affect the injury (initial population size and the proportion of the population exposed):
-
-* lost cetacean years came down from `r round(sumres$LCYo[sumres$Sp=="Fatt"])` to `r round(sumres$LCY[sumres$Sp=="Fatt"])` 
-* maximum proportional decrease came down from `r round(sumres$MPDo[sumres$Sp=="Fatt"],3)` to `r round(sumres$MPD[sumres$Sp=="Fatt"],3)`
-* years to recovery came down from `r round(sumres$YTRo[sumres$Sp=="Fatt"],1)` to `r round(sumres$YTR[sumres$Sp=="Fatt"],1)`
-* The assumed initial population size changed from `r round(sumres$No[sumres$Sp=="Fatt"],3)` to `r round(sumres$Nstart[sumres$Sp=="Fatt"],3)`
-* The proportion of the population exposed before was `r round(sumres$peo[sumres$Sp=="Fatt"],3)` and it is now `r round(sumres$Pexp[sumres$Sp=="Fatt"],3)`.
-
-
-
-### Ggri Risso's dolphin	*Grampus griseus*
-
-
-We observe the following changes in injury and in key quantities that might affect the injury (initial population size and the proportion of the population exposed):
-
-* lost cetacean years came down from `r round(sumres$LCYo[sumres$Sp=="Ggri"])` to `r round(sumres$LCY[sumres$Sp=="Ggri"])` 
-* maximum proportional decrease came down from `r round(sumres$MPDo[sumres$Sp=="Ggri"],3)` to `r round(sumres$MPD[sumres$Sp=="Ggri"],3)`
-* years to recovery came down from `r round(sumres$YTRo[sumres$Sp=="Ggri"],1)` to `r round(sumres$YTR[sumres$Sp=="Ggri"],1)`
-* The assumed initial population size changed from `r round(sumres$No[sumres$Sp=="Ggri"],3)` to `r round(sumres$Nstart[sumres$Sp=="Ggri"],3)`
-* The proportion of the population exposed before was `r round(sumres$peo[sumres$Sp=="Ggri"],3)` and it is now `r round(sumres$Pexp[sumres$Sp=="Ggri"],3)`.
-
-
-### Gmac short-finned pilot whale	*Globicephala macrorhynchus*
-
-
-We observe the following changes in injury and in key quantities that might affect the injury (initial population size and the proportion of the population exposed):
-
-* lost cetacean years came down from `r round(sumres$LCYo[sumres$Sp=="Gmac"])` to `r round(sumres$LCY[sumres$Sp=="Gmac"])` 
-* maximum proportional decrease came down from `r round(sumres$MPDo[sumres$Sp=="Gmac"],3)` to `r round(sumres$MPD[sumres$Sp=="Gmac"],3)`
-* years to recovery came down from `r round(sumres$YTRo[sumres$Sp=="Gmac"],1)` to `r round(sumres$YTR[sumres$Sp=="Gmac"],1)`
-* The assumed initial population size changed from `r round(sumres$No[sumres$Sp=="Gmac"],3)` to `r round(sumres$Nstart[sumres$Sp=="Gmac"],3)`
-* The proportion of the population exposed before was `r round(sumres$peo[sumres$Sp=="Gmac"],3)` and it is now `r round(sumres$Pexp[sumres$Sp=="Gmac"],3)`.
-
-
-### Kosp kogia	*Kogia* sp.
-
-
-We observe the following changes in injury and in key quantities that might affect the injury (initial population size and the proportion of the population exposed):
-
-* lost cetacean years came down from `r round(sumres$LCYo[sumres$Sp=="Kosp"])` to `r round(sumres$LCY[sumres$Sp=="Kosp"])` 
-* maximum proportional decrease came down from `r round(sumres$MPDo[sumres$Sp=="Kosp"],3)` to `r round(sumres$MPD[sumres$Sp=="Kosp"],3)`
-* years to recovery came down from `r round(sumres$YTRo[sumres$Sp=="Kosp"],1)` to `r round(sumres$YTR[sumres$Sp=="Kosp"],1)`
-* The assumed initial population size changed from `r round(sumres$No[sumres$Sp=="Kosp"],3)` to `r round(sumres$Nstart[sumres$Sp=="Kosp"],3)`
-* The proportion of the population exposed before was `r round(sumres$peo[sumres$Sp=="Kosp"],3)` and it is now `r round(sumres$Pexp[sumres$Sp=="Kosp"],3)`.
-
-
-### Pele melon-headed whale	*Peponocephala electra*
-
-We observe the following changes in injury and in key quantities that might affect the injury (initial population size and the proportion of the population exposed):
-
-* lost cetacean years came down from `r round(sumres$LCYo[sumres$Sp=="Pele"])` to `r round(sumres$LCY[sumres$Sp=="Pele"])` 
-* maximum proportional decrease came down from `r round(sumres$MPDo[sumres$Sp=="Pele"],3)` to `r round(sumres$MPD[sumres$Sp=="Pele"],3)`
-* years to recovery came down from `r round(sumres$YTRo[sumres$Sp=="Pele"],1)` to `r round(sumres$YTR[sumres$Sp=="Pele"],1)`
-* The assumed initial population size changed from `r round(sumres$No[sumres$Sp=="Pele"],3)` to `r round(sumres$Nstart[sumres$Sp=="Pele"],3)`
-* The proportion of the population exposed before was `r round(sumres$peo[sumres$Sp=="Pele"],3)` and it is now `r round(sumres$Pexp[sumres$Sp=="Pele"],3)`.
-
-### Pmac sperm whale	*Physeter macrocephalus*
-
-
-We observe the following changes in injury and in key quantities that might affect the injury (initial population size and the proportion of the population exposed):
-
-* lost cetacean years came down from `r round(sumres$LCYo[sumres$Sp=="Pmac"])` to `r round(sumres$LCY[sumres$Sp=="Pmac"])` 
-* maximum proportional decrease came down from `r round(sumres$MPDo[sumres$Sp=="Pmac"],3)` to `r round(sumres$MPD[sumres$Sp=="Pmac"],3)`
-* years to recovery came down from `r round(sumres$YTRo[sumres$Sp=="Pmac"],1)` to `r round(sumres$YTR[sumres$Sp=="Pmac"],1)`
-* The assumed initial population size changed from `r round(sumres$No[sumres$Sp=="Pmac"],3)` to `r round(sumres$Nstart[sumres$Sp=="Pmac"],3)`
-* The proportion of the population exposed before was `r round(sumres$peo[sumres$Sp=="Pmac"],3)` and it is now `r round(sumres$Pexp[sumres$Sp=="Pmac"],3)`.
-
-For Pmac the the lost cetacean years came down from `r round(sumres$LCYo[sumres$Sp=="Pmac"],3)` to `r round(sumres$LCY[sumres$Sp=="Pmac"])`, but in fact the true value bug apart was 5637 (cf. GOMOSES 2020 poster). Therefore we would expect a decrease of the LCY by more than 50% just due to the bug (in the specific case of the sperm whale: `r round((1-5637/sumres$LCYo[sumres$Sp=="Pmac"])*100,3)` %).
-
-### Satt pantropical spotted dolphin *Stenella attenuata*
-
-We observe the following changes in injury and in key quantities that might affect the injury (initial population size and the proportion of the population exposed):
-
-* lost cetacean years came down from `r round(sumres$LCYo[sumres$Sp=="Satt"])` to `r round(sumres$LCY[sumres$Sp=="Satt"])` 
-* maximum proportional decrease came down from `r round(sumres$MPDo[sumres$Sp=="Satt"],3)` to `r round(sumres$MPD[sumres$Sp=="Satt"],3)`
-* years to recovery came down from `r round(sumres$YTRo[sumres$Sp=="Satt"],1)` to `r round(sumres$YTR[sumres$Sp=="Satt"],1)`
-* The assumed initial population size changed from `r round(sumres$No[sumres$Sp=="Satt"],3)` to `r round(sumres$Nstart[sumres$Sp=="Satt"],3)`
-* The proportion of the population exposed before was `r round(sumres$peo[sumres$Sp=="Satt"],3)` and it is now `r round(sumres$Pexp[sumres$Sp=="Satt"],3)`.
-
-We note that the assumed initial population size increased considerably compared to the MMIQT, which per se would lead to an increase in LCY, everything else being the same (`r round(sumres$LCYo[sumres$No=="Satt"],3)` to `r round(sumres$LCYo[sumres$Nstart=="Satt"],3)`).
-
-While a drop in the LCY can be explained by the already mentioned bug in the LCY calculation, and the reduction in the proportion exposed is also relevant (before it was `r round(sumres$peo[sumres$Sp=="Satt"],3)`, now it is `r round(sumres$Pexp[sumres$Sp=="Satt"],3)`, these do not seem enough to justify the observed differences, namely in the YTR.
-
-### Sbre rough-toothed dolphin	*Steno bredanensis*
-
-We observe the following changes in injury and in key quantities that might affect the injury (initial population size and the proportion of the population exposed):
-
-* lost cetacean years came down from `r round(sumres$LCYo[sumres$Sp=="Sbre"])` to `r round(sumres$LCY[sumres$Sp=="Sbre"])` 
-* maximum proportional decrease came down from `r round(sumres$MPDo[sumres$Sp=="Sbre"],3)` to `r round(sumres$MPD[sumres$Sp=="Sbre"],3)`
-* years to recovery came down from `r round(sumres$YTRo[sumres$Sp=="Sbre"],1)` to `r round(sumres$YTR[sumres$Sp=="Sbre"],1)`
-* The assumed initial population size changed from `r round(sumres$No[sumres$Sp=="Sbre"],3)` to `r round(sumres$Nstart[sumres$Sp=="Sbre"],3)`
-* The proportion of the population exposed before was `r round(sumres$peo[sumres$Sp=="Sbre"],3)` and it is now `r round(sumres$Pexp[sumres$Sp=="Sbre"],3)`.
-
-The major difference observed for the proportion exposed could explain most of the observed differences.
-
-### Scly Clymene dolphin	*Stenella clymene*
-
-We observe the following changes in injury and in key quantities that might affect the injury (initial population size and the proportion of the population exposed):
-
-* lost cetacean years came down from `r round(sumres$LCYo[sumres$Sp=="Scly"])` to `r round(sumres$LCY[sumres$Sp=="Scly"])` 
-* maximum proportional decrease came down from `r round(sumres$MPDo[sumres$Sp=="Scly"],3)` to `r round(sumres$MPD[sumres$Sp=="Scly"],3)`
-* years to recovery came down from `r round(sumres$YTRo[sumres$Sp=="Scly"],1)` to `r round(sumres$YTR[sumres$Sp=="Scly"],1)`
-* The assumed initial population size changed from `r round(sumres$No[sumres$Sp=="Scly"],3)` to `r round(sumres$Nstart[sumres$Sp=="Scly"],3)`
-* The proportion of the population exposed before was `r round(sumres$peo[sumres$Sp=="Scly"],3)` and it is now `r round(sumres$Pexp[sumres$Sp=="Scly"],3)`.
-
-### Scoe striped dolphin	*Stenella coeruleoalba*
-
-We observe the following changes in injury and in key quantities that might affect the injury (initial population size and the proportion of the population exposed):
-
-* lost cetacean years came down from `r round(sumres$LCYo[sumres$Sp=="Scoe"])` to `r round(sumres$LCY[sumres$Sp=="Scoe"])` 
-* maximum proportional decrease came down from `r round(sumres$MPDo[sumres$Sp=="Scoe"],3)` to `r round(sumres$MPD[sumres$Sp=="Scoe"],3)`
-* years to recovery came down from `r round(sumres$YTRo[sumres$Sp=="Scoe"],1)` to `r round(sumres$YTR[sumres$Sp=="Scoe"],1)`
-* The assumed initial population size changed from `r round(sumres$No[sumres$Sp=="Scoe"],3)` to `r round(sumres$Nstart[sumres$Sp=="Scoe"],3)`
-* The proportion of the population exposed before was `r round(sumres$peo[sumres$Sp=="Scoe"],3)` and it is now `r round(sumres$Pexp[sumres$Sp=="Scoe"],3)`.
-
-### Sfro Atlantic spotted dolphin	*Stenella frontalis*
-
-For Sfro the comparison is not direct because in the MMIQT document the Ttrs and the Sfro were combined as "shelf dolphins", and here we considered each stock separately.
-
-We observe the following changes in injury and in key quantities that might affect the injury (initial population size and the proportion of the population exposed):
-
-* lost cetacean years came down from `r round(sumres$LCYo[sumres$Sp=="Sfro"])` to `r round(sumres$LCY[sumres$Sp=="Sfro"])` 
-* maximum proportional decrease came down from `r round(sumres$MPDo[sumres$Sp=="Sfro"],3)` to `r round(sumres$MPD[sumres$Sp=="Sfro"],3)`
-* years to recovery came down from `r round(sumres$YTRo[sumres$Sp=="Sfro"],1)` to `r round(sumres$YTR[sumres$Sp=="Sfro"],1)`
-* The assumed initial population size changed from `r round(sumres$No[sumres$Sp=="Sfro"],3)` to `r round(sumres$Nstart[sumres$Sp=="Sfro"],3)`
-* The proportion of the population exposed before was `r round(sumres$peo[sumres$Sp=="Sfro"],3)` and it is now `r round(sumres$Pexp[sumres$Sp=="Sfro"],3)`.
-
-### Slon spinner dolphin	*Stenella longirostris*
-
-We observe the following changes in injury and in key quantities that might affect the injury (initial population size and the proportion of the population exposed):
-
-* lost cetacean years came down from `r round(sumres$LCYo[sumres$Sp=="Slon"])` to `r round(sumres$LCY[sumres$Sp=="Slon"])` 
-* maximum proportional decrease came down from `r round(sumres$MPDo[sumres$Sp=="Slon"],3)` to `r round(sumres$MPD[sumres$Sp=="Slon"],3)`
-* years to recovery came down from `r round(sumres$YTRo[sumres$Sp=="Slon"],1)` to `r round(sumres$YTR[sumres$Sp=="Slon"],1)`
-* The assumed initial population size changed from `r round(sumres$No[sumres$Sp=="Slon"],3)` to `r round(sumres$Nstart[sumres$Sp=="Slon"],3)`
-* The proportion of the population exposed before was `r round(sumres$peo[sumres$Sp=="Slon"],3)` and it is now `r round(sumres$Pexp[sumres$Sp=="Slon"],3)`.
-
-### Ttro offshore bottlenose dolphins	*Tursiops truncatus*
-
-We observe the following changes in injury and in key quantities that might affect the injury (initial population size and the proportion of the population exposed):
-
-* lost cetacean years came down from `r round(sumres$LCYo[sumres$Sp=="Ttro"])` to `r round(sumres$LCY[sumres$Sp=="Ttro"])` 
-* maximum proportional decrease came down from `r round(sumres$MPDo[sumres$Sp=="Ttro"],3)` to `r round(sumres$MPD[sumres$Sp=="Ttro"],3)`
-* years to recovery came down from `r round(sumres$YTRo[sumres$Sp=="Ttro"],1)` to `r round(sumres$YTR[sumres$Sp=="Ttro"],1)`
-* The assumed initial population size changed from `r round(sumres$No[sumres$Sp=="Ttro"],3)` to `r round(sumres$Nstart[sumres$Sp=="Ttro"],3)`
-* The proportion of the population exposed before was `r round(sumres$peo[sumres$Sp=="Ttro"],3)` and it is now `r round(sumres$Pexp[sumres$Sp=="Ttro"],3)`.
-
-### Ttrs shelf bottlenose dolphins *Tursiops truncatus*
-
-For Ttrs the comparison is not direct because in the MMIQT document the Ttrs and the Sfro were combined as "shelf dolphins", and here we considered each stock separately.
-
-We observe the following changes in injury and in key quantities that might affect the injury (initial population size and the proportion of the population exposed):
-
-* lost cetacean years came down from `r round(sumres$LCYo[sumres$Sp=="Ttrs"])` to `r round(sumres$LCY[sumres$Sp=="Ttrs"])` 
-* maximum proportional decrease came down from `r round(sumres$MPDo[sumres$Sp=="Ttrs"],3)` to `r round(sumres$MPD[sumres$Sp=="Ttrs"],3)`
-* years to recovery came down from `r round(sumres$YTRo[sumres$Sp=="Ttrs"],1)` to `r round(sumres$YTR[sumres$Sp=="Ttrs"],1)`
-* The assumed initial population size changed from `r round(sumres$No[sumres$Sp=="Ttrs"],3)` to `r round(sumres$Nstart[sumres$Sp=="Ttrs"],3)`
-* The proportion of the population exposed before was `r round(sumres$peo[sumres$Sp=="Ttrs"],3)` and it is now `r round(sumres$Pexp[sumres$Sp=="Ttrs"],3)`.
 
 # References
 

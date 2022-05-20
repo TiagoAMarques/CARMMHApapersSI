@@ -117,13 +117,13 @@ nonsense <- data.frame(Sp = Sps, limit=NA, above.limit = NA)
 In the following we produce a plot for the initial population versus the exposed population and for the initial population versus the proportion exposed for each of the stocks considered. We also output the (usually 0 or very small) number of bootstrap resamples that were removed from further analysis for each species because they represented unrealistically large population sizes. These unrealistic realizations were created due to correspondingly unrealistic GAM extrapolations in the limits of the study area. 
 
 
-```{r setup2}
+```{r setup2,warning=FALSE,message=FALSE}
 #Define paths and filenames
 supp.data.path <- "InputFiles/shapefiles"
 #Read in oil coverage polygon
-oil.coverage <- readOGR(supp.data.path, "OilCoverage")
+oil.coverage <- readOGR(supp.data.path, "OilCoverage",verbose = FALSE)
 #Read in study area polygon for later plotting
-study.area <- readOGR(supp.data.path, "Study_Area_GOM_10km_Polygon")
+study.area <- readOGR(supp.data.path, "Study_Area_GOM_10km_Polygon",verbose = FALSE)
 ```
 
 
