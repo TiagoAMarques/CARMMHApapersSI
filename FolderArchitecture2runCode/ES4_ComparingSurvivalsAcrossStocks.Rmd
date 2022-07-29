@@ -1,8 +1,9 @@
 ---
-title: "Scaling survival: comparing scaling based on gestation duration across species"
+title: "Scaling survival: comparing survival across taxonomic units based on gestation duration "
 author: ""
 date: \today
 output: 
+  pdf_document: default
   html_document:
     toc: true
     toc_float: true
@@ -10,7 +11,6 @@ output:
     toc_depth: 3
     number_sections: true
     theme: lumen
-  pdf_document: default
 urlcolor: blue
 ---
 
@@ -24,6 +24,8 @@ This is an Electronic Supplement to the manuscript Marques et al. "Quantifying D
 
 The master file containing links to all supplementary files related to this paper is [ES0_ElectronicSupplements](ES0_ElectronicSupplements.html).
 
+This pdf is generated in RMarkdown by compiling a .Rmd file.  The figures and results are generated using code that is not shown in this pdf but is available in the corresponding .Rmd files stored at the github repository https://github.com/TiagoAMarques/CARMMHApapersSI
+
 If you make use of any of this material in your work, it would be appreciated if you would [contact Tiago
 Marques](mailto:tiago.marques@st-andrews.ac.uk) to let him know.
 
@@ -33,9 +35,7 @@ Marques](mailto:tiago.marques@st-andrews.ac.uk) to let him know.
 
 # Introduction
 
-In this document we look at the age specific survival used for each species once scaled by the gestation duration, as described in the manuscript.
-
-To understand why we ended up here a relevant source is Marques (2020) On scaling survival and the Siler model. A CARMMHA working document. Despite being a working document not prepared for a wider distribution, please contact tiago.marques@st-andrews.ac.uk if you are interested in a copy of said document.
+In this document we look at the age specific survival used for each taxonomic unit scaled by the corresponding gestation duration, as described in the manuscript.
 
 # Reading relevant info
 
@@ -47,30 +47,27 @@ library(ggplot2)
 source("Functions/SilerFuns.R")       
 ```
 
-We read in the species details
+We read in the species details, set the species which we want results for, and then filter the input data for those species only.
 
-```{r}
+```{r,echo=FALSE}
 #read the species definition file
 SDF <- read_excel("InputFiles/SpeciesDefinitionFile.xlsx",na="NA")
 ```
 
-and we set the species which we want results for, and then filter the input data for those species only.
-
-```{r}
+```{r,echo=FALSE}
 #remove irrelevant species rows
-#SDF <- SDF[-c(1,6,7,14,16,22:27),]
 sps<-c("Bwsp","Fatt","Gmac","Ggri","Kosp","Pele","Pmac","Satt","Sbre","Scly","Scoe","Sfro","Slon","Ttro","Ttrs","Ttru") 
 SDF <- SDF[SDF$Species %in% sps,]
 ```
 
-We read in *Tursiops truncatus* bottlenose dolphin (BND) Siler model posterior values. These can then be used to estimate:
+We also read in *Tursiops truncatus* bottlenose dolphin (BND) Siler model posterior values. These can then be used to estimate:
 
 1. survival conditional on age, and 
 2. survivorship functions for this species. 
 
 The corresponding values for all other species/stocks are obtained by scaling the *Tursiops truncatus* values by gestation duration.
 
-```{r}
+```{r,echo=FALSE}
 #--------------------------------------------------------------------------
 # Survival
 #--------------------------------------------------------------------------
@@ -92,9 +89,9 @@ Here we represent the relevant functions and the associated variability is also 
 
 ## Survivorship function
 
-Plotting the age specific survival aka survivorship function for BND. See Schwacke et al. 2017 for details on how this was derived based on a Siler model fitted to strandings data. 
+We plot the age specific survival aka survivorship function for BND. See Schwacke et al. (2017) and the corresponding online material for details on how this was derived based on a Siler model fitted to strandings data. 
 
-```{r,cache=TRUE,fig.width = 10}
+```{r,cache=TRUE,fig.width = 10,echo=FALSE}
 ages <- 0:70
 ncols <- nrow(pf)
 nrows <- length(ages)
@@ -133,7 +130,9 @@ ggplot(data=lxMF, aes(x=ages, y=mean, ymin=q025, ymax=q975, fill=sex, linetype=s
 
 ## Age specific Survival
 
-```{r,cache=TRUE,fig.width = 10}
+We plot age specific survival
+
+```{r,cache=TRUE,fig.width = 10,echo=FALSE,warning=FALSE,message=FALSE}
 ages <- 0:70
 ncols <- nrow(pf)
 nrows <- length(ages)
@@ -170,9 +169,10 @@ ggplot(data=pxMF, aes(x=ages, y=mean, ymin=q025, ymax=q975, fill=sex, linetype=s
  xlab("Age") + 
  ylab("Age specific Survival")
 ```
-It is relevant to appreciate that the survival curves across iterations will tend to cross, and therefore we cannot really talk about higher survival probabilities across the board for a single iteration, the survival might be higher in iteration i for younger animals but higher for older animals. This is illustrated in the image below, where a couple of iterations are highlighted (in green and blue) against all the iterations.
 
-```{r, fig.width = 10,fig.height=6}
+It is relevant to appreciate that the survival curves across iterations will tend to cross, and therefore we cannot really talk about higher survival probabilities across the board for a single iteration; the survival might be higher in a particular iteration for younger animals but higher for older animals. This is illustrated in the image below, where two iterations are highlighted (in green and red) against all the iterations.
+
+```{r, fig.width = 10,fig.height=6,echo=FALSE}
 par(mfrow=c(1,2))
 set.seed(123)
 #get the funtion
@@ -181,38 +181,37 @@ for(i in 2:(nrow(pf)-4)){
     lines(1:71,pxFs2[,i])
 }
 
-lines(1:71,pxFs2[,23],lwd=3,col="green")
+lines(1:71,pxFs2[,23],lwd=3,col="red")
 
-lines(1:71,pxFs2[,32],lwd=3,col="blue")
+lines(1:71,pxFs2[,32],lwd=3,col="lightblue",lty=2)
 
 plot(c(0,72),c(0,1),type="n",main="Male survival",xlab="Age (in years)",ylab="Survival")
 for(i in 2:(nrow(pf)-4)){
   lines(1:71,pxMs2[,i])
 }
 
-lines(1:71,pxMs2[,23],lwd=3,col="green")
+lines(1:71,pxMs2[,23],lwd=3,col="red")
 
-lines(1:71,pxMs2[,32],lwd=3,col="blue")
+lines(1:71,pxMs2[,32],lwd=3,col="lightblue")
 ```
-
 
 # Comparing all species
 
-The scaling is done by gestation duration, so we look at the gestation duration considered for each of the species. The rationale for the gestation duration used is provided on a separate document included as a separate Electronic Supplement (ElectronicSupplement4_GD).
+The scaling is done by gestation duration, so we look at the gestation duration considered for each of the species. The rationale for each species gestation duration used is provided on a separate document included as a separate file:   [ES3_GestationDuration](ES3_GestationDuration.html).
 
 The range in gestation duration is shown below (note the x axis is just an index, species are shown from left to right in the increasing order of their gestation duration).
 
-```{r, fig.width = 10, fig.height = 6}
+```{r, fig.width = 10, fig.height = 6,echo=FALSE}
 par(mfrow = c(1, 1),mar=c(0.2,4,0.2,0.2))
-plot(1:16, sort(SDF$gd), ylab = "Gestation duration (in days)", xlab = "", type = "n",xaxt="n",ylim=c(0,max(SDF$gd)+10))
+plot(1:16, sort(SDF$gd), ylab = "Gestation duration (in days)", xlab = "Species", type = "n",xaxt="n",ylim=c(300,max(SDF$gd)+10))
 text(1:16, sort(SDF$gd), labels = SDF$Species[order(SDF$gd)])
 ```
 
 ## Survivorship function
 
-We present the scalled survivorship by function below. For reference BB BND shown in green, sperm whale in blue and spinner dolphin in light blue
+We present the scalled survivorship by taxonomic unit and sex below. For reference BB BND shown in green, sperm whale in blue and spinner dolphin in light blue
 
-```{r, fig.width = 10,fig.height=6}
+```{r, fig.width = 10,fig.height=6,echo=FALSE}
 par(mfrow = c(2, 1),mar = c(4, 4, 0.5, 0.5))
 ages <- 0:70
 # Proportion surviving to age x
@@ -233,7 +232,7 @@ legend("topright",legend=c("Pmac","Ttru","Slon"),col=c(4,3,5),lwd=2,inset=0.05)
 
 We present the scalled age specific survival by function below. For reference BB BND shown in green, sperm whale in blue and spinner dolphin in light blue
 
-```{r, fig.width = 10,fig.height=6}
+```{r, fig.width = 10,fig.height=6,echo=FALSE}
 par(mfrow = c(2, 1),mar = c(4, 4, 0.5, 0.5))
 ages <- 0:140
 # Proportion surviving to age x
@@ -250,56 +249,6 @@ lines(ages, px(ages*(SDF$gd[1]/SDF$gd[i]), pm[1, 1], pm[1, 2], pm[1, 3], pm[1, 4
 legend("topright",legend=c("Pmac","Ttru","Slon"),col=c(4,3,5),lwd=2,inset=0.05)
 ```
 
-# Comparing with survival values used in stage structured model
-
-The [MMIQT report](https://www.fws.gov/doiddata/dwh-ar-documents/876/DWH-AR0105866.pdf) considered stage structured models. In this paper we considered age structured models. Here we compare the two types of survival functions for a couple of extreme species. Since This comparison only makes sense by species/stock we look in particular at the species with the largest and shortest gestation duration, namely the sperm whale and the spinner dolphin.For comparison, we overlay in the plots our survival by age and the stage-specific survival that was used in stage specific models that were referred to in DWH MMIQT 2015.
-
-
-## Sperm whales
-
-```{r}
-# Survival at age x
-ages <- 0:200
-plot(ages,px(ages*(SDF$gd[1]/SDF$gd[SDF$Species=="Pmac"]),pf[1,1],pf[1,2],pf[1,3],pf[1,4],pf[1,5],scaling=(SDF$gd[1]/SDF$gd[2])),type="l",lty=1,main="Survival probability at age x",ylab="Proportion",xlab="Age",col=4,ylim=c(0,1))
-lines(ages,px(ages*(SDF$gd[1]/SDF$gd[SDF$Species=="Pmac"]),pm[1,1],pm[1,2],pm[1,3],pm[1,4],pm[1,5],scaling=(SDF$gd[1]/SDF$gd[2])),lty=2,col=4)
-legend("bottomleft",legend=c("Females Pmac","Males Pmac","Stage structured values"),lty=c(1,2,2),col=c(4,4,1), inset=0.02,lwd=c(1,1,3))
-#from Lance's files
-PmacScalf <- 0.907
-PmacSjuv <- 0.9424
-PmacSFemale <- 0.9777
-PmacSMale <- 0.918
-#add lines
-segments(x0=0,x1=2,y0=PmacScalf,y1=PmacScalf,lty=2,lwd=3)
-segments(x0=2,x1=9,y0=PmacSjuv,y1=PmacSjuv,lty=2,lwd=3)
-segments(x0=9,x1=100,y0=PmacSFemale,y1=PmacSFemale,lty=1,lwd=3)
-segments(x0=9,x1=100,y0=PmacSMale,y1=PmacSMale,lty=2,lwd=3)
-```
-
-## Spinner dolphins
-
-
-```{r}
-# Survival at age x
-ages <- 0:120
-plot(ages,px(ages*(SDF$gd[1]/SDF$gd[SDF$Species=="Slon"]),pf[1,1],pf[1,2],pf[1,3],pf[1,4],pf[1,5],scaling=(SDF$gd[1]/SDF$gd[2])),type="l",lty=1,main="Survival probability at age x",ylab="Proportion",xlab="Age",col=5,ylim=c(0,1))
-lines(ages,px(ages*(SDF$gd[1]/SDF$gd[SDF$Species=="Slon"]),pm[1,1],pm[1,2],pm[1,3],pm[1,4],pm[1,5],scaling=(SDF$gd[1]/SDF$gd[2])),lty=2,col=5)
-legend("bottomleft",legend=c("Females Slon","Males Slon","Stage structured values"),lty=c(1,2,2),col=c(4,4,1), inset=0.02,lwd=c(1,1,3))
-#from Lance's files
-SlonScalf <- 0.85
-SlonSjuv <- 0.95
-SlonSFemale <- 0.97
-SlonSMale <- 0.97
-#add lines
-segments(x0=0,x1=2,y0=SlonScalf,y1=SlonScalf,lty=2,lwd=3)
-segments(x0=2,x1=9,y0=SlonSjuv,y1=SlonSjuv,lty=2,lwd=3)
-segments(x0=9,x1=100,y0=SlonSFemale,y1=SlonSFemale,lty=1,lwd=3)
-segments(x0=9,x1=100,y0=SlonSMale,y1=SlonSMale,lty=2,lwd=3)
-```
-
-
 # References
-
-DWH MMIQT 2015, Models and analyses for the quantification of injury to Gulf of Mexico
-cetaceans from the Deepwater Horizon Oil Spill, MM_TR.01_Schwacke_Quantification.of.lnjury.to.GOM.Cetaceans [LINK](https://www.fws.gov/doiddata/dwh-ar-documents/876/DWH-AR0105866.pdf).
 
 Schwacke, L.H., L. Thomas, R.S. Wells, W.E. McFee, A.A. Hahn, K.D. Mullin, E.S. Zolman, B.M. Quigley, T.K. Rowles and J.H. Schwacke. 2017. An age-, sex- and class-structured population model for estimating nearshore common bottlenose dolphin injury following the Deepwater Horizon oil spill. *Endangered Species Research* **33**: 265-279. DOI: [10.3354/esr00777](https://doi.org/10.3354/esr00777).

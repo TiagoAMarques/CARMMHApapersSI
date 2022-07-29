@@ -3,6 +3,7 @@ title: "Supplementary Information about Expert Elicitation"
 author: ""
 date:  \today
 output: 
+  pdf_document: default
   html_document:
     toc: true
     toc_float: true
@@ -10,7 +11,6 @@ output:
     toc_depth: 3
     number_sections: true
     theme: lumen
-  pdf_document: default
 urlcolor: blue
 ---
 
@@ -26,6 +26,8 @@ library(latex2exp)  # for tex in plot labels
 This is an Electronic Supplement to the manuscript Marques et al. "Quantifying Deepwater Horizon oil spill induced injury on pelagic cetaceans" submitted to Marine Ecology Progress Series (MEPS).
 
 The master file containing links to all supplementary files related to this paper is [ES0_ElectronicSupplements](ES0_ElectronicSupplements.html).
+
+This pdf is generated in RMarkdown by compiling a .Rmd file.  The figures and results are generated using code that is not shown in this pdf but is available in the corresponding .Rmd files stored at the github repository https://github.com/TiagoAMarques/CARMMHApapersSI
 
 If you make use of any of this material in your work, it would be appreciated if you would [contact Tiago
 Marques](mailto:tiago.marques@st-andrews.ac.uk) to let him know.
@@ -45,85 +47,64 @@ options(tinytex.verbose = TRUE)
 # Background
 
 Expert elicitation (EE) workshops were carried out to generate probabilistic distributions for parameters for which there were limited empirical information to update population models used in Deepwater Horizon (DWH) Natural Resources Damage Assessment (integrating the latest and best data sources)(DWH MMIQT, 2015). The elicitation was designed following the approach of Booth & Thomas (2021).
-Experts were chosen such that each individual had substantial knowledge on a given species group and/or the quantities of interest (see Table SI.1).  The breadth of expertise in the workshops was coordinated so that a comprehensive coverage of opinions could be achieved. As such, experts with knowledge of a wide range of cetacean taxa, their ecology and spanning the fields of epidemiology, animal physiology and veterinary science were selected (following guidance from Gosling 2018; Hart et al. 2018). Attaining this coverage is a critical component of a successful elicitation, both as it ensures a wide array of perspectives but also avoids the likelihood of redundant information being presented, which can introduce bias to discussions and decision making.
+Experts were chosen such that each individual had substantial knowledge on a given species group and/or the quantities of interest (see Table SI.1).  The breadth of expertise in the workshops was coordinated so that a comprehensive coverage of opinions could be achieved. As such, experts with knowledge of a wide range of cetacean taxa, their ecology and spanning the fields of population biology, demography, epidemiology, animal physiology and veterinary science were selected (following guidance from Gosling 2018; Hart et al. 2018). 
 
-Expert elicitation is a taxing mental process, even for quantitative scientists, as it is challenging for experts to express their judgements and associated uncertainty around their estimates. To combat this, experts participated in a webinar before the EE workshops to be familiarized with the objectives, approaches and quantities of interest to be addressed in the EE. In addition experts were asked to complete a four-part online e-learning training course (found at http://www.smruconsulting.com/products-tools/pcod/pcod-project-outputs/online-expert-elicitation-course).
+Expert elicitation is a taxing mental process, even for quantitative scientists, as it is challenging for experts to express their judgements in a manner that can used to derive a probability distribution. To help mitigate this, experts participated in a webinar before the EE workshops to be familiarized with the objectives, approaches and quantities of interest to be addressed in the EE. In addition experts were asked to complete a four-part online e-learning training course (found at http://www.smruconsulting.com/products-tools/pcod/pcod-project-outputs/online-expert-elicitation-course).
 
-Two EE workshops were conducted on the 13-14th and 15-16th January 2020 with two groups of experts (Table S1.1). In the lead-up to the EE exercises, each group of experts was provided with an evidence dossier and the workshops began with introductory presentations – which included information on the prevalence of abnormal prognoses across years for dolphins born prior to and following the DWH oil spill. During the workshops, the expert panels were supported by scientific ‘observers’ who presented foundational briefings on the key information available to inform judgements on quantities of interest. Observers did not provide any judgements and only provided additional context when called upon. This process was facilitated by a trained workshop leader (Cormac Booth) to manage the dynamic workshops discussions to ensure the final distributions were robustly derived.
+Two EE workshops were conducted. The first, on 13th-14th January 2020 focussed on eliciting parameters related to the recovery of individuals exposed to oil.  The second, on 15th-16th January 2020, focussed on eliciting parameters related to the population dynamics model, particularly density dependence.  Separate groups of experts attended each workshop (Table S1.1). Some EE outputs were also used in the population model for Barataria Bay bottlenose dolphins by Schwacke et al. (2021); further details on these parameters are given in that paper.
+
+In the lead-up to the EE workshops, each group of experts was provided with an evidence dossier and the workshops began with introductory presentations – which included information on the prevalence of abnormal prognoses across years for dolphins born prior to and following the DWH oil spill. During the workshops, the expert panels were supported by scientific "observers" who presented foundational briefings on the key information available to inform judgements on quantities of interest. Observers did not provide any judgements and only provided additional context when called upon. This process was facilitated by a trained workshop leader (Cormac Booth) to manage the discussions to ensure the final distributions were robustly derived.
 
 ```{r,echo=FALSE}
 library(readxl)
 EEexpertlist <- read_excel("InputFiles/EEexpertlist.xlsx")
-kable(EEexpertlist,caption = "List of experts participatng in the Expert Elicitation exercises held within CARMMHA")
+kable(EEexpertlist,caption = "List of experts participatng in the Expert Elicitation workshops held within CARMMHA")
 ```
 
 # Methods
 
-Prior to eliciting personal judgements, experts were given a primer on the probability concepts of interest comprising plausible limits (broadly defined as the 1% and 99% quantiles), median and quartiles. The facilitator highlighted some of the key biases and/or heuristics that can affect the quality of expert judgements – to ensure experts were conscious of these when providing their personal judgements. The scope of the elicitation and questions were discussed and clarified with the experts and questions were iteratively developed to ensure linguistic uncertainty was removed.
+Prior to eliciting personal judgements, experts were given a primer on the probability concepts of interest comprising plausible limits (broadly defined as the 1% and 99% quantiles), median and quartiles. The facilitator highlighted some of the key biases and/or heuristics that can affect the quality of expert judgements, to ensure experts were conscious of these when providing their personal judgements. The scope of the elicitation and questions were discussed and clarified with the experts and questions were iteratively developed to ensure linguistic uncertainty was removed.
 
-Experts were asked to provide their judgements using variable interval methods   – first identifying their personal judgements for plausible range and then dividing this range with median and 25th and 75th quantiles. Experts used a shiny app (https://smruconsulting.shinyapps.io/EE_SingleParam/) to anonymously and independently submit their judgements before they were fitted as probability distributions in SHELF (Gosling 2018) in R (the best fit was selected in SHELF using minimum ?? least squares approach). Once all experts’ judgements were received they were presented back to the group and each expert was invited to outline and discuss their judgements as a group to reach a consensus of what would be a rational impartial view of their combined knowledge (see Astfalck et al. (2018)).
+Experts were asked to provide their judgements for each parameter using variable interval methods, first identifying their personal judgements for plausible range and then dividing this range with median and 25th and 75th quantiles. Experts used a web-based app written using the R package Shiny (Chang et al. 2021) (https://smruconsulting.shinyapps.io/EE_SingleParam/) to anonymously and independently submit their judgements before they were fitted to a range of probability distributions in the R package SHELF (Gosling 2018) using minimum least squares. Once all experts’ judgements were received they were presented back to the group and each expert was invited to outline and discuss their judgements as a group to reach a consensus of what would be a rational impartial view of the combined knowledge and discussions (see Astfalck et al. (2018)).
 
 ## Density dependent fecundity response
 
-Experts were asked about the shape of the density dependent fecundity response in bottlenose dolphins (see Schwacke et al in review). This led to different values from what had been considered before.
+Experts were asked about the shape of the density dependent fecundity response $\rho$  in bottlenose dolphins (see Schwacke et al. 2021 for additional details). This parameter affects the rate at which fecundity decreases as population size increases. The elicited distribution is shown below. Following that exercise, experts were asked the same question about sperm whales. Initially, some experts voiced concern about their expertise to provide a single distribution for all offshore species. The question was agreed as: “Given that the value of $\rho$ will affect the shape of the density dependent response of fecundity in offshore cetacean populations, what do you judge to be the most appropriate value for $\rho$ for this species and population?”.  They highlighted the range of prey, predators and wide-ranging environmental conditions as possible conflicting factors. They noted the strong social structure for sperm whales will keep fecundity high, closer to K, but that the resource environment was likely to be more variable. But despite differences in the environment, foraging strategies and reproductive biology, experts came to a similar consensus as for bottlenose dolphins – indicating for marine mammal species, some generalisation is possible. The resulting distribution for sperm whales is also shown below (Figure SI.1), and since the differences were so small, it was agreed upon as such the probability distribution for bottlenose dolphins could be applied to all other taxonomic units considered. 
 
-
-```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
+```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60),echo=FALSE}
 x <- seq(0.001, 25, length = 1000)
-#Our old distribution
-old.shape <- 6.4
-old.scale <- 1
-q <- dgamma(x, shape = old.shape, scale = old.scale)
-plot(x, q, type = "l", col = "springgreen4", lwd=2, xlim=c(0,28), xlab=expression(paste("Density dependence shape parameter ", rho)), ylab="Density",cex.lab=1)
 
 q3 <- dgamma(x, shape = 5.41, rate = 0.72)
-lines(x + 3, q3, type = "l", lwd = 2, lty = 2, col = "springgreen")
-
-legend("topright", inset = 0.05, legend = c("BND - Schwacke, et al 2017", "BND - EE, 2020"), col = c("springgreen4", 
-"springgreen"), lty = c(1, 2), lwd = 2, cex = 1)
-```
-
-
-Following that exercise, experts were asked the same question about sperm whales. The question was agreed as: “Given that the value of Rho will affect the shape of the density dependent response of fecundity in offshore cetacean populations, what do you judge to be the most appropriate value for $\rho$ for this species and population?”. The resulting distribution is shown below (Figure SI.1)
-
-```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
-x <- seq(0.001, 25, length = 1000)
-#Our old distribution
-old.shape <- 6.4
-old.scale <- 1
-q <- dgamma(x, shape = old.shape, scale = old.scale)
-plot(x, q, type = "l", col = "springgreen4", lwd=2, xlim=c(0,28), xlab=expression(paste("Density dependence shape parameter ", rho)), ylab="Density",cex.lab=1)
-
-q3 <- dgamma(x, shape = 5.41, rate = 0.72)
-lines(x + 3, q3, type = "l", lwd=2, lty=2, col = "springgreen")
+plot(x + 3, q3, type = "l", xlim=c(0,28), xlab=expression(paste("Density dependence shape parameter ", rho)), ylab="Density",cex.lab=1, lwd=2, lty=2, col = "springgreen")
 
 q4 <- dgamma(x, shape = 5.02, rate = 0.652)
 lines(x + 3, q4, type = "l", lwd=3, lty=2, col = "dodgerblue")
 
-legend("topright", legend = c("BND - Schwacke, et al 2017", "BND - EE, 2020", 
-                              "sperm whale - EE, 2020"), col = c("springgreen4", 
-"springgreen", "dodgerblue"), lty = c(1,2,2), lwd=2, cex=1)
+legend("topright", legend = c("BND", "sperm whale"), col = c("springgreen", "dodgerblue"), lty = c(1,2,2), lwd=2, cex=1)
 ```
 
 
 Figure S1.1 - Probability  distributions  showing  the  consensus  of  the  EE  for  the  value of density dependence  shape parameter $\rho$ for Gulf of Mexico offshore cetacean species.
 
-Initially, some experts voiced concern about their expertise to provide a single distribution for all offshore species. They highlighted the range of prey, predators and wide-ranging environmental conditions as possible conflicting factors. They noted the strong social structure for sperm whales will keep fecundity high closer to K, but that the resource environment was likely to be more variable. But despite differences in the environment, foraging strategies and reproductive biology, experts came to a similar consensus as for bottlenose dolphins – indicating for marine mammal species, some generalisation is possible. As such for this analysis the probability distribution for bottlenose dolphins was applied to all species.
+
  
 ## Effect of oiling on survival
 
-Working with experts, we grouped species according to the main factors that were considered likely to affect the survival of offshore species. Experts identified direct effects of oiling on the animals (e.g. respiratory, cardiovascular, endocrine effects) and indirect (e.g. effects on foraging ability and habitat/prey) as the primary drivers of reduced survival. Using this information the following species groupings were agreed, based around the dive performance (dictated by reduced respiratory and cardiovascular function) and foraging ecology of the species (Table S1.2).
+Working with experts, we grouped  taxonomic units according to the main factors that were considered likely to affect their survival after exposure to oil. Experts identified direct effects of oiling on the animals (e.g. respiratory, cardiovascular, endocrine effects) and indirect (e.g. effects on foraging ability and habitat/prey) as the primary drivers of reduced survival. Using this information the following species groupings were agreed, based around foraging ecology (Pelagic, Mesopelagic or Bathypelagic) and, relatedly, dive performance (dictated by reduced respiratory and cardiovascular function) (Table S1.2).
 
 ```{r,echo=FALSE}
 EESplist <- read_excel("InputFiles/CARMMHA_pelagic_species_list.xlsx")
 kable(EESplist,caption = "Table S1.2 – Species groups determined via the EE workshops within CARMMHA")
 ```
 
-For each species group (see above), a round of EE was conducted to generate a probabilistic distribution for the eﬀects of DWH oiling on the species survival. The following question structure was used: “What is your personal judgement of the true value for the proportional change in survival rate multiplier for this species group exposed to DWH oil?”. The following distributions were generated for each species (solid lines). The median value for sperm whales from the 2020 EE and from DWH MMIQT (2015) is shown (in light and dark blue dashed lines, respectively)(Figure SI.2).
+For each species group (Pelagic, Mesopelagic or Bathypelagic), a round of EE was conducted to generate a probabilistic distribution for the eﬀects of DWH oiling on the species survival. The following question structure was used: “What is your personal judgement of the true value for the proportional change in survival rate multiplier for this species group exposed to DWH oil?”. 
 
+For each group, the experts considered the possible mechanisms by which DWH oiling might affect the survival of each species group. Experts identified a series of direct and indirect mechanisms. The primary direct pathways were via respiratory effects (e.g pneumonia, pulmonary fibrosis potentially affecting dive performance and consequently foraging ability), endocrine issues (including, but not limited to, adrenal crisis, impaired stress response, energy balance and cholesterol dysregulation) and cardiac conditions (e.g. direct cardiotoxicity, anema, arrhythmia and pulmonary hypertension). In addition experts highlighted that gastrointestinal, neurological, developmental and other immune issues may be prevalent. The main indirect pathway was via effects on each species habitat and prey and experts considered the potential that animals might be displaced away from prime habitat in providing their judgements.
+Given the possible health consequences of exposure to DWH oiling and the likelihood that pulmonary and cardiac systems would be negatively affected, experts considered that cardiovascular systems of exposed animals of all groups would be impaired and dive performance (and so ability to effectively forage) could be impacted. As such the distributions for all groups indicate a reduction in survival as a consequence of DWH oiling, with increasing reduction in survival estimated for species reliant on deeper diving foraging strategies (Figure S1.2). It was considered that deep diving species would be exposed for the typically, relatively short period of time at the surface oil followed by closing alveoli before diving. Conversely, shallow divers were more likely to be frequently exposed to the surface oil for longer (with greater potential for impacts caused via aspiration of fresh oil). In addition, experts agreed that it was possible that larger cetaceans could be more severely affected by the same mass-specific dose of oil as a smaller animal due to metabolic scaling. Experts noted that oil exposure represents an additional stressor in already challenging offshore environment of the Gulf of Mexico. The broad range of the distribution represents the scientific uncertainty about the animals’ exposure and lack of data on these species.
 
+The following distributions were generated for each group (Figure SI.2).
 
-```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
+```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60),echo=FALSE}
 par(mfrow=c(1,1),mar=c(4.5,5,1.5,0.5))
 #Value of A for other whales
 # Pelagic dolphins
@@ -136,6 +117,12 @@ y1 <- dbeta(x, a1, b1)/(u1-l1)
 plot(x* (u1-l1) + l1, y1, type = "l", xlim = c(0.6, 1),lwd=3, ylim = c(0, 16), 
 ylab = "Density", xlab = "Survival reduction factor",cex.axis=1,cex.lab=1,col="deeppink") 
 
+#get realizations for reporting the mean below
+n<-100000
+x1s<-rbeta(10000,a1,b1)*(u1-l1)+l1
+m1 <- mean(x1s)
+sd1 <- sd(x1s)
+
 # Mesopelagic divers
 l3 <- 0.70
 u3 <- 0.99
@@ -143,6 +130,10 @@ a3 <- 4.18
 b3 <- 3.61
 y3 <- dbeta(x, a3, b3)/(u3-l3)
 lines(x* (u3-l3) + l3, y3, type = "l", col = "darkorchid1",lwd=3)
+
+x3s<-rbeta(10000,a3,b3)*(u3-l3)+l3
+m3 <- mean(x3s)
+sd3 <- sd(x3s)
 
 # sperm & beaked whales
 l4 <- 0.63
@@ -152,38 +143,26 @@ b4 <- 2.96
 y4 <- dbeta(x, a4, b4)/(u4-l4)
 lines(x* (u4-l4) + l4, y4, type = "l", col = "dodgerblue",lwd=3)
 
-m4 <- mean(rbeta(10000,a4,b4)*(u4-l4)+l4)
-
-#segments(m4,0,m4,2,col="dodgerblue",lty=2,lwd=3)
-
-#to have MMIQT results uncomment
-#Schwacke et al. values
-#segments(0.88,0,0.88,2,col="darkblue",lty=2,lwd=3)
+x4s<-rbeta(10000,a4,b4)*(u4-l4)+l4
+m4 <- mean(x4s)
+sd4 <- sd(x4s)
 
 legend("topleft",inset=0.03,
        legend = c("Pelagic dolphins", "Mesopelagic divers", "Bathypelagic divers"), 
 col = c("deeppink", "darkorchid1", "dodgerblue"), lty = c(1,1,1),lwd=3,cex=1)
-
-
-#to have MMIQT results uncomment
-#legend("topleft",inset=0.03,
-#       legend = c("Pelagic dolphins", "Mesopelagic divers", "Sperm & beaked whales","Sperm whale DWH MMIQT"), 
-#col = c("deeppink", "darkorchid1", "dodgerblue","darkblue"), lty = c(1,1,1,1,2),lwd=3,cex=1)
-
 ```
 
-Figure S1.2 - Probability  distributions  showing  the  consensus  of  the  EE  for  the proportional reduction in survival for each species group, as a consequence of exposure to DWH oil.
+Figure S1.2 - Probability  distributions  showing  the  consensus  of  the  EE  for  the proportional reduction in survival for each species group, as a consequence of exposure to DWH oil. Note this corresponds to a mean survival reduction of `r round(m1,2)` (standard deviation `r round(sd1,2)`), `r round(m3,2)` (standard deviation `r round(sd3,2)`) and `r round(m4,2)` (standard deviation `r round(sd4,2)`) for pelagic dolphins, mesopelagic divers and bathypelagic divers, respectively.
 
-For each group, the experts considered all the possible mechanisms by which DWH oiling might affect the survival of each species group. Experts identified a series of direct and indirect mechanisms. The primary direct pathways were via respiratory effects (e.g pneumonia, pulmonary fibrosis potentially affecting dive performance and consequently foraging ability), endocrine issues (including, but not limited to, adrenal crisis, impaired stress response, energy balance and cholesterol dysregulation) and cardiac conditions (e.g. direct cardiotoxicity, anema, arrhythmia and pulmonary hypertension). In addition experts highlighted that gastrointestinal, neurological, developmental and other immune issues may be prevalent. The main indirect pathway was via effects on each species habitat and prey and experts considered the potential that animals might be displaced away from prime habitat in providing their judgements.
-Given the possible health consequences of exposure to DWH oiling and the likelihood that pulmonary and cardiac systems would be negatively affected, experts considered that cardiovascular systems of exposed animals of all groups would be impaired and dive performance (and so ability to effectively forage) could be impacted. As such the distributions for all groups indicate a reduction in survival as a consequence of DWH oiling, with increasing reduction in survival estimated for species reliant on deeper diving foraging strategies (Figure S1.2). It was considered that deep diving species would be exposed for the typically, relatively short period of time at the surface oil followed by closing alveoli before diving. Conversely, shallow divers who were more likely to be frequently exposed to the surface oil for longer (with greater potential for impacts caused via aspiration of fresh oil). In addition, experts agreed that it was possible that larger cetaceans could be more severely affected by the same mass-specific dose of oil as a smaller animal due to metabolic scaling. Experts noted that oil exposure represents an additional stressor in an already challenging environment offshore. The broad range of the distribution represents the scientific uncertainty about the animals’ exposure and lack of data on these species.
+
  
 ## Proportional recovery following DWH oiling
 
 To estimate the proportional recovery (in survival probability) of those affected by DWH oiling, experts agreed the wording of and provided judgments to the following question: “Think about an offshore Gulf of Mexico cetacean species whose health has been impacted by the DWH oil spill and has a guarded, poor or grave prognosis in the first year or two after the DWH spill. Going forward, in the animal’s lifetime, what is the probability that it has a good or fair prognosis?”
 
-Experts were briefed on the veterinary prognosis scores from health assessments for Bay, Sound and Estuary bottlenose dolphins in the Gulf of Mexico (see Schwacke et al. in review) and asked to consider the mechanisms driving health prognosis for offshore cetacean species. Experts considered ill-effects of impacted pulmonary, cardiac and endocrine systems (e.g. pneumonia, pulmonary fibrosis, anemia, impaired stress response etc.) and the probability that such conditions were recoverable in an unpredictable open-ocean environment.  In general, experts considered that it was unlikely that most offshore cetacean species would recover (Figure S1.3) but that animals with a guarded prognosis might be more likely to recover. This resulted in a skewed distribution with some weight allowing for the greater likelihood that animals might recover. This tail was driven by the scientific uncertainty about the recoverability of some health conditions and therefore the likelihood of improved prognosis for animals in the ‘guarded’  category. There was also concern that the dynamic prey environment in the open ocean, coupled with the potential that the effects of oiling may compromise dive performance (and so foraging efficiency) could make recovery challenging for most animals.
+Experts were briefed on the veterinary prognosis scores from health assessments for Bay, Sound and Estuary bottlenose dolphins in the Gulf of Mexico (see Schwacke et al. 2021) and asked to consider the mechanisms driving health prognosis for offshore cetacean species. Experts considered ill-effects of impacted pulmonary, cardiac and endocrine systems (e.g. pneumonia, pulmonary fibrosis, anemia, impaired stress response etc.) and the probability that such conditions were recoverable in an open-ocean environment.  In general, experts considered that it was unlikely that most offshore cetacean species would recover (Figure S1.3) but that animals with a guarded prognosis might be more likely to recover. This resulted in a skewed distribution with some weight allowing for the greater likelihood that animals in the guarded category might recover. This tail was driven by the scientific uncertainty about the recoverability of some health conditions and therefore the likelihood of improved prognosis for animals in the ‘guarded’  category. There was also concern that the dynamic prey environment in the open ocean, coupled with the potential that the effects of oiling may compromise dive performance (and so foraging efficiency) could make recovery challenging for most animals.
 
-```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
+```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60),echo=FALSE}
 #offshore species
 l2 <- 0
 u2 <- 0.6
@@ -195,8 +174,8 @@ plot(x* (u2-l2) + l2, y2, type = "l", col = "thistle4",lwd=3,ylab = "Density", x
 
 Figure S1.3 - Probability  distribution  showing  the  consensus  of  the  EE  for  the  proportional recovery of survival in Gulf of Mexico offshore cetacean species following DWH oiling.
 
-```{r}
-#generating 100000o replicates to empirically evaluate the mean and variance and quantiles
+```{r,echo=FALSE}
+#generating 1000000 replicates to empirically evaluate the mean, variance and quantiles
 ry2 <- (l2+rbeta(1000000, a2, b2)*u2)-l2
 ```
 
@@ -208,8 +187,14 @@ The mean value of this distribution is `r round(mean(ry2),3)`, the corresponding
 
 * Booth, C.; Thomas, L. (2021) An Expert Elicitation of the Effects of Low Salinity Water Exposure on Bottlenose Dolphins. Oceans 2021, 2, 179-192. 
 
+* Chang W, Cheng J, Allaire J, Sievert C, Schloerke B, Xie Y, Allen J, McPherson J, Dipert A, Borges B (2021). shiny:
+  Web Application Framework for R. R package version 1.7.1, <https://CRAN.R-project.org/package=shiny>.
+
 * DWH  MMIQT (2015),  Models and analyses for the quantification of injury to Gulf of Mexico cetaceans from the Deepwater Horizon Oil Spill, MM_TR.01_Schwacke_Quantification.of.lnjury.to.GOM.Cetacean - Available at https://www.fws.gov/doiddata/dwh-ar-documents/876/DWH-AR0105866.pdf
 
 * Gosling J.P. (2018) SHELF: the Sheffield elicitation framework. pp. 61-93. Elicitation. Springer.
 
 * Hart A., Gosling J.P., Quigley J. et al. (2018) Training courses on “Steering an Expert Knowledge Elicitation” and “Use of the Expert Knowledge Elicitation Guidance in Risk Assessments for EFSA Management” and “Conduct of the Sheffield protocol for an Expert Knowledge Elicitation”. EFSA Supporting Publications 15, 1450E.
+
+* Schwacke, L. H.; Marques, T. A.; Thomas, L.; Booth, C.; Balmer, B. C.; Barratclough, A.; Colegrove, K.; Guise, S. D.; Garrison, L. P.; Gomez, F. M.; Morey, J. S.; Mullin, K. D.; Quigley, B. M.; Rosel, P.; Rowles, T. K.; Takeshita, R.; Townsend, F. I.; Speakman, T. R.; Wells, R. S.; Zolman, E. S. & Smith, C. R. (2021) Modeling population impacts of the Deepwater Horizon oil spill on a long-lived species with implications and recommendations for future environmental disasters 
+Conservation Biology. DOI: 10.1111/cobi.13878
