@@ -17,7 +17,7 @@ options(scipen=999)
 
 # Preamble
 
-This is an Electronic Supplement to the manuscript Schwacke, L.A. et al.  "Modeling population impacts of the Deepwater Horizon oil spill on a long-lived species: implications and recommendations for future environmental disasters"
+This is an Electronic Supplement to the manuscript Schwacke et al. 2022. Modeling population effects of the Deepwater Horizon oil spill on a long-lived species. $Conservation~Biology$ 36:e13878 DOI: https://doi.org/10.1111/cobi.13878 
 
 The master file containing links to all supplementary files related to this paper is [BND_Electronic Supplements master file](BND_ElectronicSupplements.html).
 
@@ -42,7 +42,7 @@ The resulting, elicited distribution for bottlenose dolphins BSE was a gamma dis
 
 ```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
 library(latex2exp)  # for tex in plot labels
-
+windowsFonts(A = windowsFont("Times New Roman"))
 x <- seq(0.001, 25, length = 1000)
 #Our old distribution
 old.shape <- 6.4
@@ -51,7 +51,7 @@ q <- dgamma(x, shape = old.shape, scale = old.scale)
 #q3 <- dgamma(x, shape = 5.53, scale = 1/0.745)
 #This is the one we chose, represented in red
 #q2 <- dgamma(x, shape = shape, scale = scale)
-plot(x, q, type = "l", col = "springgreen4", lwd=2, xlim=c(0,28), xlab=expression(paste("Density dependence shape parameter ", rho)), ylab="Probability density",cex.axis=1.5,cex.lab=1.5)
+plot(x, q, type = "l", col = "springgreen4", lwd=2, xlim=c(0,28), xlab=expression(paste("Density dependence shape parameter ", rho)), ylab="Probability density", las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 #lines(x + lower, q2, type = "l", col = "red")
 #lines(x, q3, type = "l", col = "blue", lty = 2)
 
@@ -62,14 +62,18 @@ lines(x + SpInfo$rhoshift, q3, type = "l", lwd=2, lty=5, col = "dodgerblue")
 
 #q4 <- dgamma(x, shape = 5.02, rate = 0.652)
 #lines(x + 3, q4, type = "l", lwd=3, lty=5, col = "dodgerblue")
+op <- par(family =  "A")
 
 legend("topright", legend = c("Schwacke et al. 2017", "EE, 2020"), col = c("springgreen4", 
-"dodgerblue"), lty = c(1,5), lwd=2, cex=1, inset = 0.05)
+"dodgerblue"), lty = c(1,5), lwd=2, cex=1.1, inset = 0.05)
+
+par(op)
+
 
 rhos <- with(SpInfo,(rhoshift+rgamma(1000000, shape = rhoshape, scale = rhoscale)))
-text(21,0.1,labels=paste("mean:",round(mean(rhos),2)))
-text(21,0.08,labels=paste("median:",round(median(rhos),2)))
-text(21,0.06,labels=paste0("95% equal-tailed interval: ",round(quantile(rhos,p=0.025),2),"-",round(quantile(rhos,p=0.975),2)))
+text(21,0.1,labels=paste("mean:",round(mean(rhos),2)),  family="A",cex=1.1)
+text(21,0.08,labels=paste("median:",round(median(rhos),2)),  family="A",cex=1.1)
+text(21,0.06,labels=paste0("95% equal-tailed interval: ",round(quantile(rhos,p=0.025),2),"-",round(quantile(rhos,p=0.975),2)),  family="A",cex=1.1)
 ```
 
 
@@ -84,23 +88,23 @@ par(mfrow=c(2,1),mar=c(4.5,5,1.5,1))
 rhos2017 <- rgamma(1000,shape=6.4,scale=1)
 #the mean rho
 plot(Nts,ft(Nt=Nts,rho=6.4,Nnom=3045,Fmax=0.35,Fnom=0.24),type="n",ylab="",
-     xlab=TeX("Population size"),ylim=c(0.18,0.4),cex.axis=1.5,cex.lab=1.5)
+     xlab=TeX("Population size"),ylim=c(0.18,0.4), las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 for(i in 1:1000){
   lines(Nts,ft(Nt=Nts,rho=rhos2017[i],Nnom=3045,Fmax=0.35,Fnom=0.24),lty=2,lwd=0.5,col="grey")
 }
-points(Nts,ft(Nt=Nts,rho=6.4,Nnom=3045,Fmax=0.35,Fnom=0.24),type="l",col="springgreen4",lwd=3)
+points(Nts,ft(Nt=Nts,rho=6.4,Nnom=3045,Fmax=0.35,Fnom=0.24),type="l",col="springgreen4",lwd=3, las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 abline(h=c(0.24,0.35),v=3045,lty=2)
 #new
 #the mean rho
 plot(Nts,ft(Nt=Nts,rho=6.34/0.853,Nnom=3045,Fmax=0.35,Fnom=0.24),type="n",ylab="",
-     xlab=TeX("Population size"),ylim=c(0.18,0.4),cex.axis=1.5,cex.lab=1.5)
+     xlab=TeX("Population size"),ylim=c(0.18,0.4), las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 for(i in 1:1000){
   lines(Nts,ft(Nt=Nts,rho=rhos[i],Nnom=3045,Fmax=0.35,Fnom=0.24),lty=2,lwd=0.5,col="grey")
 }
-points(Nts,ft(Nt=Nts,rho=6,Nnom=3045,Fmax=0.35,Fnom=0.24),type="l",col="dodgerblue",lwd=3,lty=5)
+points(Nts,ft(Nt=Nts,rho=6,Nnom=3045,Fmax=0.35,Fnom=0.24),type="l",col="dodgerblue",lwd=3,lty=5, las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1)
 abline(h=c(0.24,0.35),v=3045,lty=2)
 
-mtext(TeX("Fecundity"),side = 2,line=3,at = 0.5,cex=1.5)
+mtext(TeX("Fecundity"),side = 2,line=3,at = 0.5, family="A", cex=1.2)
 ```
 
 # Creating figure 4
@@ -117,12 +121,12 @@ b1 <- 2.36
 x <- seq(0, 1, length = 1000)
 y1 <- dbeta(x, a1, b1)/(u1-l1)
 plot(x* (u1-l1) + l1, y1, type = "l", xlim = c(0,0.6),lwd=3, ylim = c(0, 3.5),
-col="dodgerblue", ylab = "Probability density", xlab = "Probability of Recovery",cex.axis=1.5,cex.lab=1.5) 
+col="dodgerblue", ylab = "Probability density", xlab = "Probability of recovery", las = 1, family="A", cex.axis=1.2,cex.main=1.5,cex.lab=1.1) 
 set.seed(123)
 ry1 <- (l1+rbeta(1000000, a1, b1)*u1)-l1
-text(0.45,3,labels=paste("mean:",round(mean(ry1),3)))
-text(0.45,2.7,labels=paste("median:",round(median(ry1),3)))
-text(0.45,2.4,labels=paste0("95% equal-tailed interval: ",round(quantile(ry1,p=0.025),3),"-",round(quantile(ry1,p=0.975),3)))
+text(0.45,3,labels=paste("mean:",round(mean(ry1),3)),cex=1.1, family="A")
+text(0.45,2.7,labels=paste("median:",round(median(ry1),3)),cex=1.1, family="A")
+text(0.45,2.4,labels=paste0("95% equal-tailed interval: ",round(quantile(ry1,p=0.025),3),"-",round(quantile(ry1,p=0.975),3)),cex=1.1, family="A")
 ```
 
 # Creating figure 5
@@ -400,7 +404,7 @@ summarise(Mean=mean(x), Max=max(x), Min=min(x), Median=median(x), Std=sd(x),quan
  ggplot() + 
   #geom_ribbon(data = subset(data4,year<= YTR),aes(ymin = ymin,ymax=ymax,x=year), fill = "red", alpha = .4)+ 
   #geom_ribbon(data = subset(data4,year>= YTR),aes(ymin = ymin,ymax=ymax,x=year), fill = "blue", alpha = .4)+
-annotate("segment",x=MPD-1,xend=MPD-1,yend=data4$y,y=data4$yend,colour="black",linetype = "dashed", lwd=2, arrow = arrow(type="closed", length = unit(0.2, "inches")))+
+annotate("segment",x=MPD-1,xend=MPD-1,yend=data4$y,y=data4$yend,colour="black",linetype = "dashed", lwd=2, arrow = arrow(type="closed", length = unit(0.3, "inches")))+
   geom_line(aes(x=data4$year-1,y=data4$population,color=data4$oil,lwd=2),size=1.4)+
   theme_bw()+
  #   annotate("segment", yend = 1000, y = 4500, x = YTR, xend = YTR,colour = "black", arrow = arrow(type="closed", length = unit(0.1, "inches")),linetype="dashed") +
@@ -432,7 +436,16 @@ annotate("segment",x=MPD-1,xend=MPD-1,yend=data4$y,y=data4$yend,colour="black",l
   geom_pointrange(data=dattat, aes(x=9,
               y=Median,ymin=quantile025,ymax=quantile975),size=1.5) + 
  geom_pointrange(data=dattat1, aes(x=0,
-               y=Median,ymin=quantile025,ymax=quantile975),size=1.5)
+               y=Median,ymin=quantile025,ymax=quantile975),size=1.5)+ 
+        scale_color_manual(values=c("blue","red"),labels=c('no spill', 'spill'))+
+  theme(text = element_text(family = "A"),
+        axis.title.x = element_text(size = 19), 
+        axis.text.x = element_text(size = 20),
+        axis.text.y = element_text(size = 20),
+        axis.title.y = element_text(size = 19),
+        legend.title = element_text(size=19),
+        legend.text= element_text(size=19),
+        plot.title = element_text(size=24))
 ```
 
 The results paragraph in the paper is:
@@ -448,4 +461,4 @@ The mean population size in 2019, estimated by SCR, was `r round(mean(bas2019$x)
 
 # Acknowledgments
 
-We would like to thank Carolina Marques for the code and data wrangling that made the last plot.
+We thank Carolina Marques for the code and data wrangling that made the last plot much better.

@@ -15,7 +15,7 @@ options("scipen" = 100, "digits" = 4)
 
 # Preamble
 
-This is an Electronic Supplement to the manuscript Schwacke, L.A. et al.  "Modeling population impacts of the Deepwater Horizon oil spill on a long-lived species: implications and recommendations for future environmental disasters"
+This is an Electronic Supplement to the manuscript Schwacke et al. 2022. Modeling population effects of the Deepwater Horizon oil spill on a long-lived species. $Conservation~Biology$ 36:e13878 DOI: https://doi.org/10.1111/cobi.13878 
 
 The master file containing links to all supplementary files related to this paper is [BND_Electronic Supplements master file](BND_ElectronicSupplements.html).
 

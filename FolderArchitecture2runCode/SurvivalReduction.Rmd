@@ -20,7 +20,7 @@ library(viridis)
 
 # Preamble
 
-This is an Electronic Supplement to the manuscript Schwacke, L.A. et al.  "Modeling population impacts of the Deepwater Horizon oil spill on a long-lived species: implications and recommendations for future environmental disasters"
+This is an Electronic Supplement to the manuscript Schwacke et al. 2022. Modeling population effects of the Deepwater Horizon oil spill on a long-lived species. $Conservation~Biology$ 36:e13878 DOI: https://doi.org/10.1111/cobi.13878 
 
 The master file containing links to all supplementary files related to this paper is [BND_Electronic Supplements master file](BND_ElectronicSupplements.html).
 
@@ -361,7 +361,7 @@ N0sim <- Nstart[itersim]
     #------------------------------------------------------------
     # Get transition matrix
     # note dimm = number of sexes * number of conditions * number of age classes
-    M0 <- getM(na = na, dimm = ns*nc*na, femalesur = femalesur, malesur = malesur, srf = 1, N = N0sim, ddfr = F0, frf = 1, a1stR = a1stRsim, alasR     = na)
+    M0 <- getM(na = na, dimm = ns*nc*na, femalesur = femalesur, malesur = malesur, srf = 1, ddfr = F0, frf = 1, a1stR = a1stRsim, alasR     = na)
     #------------------------------------------------------------
     
     # Initial population numbers per class
