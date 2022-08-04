@@ -3,6 +3,7 @@ title: 'Model evaluation: sensitivity and elasticity analysis for pelagic taxono
 author: ""
 date: \today
 output: 
+  pdf_document: default
   html_document:
     toc: true
     toc_float: true
@@ -10,7 +11,6 @@ output:
     toc_depth: 3
     number_sections: true
     theme: lumen
-  pdf_document: default
 urlcolor: blue
 ---
 
@@ -97,22 +97,28 @@ We want to estimate the sensitivity to the 11 parameters defined above. We have 
 
 ## Uncertainty
 
-Consider a given parameter $K$. Consider $I$ as an example injury metric. The mean $I$ from the `r runs4Sens` observations of a given injury metric is $\bar{I}$. We represent as $PC^k(I)$ the proportional change in $I$ for parameter $K$, where, for each parameter $K$ for which uncertainty is being evaluated, $K$ is allowed to change but all other parameters are kept at their mean value. 
+Consider a given parameter $K$. Consider $I$ as an example injury metric (i.e. I can be one of LCY, MPD and YTR. The mean $I$ from the `r runs4Sens` observations of a given injury metric for parameter $k$ is $\bar{I}^K$. We represent as $PC^k(I)$ the proportional change in $I$ for parameter $K$, where, for each parameter $K$ for which uncertainty is being evaluated, $K$ is allowed to change but all other parameters are kept at their mean value. 
 
 We show in plots below, for each injury metric and each parameter, the corresponding proportional change, in particular, the median, 2.5 and 97.5 percentiles of the distribution of proportional changes, across the `r runs4Sens` uncertainty iterations for each parameter $K$
 
-$PC^K_{j}(I)=\frac{I^K_{j}-\bar{I}}{\bar{I}},~j=1,2,...,500$.
+$PC^K_{j}(I)=\frac{I^K_{j}-\bar{I}^K}{\bar{I}^K},~j=1,2,...,500$.
 
 
 ## Elasticity
 
-In this analysis we used the values obtained under the uncertainty analysis - see previous sub-section - to model the percentage change in the 3 injury metrics (Lost Cetacean Years LCY, Years to Recovery YTR and Maximum Proportional Decrease MPD) as a function of a unit percentage change in the different input parameters. To do so, we used a generalized additive model (GAM), Gaussian response, and identity link. The reported results are virtually insensitive to the specific model chosen since the relations are all extremely smooth where it matters to evaluate elasticity, which is in the vicinity of the point estimate (here we considered the mean) of the parameter being evaluated. 
+In this analysis we used the values obtained under the uncertainty analysis - see previous sub-section - to model the percentage change in the 3 injury metrics (Lost Cetacean Years LCY, Years to Recovery YTR and Maximum Proportional Decrease MPD) as a function of a unit percentage change in the different input parameters. 
 
-For a few of the injury metrics and parameters combinations the fit is poor, in particular for YTR, but since this happens mostly when the elasticity is extremely small the effects are negligible. These problems originate because we are approximating change in a discrete injury metric (YTR) with a continuous function.
+To do so, we used a generalized additive model (GAM), Gaussian response, and identity link. The reported results are virtually insensitive to the specific model chosen since the relations are all extremely smooth where it matters to evaluate elasticity, which is in the vicinity of the point estimate (here we considered the mean) of the parameter being evaluated. 
+
+From this model we can predict the injury metric given a value $v$ for the input parameter $k$, represented by $\hat I^k_v$. We represent the mean value of the input parameter $k$ as $\bar k$. Therefore the elasticity is computed as
+
+$E^K(I)=\frac{\hat I^{1.005\bar k}-\hat I^{0.995\bar k}}{\hat I^{\bar k}},~j=1,2,...,500$.
+
+For a few of the injury metrics and parameters combinations the fit is poor, in particular for YTR. Sometimes the fit is not even sensible, because there is low to no variation in YTR. This happens mostly when the impact was very small or even absent (i.e. no change in YTR with a 1% change in the input parameter). Therefore, very large values of elasticity are estimated for that parameter with respect to LCY (because the denominator of the above expression is close to 0 or 0) when in fact the elasticity is negligible. For this reason, when for a given parameter the corresponding value of nominal LCY is lower than 1, $\hat I^{\bar k}<1$, we set the value for elasticity to not available (NA), which allows a much better visualization of the elasticity for the other parameters and metrics. Note this happens because the omnibus approach we used assumes that there is a change in the injury metric when changing the parameter, and if that is not the case elasticity is extremely small the effects are negligible. These problems originate also partially because we are approximating the change in a discrete injury metric (YTR) with a continuous function.
 
 The corresponding results are shown below, where we report the percentage change on the 3 injury metrics when each parameter is varied by 1% around the mean (i.e.  increased or decreased by 0.5%), while all the other parameters are kept at their mean value.
 
-Here we calculate the injury metrics percent change for a change in 1% on each of the 11 parameters, with that change being evaluated around the mean value of the input parameter.
+Here we calculate the injury metrics percent change for a change in 1% on each of the 11 parameters, with that change being evaluated around the mean value of the input parameter. However, for
 
 * $S_{f,j}$ and $S_{m,j}$, and 
 * $P_{marked}$,
@@ -262,7 +268,8 @@ for (i in 1:nfiles) {
     abline(v = c(mpar * delta), col = c("red", "green", "red"))
     abline(h = c(preds), col = c("red", "green", "red"))
     # calculate elasticity measure for the m_th parameter and k_th injury metric
-    elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    elas <- 100 * (preds[3] - preds[1]) / preds[2]     
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
     # save it in the right slot
     elasticity[i, 3 + k] <- elas
     # add number to top of the plot
@@ -385,6 +392,7 @@ for(s in 1:3){
     abline(h = c(preds), col = c("red", "green", "red"))
     # calculate elasticity measure for the m_th parameter and k_th injury metric
     elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
     # save it in the right slot
     mtext(text = round(elas,3), side = 3, cex = 0.8)
   }
@@ -544,6 +552,7 @@ for (i in 1:nfiles) {
     abline(h = c(preds), col = c("red", "green", "red"))
     # calculate elasticity measure for the m_th parameter and k_th injury metric
     elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
     # save it in the right slot
     elasticity[i, 3 + k] <- elas
     # add number to top of the plot
@@ -695,6 +704,7 @@ for (i in 1:nfiles) {
     abline(h = c(preds), col = c("red", "green", "red"))
     # calculate elasticity measure for the m_th parameter and k_th injury metric
     elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
     # save it in the right slot
     elasticity[i, 3 + k] <- elas
     # add number to top of the plot
@@ -846,6 +856,7 @@ for (i in 1:nfiles) {
     abline(h = c(preds), col = c("red", "green", "red"))
     # calculate elasticity measure for the m_th parameter and k_th injury metric
     elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
     # save it in the right slot
     elasticity[i, 3 + k] <- elas
     # add number to top of the plot
@@ -996,6 +1007,7 @@ for (i in 1:nfiles) {
     abline(h = c(preds), col = c("red", "green", "red"))
     # calculate elasticity measure for the m_th parameter and k_th injury metric
     elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
     # save it in the right slot
     elasticity[i, 3 + k] <- elas
     # add number to top of the plot
@@ -1147,6 +1159,7 @@ for (i in 1:nfiles) {
     abline(h = c(preds), col = c("red", "green", "red"))
     # calculate elasticity measure for the m_th parameter and k_th injury metric
     elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
     # save it in the right slot
     elasticity[i, 3 + k] <- elas
     # add number to top of the plot
@@ -1297,6 +1310,7 @@ for (i in 1:nfiles) {
     abline(h = c(preds), col = c("red", "green", "red"))
     # calculate elasticity measure for the m_th parameter and k_th injury metric
     elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
     # save it in the right slot
     elasticity[i, 3 + k] <- elas
     # add number to top of the plot
@@ -1447,6 +1461,7 @@ for (i in 1:nfiles) {
     abline(h = c(preds), col = c("red", "green", "red"))
     # calculate elasticity measure for the m_th parameter and k_th injury metric
     elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
     # save it in the right slot
     elasticity[i, 3 + k] <- elas
     # add number to top of the plot
@@ -1599,6 +1614,7 @@ for (i in 1:nfiles) {
     abline(h = c(preds), col = c("red", "green", "red"))
     # calculate elasticity measure for the m_th parameter and k_th injury metric
     elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
     # save it in the right slot
     elasticity[i, 3 + k] <- elas
     # add number to top of the plot
@@ -1753,6 +1769,7 @@ for (i in 1:nfiles) {
     abline(h = c(preds), col = c("red", "green", "red"))
     # calculate elasticity measure for the m_th parameter and k_th injury metric
     elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
     # save it in the right slot
     elasticity[i, 3 + k] <- elas
     # add number to top of the plot
@@ -1903,6 +1920,7 @@ for (i in 1:nfiles) {
     abline(h = c(preds), col = c("red", "green", "red"))
     # calculate elasticity measure for the m_th parameter and k_th injury metric
     elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
     # save it in the right slot
     elasticity[i, 3 + k] <- elas
     # add number to top of the plot
@@ -2052,6 +2070,7 @@ for (i in 1:nfiles) {
     abline(h = c(preds), col = c("red", "green", "red"))
     # calculate elasticity measure for the m_th parameter and k_th injury metric
     elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
     # save it in the right slot
     elasticity[i, 3 + k] <- elas
     # add number to top of the plot
@@ -2204,6 +2223,7 @@ for (i in 1:nfiles) {
     abline(h = c(preds), col = c("red", "green", "red"))
     # calculate elasticity measure for the m_th parameter and k_th injury metric
     elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
     # save it in the right slot
     elasticity[i, 3 + k] <- elas
     # add number to top of the plot
@@ -2356,7 +2376,8 @@ for (i in 1:nfiles) {
     abline(v = c(mpar * delta), col = c("red", "green", "red"))
     abline(h = c(preds), col = c("red", "green", "red"))
     # calculate elasticity measure for the m_th parameter and k_th injury metric
-    elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    elas <- 100 * (preds[3] - preds[1]) / preds[2]     
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
     # save it in the right slot
     elasticity[i, 3 + k] <- elas
     # add number to top of the plot
@@ -2511,8 +2532,9 @@ for (i in 1:nfiles) {
     abline(h = c(preds), col = c("red", "green", "red"))
     # calculate elasticity measure for the m_th parameter and k_th injury metric
     elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
     # save it in the right slot
-    elasticity[i, 3 + k] <- elas
+    elasticity[i, 2 + k] <- elas
     # add number to top of the plot
     mtext(text = round(elas,3), side = 3, cex = 0.8)
   }
@@ -2523,7 +2545,7 @@ We represent the elasticity measures per parameter here:
 
 ```{r}
 par(mfrow = c(1, 1), mar = c(4, 6, 2.5, 0.5))
-barplot(t(as.matrix(elasticity[, 4:6])), col = c(4, 2, 1), beside = TRUE, ylab = "Percent change per 1% change in parameter", main = species)
+barplot(t(as.matrix(elasticity[, 3:5])), col = c(4, 2, 1), beside = TRUE, ylab = "Percent change per 1% change in parameter", main = species)
 for (i in 1:nrow(elasticity)) {
   # set reasonable label
   label <- switch(elasticity$parameter[i],
