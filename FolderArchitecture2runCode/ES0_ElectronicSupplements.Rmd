@@ -3,6 +3,7 @@ title: "Electronic supplements for CARMMHA's pelagic injury paper"
 author: ""
 date: \today
 output: 
+  pdf_document: default
   html_document:
     toc: true
     toc_float: true
@@ -10,7 +11,6 @@ output:
     toc_depth: 3
     number_sections: true
     theme: lumen
-  pdf_document: default
 urlcolor: blue
 ---
 
@@ -23,14 +23,13 @@ library(knitr)
 
 This is an Electronic Supplement to the manuscript Marques et al. "Quantifying Deepwater Horizon oil spill induced injury on pelagic cetaceans" submitted to Marine Ecology Progress Series (MEPS).
 
-The master file containing links to all supplementary files related to this paper is this [ES0_ElectronicSupplements](ES0_ElectronicSupplements.html).
+There are 7 Electronic Supplements to the paper. The master file containing links to all the other 6 additional Electronic Supplements related to this paper is [ES0_ElectronicSupplements](ES0_ElectronicSupplements.html). 
 
-If you make use of any of this material in your work, it would be appreciated if you would [contact Tiago
-Marques](mailto:tiago.marques@st-andrews.ac.uk) to let him know.
+You might be reading this file as a pdf or as an html. The links on this file only work if you are using the html version of it, available via the github repository or if you compiled it yourself as html and you have all the 7 html files in the same folder. Otherwise, as a pdf distributed as an Electronic Supplement to the MEPS paper, the links might not work. ***They might work. If it is possible, we can work with the MEPS Editorial Office such that we can add links below that will link to actual files, say the pdfs of each of these 7 files, on the publisher server***.
 
 ## Version history
 
-* 1.0 [date] Version included as an html Electronic supplement in the MEPS submission - *note to co-authors: this note will be deleted when we submit and we are not tracking versions prior to submitting to MEPS, that will be version 1.0 by definition* 
+* 1.0 [date] Version included as a pdf Electronic Supplement in the MEPS original submission - *note to co-authors: this note will be deleted when we submit and we are not tracking versions prior to submitting to MEPS, so that will be version 1.0 by definition* 
 
 # Introduction
 
@@ -51,8 +50,6 @@ This means also that it should be straightforward for a reader to update the res
 [Back to Introduction](#introduction)
 
 There are 6 other main Electronic Supplements files submitted as such to MEPS. We labeled these ES1 to ES6 to help readers locating them in the repository and refer to them in the paper as such. Names and brief content descriptions follow:
-
-***If needed we can work with the Editorial office such that we can add links below that will link to actual files, say the html's of each of these 7 files, on the publisher server***.
 
 * [ES1_ExpertElicitation](ES1_ExpertElicitation.html) – Supplementary material about the expert elicitation exercises, which includes information about
     - the density dependence scale parameter, 
@@ -104,7 +101,8 @@ source("Functions/reqfuns.R")         # most functions are here
 source("Functions/SilerFuns.R")       # Siler model functions are here
 source("Functions/runSims.R")         # To run the simulations for all species
 #define the species we run simulations for
-Sps <- c("Bwsp", "Fatt", "Ggri", "Gmac", "Kosp", "Pele", "Pmac", "Satt", "Sbre", "Scly", "Scoe", "Sfro", "Slon", "Ttro", "Ttrs","Ttru")
+Sps <- c("Bwsp", "Fatt", "Ggri", "Gmac", "Kosp", "Pele", "Pmac",
+"Satt", "Sbre", "Scly", "Scoe", "Sfro", "Slon", "Ttro", "Ttrs","Ttru")
 #define the number of iterations to run
 ns <- 5
 # define the number of years each iteration is run for
@@ -155,15 +153,18 @@ Glennie, R.; Thomas, L.; Speakman, T.; Garrison, L.; Takeshita, R. & Schwacke, L
 
 Roberts, J. J.; Best, B. D.; Mannocci, L.; Fujioka, E.; Halpin, P. N.; Palka, D. L.; Garrison, L. P.; Mullin, K. D.; Cole, T. V. N.; Khan, C. B.; McLellan, W. A.; Pabst, D. A. & Lockhart, G. G. 2016 Habitat-based cetacean density models for the U.S. Atlantic and Gulf of Mexico *Scientific Reports* **6**: 22615 DOI: [10.1038/srep22615](https://www.nature.com/articles/srep22615)
 
-Schwacke, L. H.; Marques, T. A.; Thomas, L.; Booth, C.; Balmer, B. C.; Barratclough, A.; Colegrove, K.; Guise, S. D.; Garrison, L. P.; Gomez, F. M.; Morey, J. S.; Mullin, K. D.; Quigley, B. M.; Rosel, P.; Rowles, T. K.; Takeshita, R.; Townsend, F. I.; Speakman, T. R.; Wells, R. S.; Zolman, E. S. & Smith, C. R. 2021 Modeling population impacts of the Deepwater Horizon oil spill on a long-lived species with implications and recommendations for future environmental disasters Conservation Biology. DOI: [10.1111/cobi.13878](https://doi.org/10.1111/cobi.13878)
+Schwacke, L. H.; Marques, T. A.; Thomas, L.; Booth, C.; Balmer, B. C.; Barratclough, A.; Colegrove, K.; Guise, S. D.; Garrison, L. P.; Gomez, F. M.; Morey, J. S.; Mullin, K. D.; Quigley, B. M.; Rosel, P.; Rowles, T. K.; Takeshita, R.; Townsend, F. I.; Speakman, T. R.; Wells, R. S.; Zolman, E. S. & Smith, C. R. 2021 Modeling population impacts of the Deepwater Horizon oil spill on a long-lived species with implications and recommendations for future environmental disasters *Conservation Biology* **36**: e13878 DOI: [10.1111/cobi.13878](https://doi.org/10.1111/cobi.13878)
 
 # Reproducible research
 
-We have invested a considerable amount of time to make our analysis reproducible. This means also that it should be relatively straightforward for a reader to update the results with new information, be it new data that becomes available or different assumptions about population, allowing to explore both the consequences of new knowledge or the impact of the assumptions we made on the results presented.
+We have invested a considerable amount of time to make our analysis fully transparent and reproducible (Figure ES0_1). This means also that it should be relatively straightforward for a reader to update the results with new information, be it new data that becomes available or different assumptions about the populations consider, allowing to explore both the consequences of new knowledge that becomes available in the future or the impact of the assumptions we made, and potentially changing them, on the results presented. 
 
-```{r fig1,eval=FALSE,echo=FALSE,fig.width=3,fig.align="center",fig.cap="\\label{fig:fig1}Artwork by @allison_horst at available at https://github.com/allisonhorst/stats-illustrations. This image illustrates the concept of reproducible research and is a tribute to Allison's work on combining art and science."}
+If you make use of any of this material in your own work, it would be appreciated if you would [contact Tiago
+Marques](mailto:tiago.marques@st-andrews.ac.uk) to let him know. Suggestions or comments for improvements will also be greatly appreciated.
+
+```{r fig1,eval=FALSE,echo=FALSE,fig.width=3,fig.align="center",fig.cap="- Artwork by @allison_horst at available at https://github.com/allisonhorst/stats-illustrations. This image illustrates the concept of reproducible research and is a tribute to Allison's work on combining art and science."}
 # All defaults
 include_graphics("figs/reproducibility_court.png")
 ```
 
-![Artwork by @allison_horst at available at https://github.com/allisonhorst/stats-illustrations. This image illustrates the concept of reproducible research and is a tribute to Allison's work on combining art and science.](figs/reproducibility_court.png){width=50%}
+![Figure ES0.1: Artwork by @allison_horst at available at https://github.com/allisonhorst/stats-illustrations. This image illustrates the concept of reproducible research and is a tribute to Allison's work on combining art and science.](figs/reproducibility_court.png){width=50%}
