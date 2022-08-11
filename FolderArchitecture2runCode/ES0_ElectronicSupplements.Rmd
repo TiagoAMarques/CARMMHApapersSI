@@ -29,7 +29,9 @@ You might be reading this file as a pdf or as an html. The links on this file on
 
 ## Version history
 
-* 1.0 [date] Version included as a pdf Electronic Supplement in the MEPS original submission - *note to co-authors: this note will be deleted when we submit and we are not tracking versions prior to submitting to MEPS, so that will be version 1.0 by definition* 
+This section details the version history for static pdf files submitted as Electronic Supplement pdfs:
+
+* 1.0 [12 Aug 2022] Version included as a pdf Electronic Supplement in the MEPS original submission
 
 # Introduction
 
