@@ -3,7 +3,6 @@ title: "Initial population sizes"
 author: ""
 date:  \today
 output: 
-  pdf_document: default
   html_document:
     toc: true
     toc_float: true
@@ -11,6 +10,7 @@ output:
     toc_depth: 3
     number_sections: true
     theme: lumen
+  pdf_document: default
 urlcolor: blue
 ---
 
@@ -51,7 +51,7 @@ Roberts, J. J.; Best, B. D.; Mannocci, L.; Fujioka, E.; Halpin, P. N.; Palka, D.
 To obtain the number of animals exposed to oil (and hence the proportion of the population exposed to oil) the estimated fraction of the population based on the density surfaces that was contained in the area considered to be affected by oil was quantified. This area is shown in the image below
 
 ```{r, fig.align = 'center', out.width="80%",echo=FALSE}
-include_graphics(path = "figs/Figure1.JPG")
+include_graphics(path = "figs/Figure1.jpg")
 ```
 
 The taxonomic units considered and the corresponding codes are:
