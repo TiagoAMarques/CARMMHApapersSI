@@ -3,7 +3,6 @@ title: "Supplementary Information about Expert Elicitation"
 author: ""
 date:  \today
 output: 
-  pdf_document: default
   html_document:
     toc: true
     toc_float: true
@@ -11,6 +10,7 @@ output:
     toc_depth: 3
     number_sections: true
     theme: lumen
+  pdf_document: default
 urlcolor: blue
 ---
 
@@ -41,7 +41,13 @@ This section details the version history for static pdf files submitted as Elect
 Expert elicitation (EE) workshops were carried out to generate probabilistic distributions for parameters for which there were limited empirical information to update population models used in Deepwater Horizon (DWH) Natural Resources Damage Assessment (integrating the latest and best data sources)(DWH MMIQT, 2015). The elicitation was designed following the approach of Booth & Thomas (2021).
 Experts were chosen such that each individual had substantial knowledge on a given species group and/or the quantities of interest (see Table SI.1).  The breadth of expertise in the workshops was coordinated so that a comprehensive coverage of opinions could be achieved. As such, experts with knowledge of a wide range of cetacean taxa, their ecology and spanning the fields of population biology, demography, epidemiology, animal physiology and veterinary science were selected (following guidance from Gosling 2018; Hart et al. 2018). 
 
-Expert elicitation is a taxing mental process, even for quantitative scientists, as it is challenging for experts to express their judgements in a manner that can used to derive a probability distribution. To help mitigate this, experts participated in a webinar before the EE workshops to be familiarized with the objectives, approaches and quantities of interest to be addressed in the EE. In addition experts were asked to complete a four-part online e-learning training course (found at http://www.smruconsulting.com/products-tools/pcod/pcod-project-outputs/online-expert-elicitation-course).
+Expert elicitation is a taxing mental process, even for quantitative scientists, as it is challenging for experts to express their judgements in a manner that can used to derive a probability distribution. To help mitigate this, experts participated in a webinar before the EE workshops to be familiarized with the objectives, approaches and quantities of interest to be addressed in the EE. In addition experts were asked to complete a four-part online e-learning training course. This course can be found at:
+
+1. https://eetraining.ursinus.edu/module_1_probabilities
+2. https://eetraining.ursinus.edu/module_2_distributions
+3. https://eetraining.ursinus.edu/module_3_judgements
+4. https://eetraining.ursinus.edu/module_4_practice
+
 
 Two EE workshops were conducted. The first, on 13th-14th January 2020 focussed on eliciting parameters related to the recovery of individuals exposed to oil.  The second, on 15th-16th January 2020, focussed on eliciting parameters related to the population dynamics model, particularly density dependence.  Separate groups of experts attended each workshop (Table S1.1). Some EE outputs were also used in the population model for Barataria Bay bottlenose dolphins by Schwacke et al. (2021); further details on these parameters are given in that paper.
 
@@ -77,8 +83,6 @@ legend("topright", legend = c("BND", "sperm whale"), col = c("springgreen", "dod
 
 
 Figure S1.1 - Probability  distributions  showing  the  consensus  of  the  EE  for  the  value of density dependence  shape parameter $\rho$ for Gulf of Mexico offshore cetacean species.
-
-
  
 ## Effect of oiling on survival
 
@@ -89,7 +93,7 @@ EESplist <- read_excel("InputFiles/CARMMHA_pelagic_species_list.xlsx")
 kable(EESplist,caption = "Table S1.2 – Species groups determined via the EE workshops within CARMMHA")
 ```
 
-For each species group (Pelagic, Mesopelagic or Bathypelagic), a round of EE was conducted to generate a probabilistic distribution for the eﬀects of DWH oiling on the species survival. The following question structure was used: “What is your personal judgement of the true value for the proportional change in survival rate multiplier for this species group exposed to DWH oil?”. 
+For each species group (Pelagic, Mesopelagic or Bathypelagic), a round of EE was conducted to generate a probabilistic distribution for the eﬀects of DWH oiling on the species survival. The following question structure was used:  "What is your personal judgement of the true value for the proportional change in survival rate multiplier for this species group exposed to DWH oil?". Experts agree to provide judgments on the basis that animals are exposed to the same degree as observed in Barataria Bay bottlenose dolphins.
 
 For each group, the experts considered the possible mechanisms by which DWH oiling might affect the survival of each species group. Experts identified a series of direct and indirect mechanisms. The primary direct pathways were via respiratory effects (e.g pneumonia, pulmonary fibrosis potentially affecting dive performance and consequently foraging ability), endocrine issues (including, but not limited to, adrenal crisis, impaired stress response, energy balance and cholesterol dysregulation) and cardiac conditions (e.g. direct cardiotoxicity, anema, arrhythmia and pulmonary hypertension). In addition experts highlighted that gastrointestinal, neurological, developmental and other immune issues may be prevalent. The main indirect pathway was via effects on each species habitat and prey and experts considered the potential that animals might be displaced away from prime habitat in providing their judgements.
 Given the possible health consequences of exposure to DWH oiling and the likelihood that pulmonary and cardiac systems would be negatively affected, experts considered that cardiovascular systems of exposed animals of all groups would be impaired and dive performance (and so ability to effectively forage) could be impacted. As such the distributions for all groups indicate a reduction in survival as a consequence of DWH oiling, with increasing reduction in survival estimated for species reliant on deeper diving foraging strategies (Figure S1.2). It was considered that deep diving species would be exposed for the typically, relatively short period of time at the surface oil followed by closing alveoli before diving. Conversely, shallow divers were more likely to be frequently exposed to the surface oil for longer (with greater potential for impacts caused via aspiration of fresh oil). In addition, experts agreed that it was possible that larger cetaceans could be more severely affected by the same mass-specific dose of oil as a smaller animal due to metabolic scaling. Experts noted that oil exposure represents an additional stressor in already challenging offshore environment of the Gulf of Mexico. The broad range of the distribution represents the scientific uncertainty about the animals’ exposure and lack of data on these species.
