@@ -3,7 +3,6 @@ title: 'Model evaluation: sensitivity and elasticity analysis for pelagic taxono
 author: ""
 date: \today
 output: 
-  pdf_document: default
   html_document:
     toc: true
     toc_float: true
@@ -11,6 +10,7 @@ output:
     toc_depth: 3
     number_sections: true
     theme: lumen
+  pdf_document: default
 urlcolor: blue
 ---
 
@@ -26,9 +26,9 @@ library(knitr)
 
 This is an Electronic Supplement to the manuscript Marques et al. "Quantifying Deepwater Horizon oil spill induced injury on pelagic cetaceans" submitted to Marine Ecology Progress Series (MEPS).
 
-There are 7 Electronic Supplements to the paper. The master file containing links to all the other 6 additional Electronic Supplements related to this paper is [ES0_ElectronicSupplements](ES0_ElectronicSupplements.html). 
+There are 8 Electronic Supplements to the paper. The master file containing links to all the other 7 additional Electronic Supplements related to this paper is [ES0_ElectronicSupplements](ES0_ElectronicSupplements.html). 
 
-You might be reading this file as a pdf or as an html. The links on this file only work if you are using the html version of it, available via the github repository or if you compiled it yourself as html and you have all the 7 html files in the same folder. Otherwise, as a pdf distributed as an Electronic Supplement to the MEPS paper, the links might not work. ***They might work. If it is possible, we can work with the MEPS Editorial Office such that we can add links below that will link to actual files, say the pdfs of each of these 7 files, on the publisher server***.
+You might be reading this file as a pdf or as an html. The links on this file only work if you are using the html version of it, available via the github repository or if you compiled it yourself as html and you have all the 8 html files in the same folder. Otherwise, as a pdf distributed as an Electronic Supplement to the MEPS paper, the links might not work. ***They might work. If it is possible, we can work with the MEPS Editorial Office such that we can add links below that will link to actual files, say the pdfs of each of these 8 files, on the publisher server***.
 
 ## Version history
 
@@ -36,6 +36,7 @@ This section details the version history for static pdf files submitted as Elect
 
 * 1.0 [12 Aug 2022] Version included as a pdf Electronic Supplement in the MEPS original submission
 
+* 2.0 [10 Feb 2023] Version included as a pdf Electronic Supplement in the MEPS re-submission after 1st round of reviewer's comments
 
 # Introduction
 
@@ -49,7 +50,7 @@ We undertook two types of sensitivity analysis:
 
 * Uncertainty analysis. The aim was to determine how much the uncertainty in each input parameter influences uncertainty in the resulting injury metrics.  Each model parameter for which a distribution was available was allowed to vary by sampling from this distribution while keeping all the other parameters constant at their nominal value (i.e., the mean of their corresponding distributions).  The relative contribution of uncertainty in each input parameter to overall uncertainty in injury metrics was thereby evaluated.  This is akin to the sensitivity analysis undertaken by Schwacke et al. (2017, Supplemental Materials).
 
-* Elasticity analysis. The aim is to estimate the proportional change in the injury metrics caused by a proportional change in each model parameter. This allows us to quantify the "inherent sensitivity" of each model parameter.  Elasticity is traditionally used in the population dynamics literature (Benton & Grant 1999, Caswell 1981) to determine the proportional change in population growth rate to a proportional change in population vital rate; here we extend the concept to cover the injury metrics.
+* Elasticity analysis. The aim is to estimate the proportional change in the injury metrics caused by a proportional change in each model parameter. This allows us to quantify the "inherent sensitivity" of each model parameter.  Elasticity is traditionally used in the population dynamics literature (Benton & Grant 1999, Caswell 2006) to determine the proportional change in population growth rate to a proportional change in population vital rate; here we extend the concept to cover the injury metrics.
 
 To contrast the two, imagine two model parameters for which uncertainty on inputs produces the same moderate level of uncertainty on the estimate of an injury metric.  In one case this might be because there is considerable uncertainty on the input (i.e., the parameter is not known at all precisely) combined with low elasticity (i.e., little effect of this uncertainty on the injury metric); in the second case this might be because there is little uncertainty on the input combined with high elasticity.  Undertaking both an uncertainty and an elasticity analysis allows us to distinguish between these scenarios.
 
@@ -2574,7 +2575,7 @@ legend("bottomleft", col = c(4, 2, 1), pt.bg = c(4, 2, 1), legend = metrics, ins
 
 Benton, T. G. & Grant, A. 1999 Elasticity analysis as an important tool in evolutionary and population ecology *Trends in Ecology & Evolution*  **14**: 467-471
 
-Caswell H. 2001 *Matrix Population Models: Construction, Analysis, and Interpretation*, 2nd ed. Sinauer Associates, Inc, Sunderland, Massachusetts. 
+Caswell H. 2006 *Matrix Population Models: Construction, Analysis, and Interpretation*, 2nd ed. Sinauer Associates, Inc, Sunderland, Massachusetts. 
 
 Schwacke, L. H.; Thomas, L.; Wells, R. S.; McFee, W. E.; Hohn, A. A.; Mullin, K. D.; Zolman, E. S.; Quigley, B. M.; Rowles, T. K. & Schwacke, J. H. 2017. Quantifying injury to common bottlenose dolphins from the Deepwater Horizon oil spill using an age-, sex- and class-structured population model *Endangered Species Research* **33**: 265-279
 

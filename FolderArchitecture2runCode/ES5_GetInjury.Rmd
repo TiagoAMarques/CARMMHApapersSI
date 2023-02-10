@@ -3,6 +3,7 @@ title: "Assessing injury on GOM cetaceans"
 author: ""
 date: \today
 output: 
+  pdf_document: default
   html_document:
     toc: true
     toc_float: true
@@ -10,7 +11,6 @@ output:
     toc_depth: 3
     number_sections: true
     theme: lumen
-  pdf_document: default
 urlcolor: blue
 ---
 
@@ -27,15 +27,17 @@ options(scipen=999)
 
 This is an Electronic Supplement to the manuscript Marques et al. "Quantifying Deepwater Horizon oil spill induced injury on pelagic cetaceans" submitted to Marine Ecology Progress Series (MEPS).
 
-There are 7 Electronic Supplements to the paper. The master file containing links to all the other 6 additional Electronic Supplements related to this paper is [ES0_ElectronicSupplements](ES0_ElectronicSupplements.html). 
+There are 8 Electronic Supplements to the paper. The master file containing links to all the other 7 additional Electronic Supplements related to this paper is [ES0_ElectronicSupplements](ES0_ElectronicSupplements.html). 
 
-You might be reading this file as a pdf or as an html. The links on this file only work if you are using the html version of it, available via the github repository or if you compiled it yourself as html and you have all the 7 html files in the same folder. Otherwise, as a pdf distributed as an Electronic Supplement to the MEPS paper, the links might not work. ***They might work. If it is possible, we can work with the MEPS Editorial Office such that we can add links below that will link to actual files, say the pdfs of each of these 7 files, on the publisher server***.
+You might be reading this file as a pdf or as an html. The links on this file only work if you are using the html version of it, available via the github repository or if you compiled it yourself as html and you have all the 8 html files in the same folder. Otherwise, as a pdf distributed as an Electronic Supplement to the MEPS paper, the links might not work. ***They might work. If it is possible, we can work with the MEPS Editorial Office such that we can add links below that will link to actual files, say the pdfs of each of these 8 files, on the publisher server***.
 
 ## Version history
 
 This section details the version history for static pdf files submitted as Electronic Supplement pdfs:
 
 * 1.0 [12 Aug 2022] Version included as a pdf Electronic Supplement in the MEPS original submission
+
+* 2.0 [10 Feb 2023] Version included as a pdf Electronic Supplement in the MEPS re-submission after 1st round of reviewer's comments
 
 # Introduction
 

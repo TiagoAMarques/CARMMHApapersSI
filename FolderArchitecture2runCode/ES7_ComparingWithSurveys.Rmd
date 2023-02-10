@@ -1,0 +1,1284 @@
+---
+title: "Comparing model results with existing surveys"
+author: ""
+date:  \today
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 3
+    number_sections: true
+    theme: lumen
+  pdf_document: default
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(readxl)
+library(latex2exp)  # for tex in plot labels
+options(tinytex.verbose = TRUE)
+```
+
+
+# Preamble
+
+This is an Electronic Supplement to the manuscript Marques et al. "Quantifying Deepwater Horizon oil spill induced injury on pelagic cetaceans" submitted to Marine Ecology Progress Series (MEPS).
+
+There are 8 Electronic Supplements to the paper. The master file containing links to all the other 7 additional Electronic Supplements related to this paper is [ES0_ElectronicSupplements](ES0_ElectronicSupplements.html). 
+
+You might be reading this file as a pdf or as an html. The links on this file only work if you are using the html version of it, available via the github repository or if you compiled it yourself as html and you have all the 8 html files in the same folder. Otherwise, as a pdf distributed as an Electronic Supplement to the MEPS paper, the links might not work. ***They might work. If it is possible, we can work with the MEPS Editorial Office such that we can add links below that will link to actual files, say the pdfs of each of these 8 files, on the publisher server***.
+
+## Version history
+
+This section details the version history for static pdf files submitted as Electronic Supplement pdfs:
+
+* 1.0 [12 Aug 2022] Version included as a pdf Electronic Supplement in the MEPS original submission
+
+* 2.0 [10 Feb 2023] Version included as a pdf Electronic Supplement in the MEPS re-submission after 1st round of reviewer's comments
+
+# Introduction
+
+Here we provide a comparison with independent abundance estimates for the different taxonomic units.
+
+There were surveys from 2003, 2004 and 2009, which we averaged and consider to be representative of pre-spill abundance, and then there are surveys from 2017 and 2018, which again we averaged and assume to represent 8 years post oil spill abundance. 
+
+We then compare the reduction in population size between these survey-based empirical estimates vs the reduction observed in our simulations.
+
+# The survey data
+
+The survey data are taken out of Garrison et al. (2020, 2021), and were compiled in a .xlsx document also provided under the "InputFiles" folder.
+
+```{r}
+GOMMAPS <- read_excel("InputFiles/GOMMAPS_ABUNDANCE_ESTIMATES_forTiago.xlsx")
+```
+
+Some surveys are for a pair of years, and we recode these for visual display purposes as a single year value, the mid point between those successive years.
+
+```{r}
+GOMMAPS$Year[GOMMAPS$Year=="2011-2012"]<-"2011.5"
+GOMMAPS$Year[GOMMAPS$Year=="2017-2018"]<-"2017.5"
+GOMMAPS$Year <- as.numeric(GOMMAPS$Year)
+#get min and max year
+miny <- min(GOMMAPS$Year)
+maxy <- max(GOMMAPS$Year)
+```
+
+Here we define the rows corresponding to each taxonomic unit via their corresponding 4 letter code, since the original data file did not include the taxonomic unit 4 letter code we consider in general on other relevant material for our paper.
+
+```{r}
+#adding the species codes used in CARMMHA
+GOMMAPS$sp<-NA
+# beaked whales 
+GOMMAPS$sp[1:5]<-"Bwsp"
+# pygmy killer whale Feresa attenuata
+GOMMAPS$sp[55:59]<-"Fatt"
+# Risso's dolphin Grampus griseus
+GOMMAPS$sp[65:69]<-"Ggri"
+# short-finned pilot whale Globicephala macrorhynchus 
+GOMMAPS$sp[50:54]<-"Gmac"
+#Kogia spp.
+GOMMAPS$sp[60:64]<-"Kosp"
+# melon-headed whale Peponocephala electra
+GOMMAPS$sp[40:44]<-"Pele"
+# sperm whale Physeter macrocephalus
+GOMMAPS$sp[73:77]<-"Pmac"
+# pantropical spotted dolphin Stenella attenuata 
+GOMMAPS$sp[45:49]<-"Satt"
+# rough-toothed dolphin Steno bredanensis 
+GOMMAPS$sp[70:72]<-"Sbre"
+# Clymene dolphin Stenella clymene 
+GOMMAPS$sp[25:29]<-"Scly"
+# striped dolphin Stenella coeruleoalba 
+GOMMAPS$sp[83:87]<-"Scoe"
+# Atlantic spotted dolphin  Stenella frontalis 
+GOMMAPS$sp[6:12]<-"Sfro"
+#  spinner dolphin Stenella longirostris 
+GOMMAPS$sp[78:82]<-"Slon"
+# bottlenose dolphin Tursiops truncatus (oceanic) 
+GOMMAPS$sp[13:17]<-"Ttro"
+# bottlenose dolphin Tursiops truncatus (shelf) 
+GOMMAPS$sp[18:19]<-"Ttrs"
+#remove species not considered
+GOMMAPS<-GOMMAPS[!is.na(GOMMAPS$sp),]
+```
+
+# Comparisons by taxonomic unit
+
+Next, we produce, for each species, a plot including the abundance point estimates given the considered surveys. Further, we compute for each species the change in population size from before to after 2010, based on surveys. We refer to these as observed, noting the name is somewhat misleading since they are not really observed but estimated from empirical data, but that will contract to what we will refer to as expected, based on our simulations. We compare, on a taxonomic by taxonomic unit basis, the observed reduction with the expected reduction.
+
+To compute the observed population change
+
+## Beaked whales 
+
+```{r}
+dat <- GOMMAPS[GOMMAPS$sp=="Bwsp", ]
+with(dat, plot(Year, N, xlim=c(miny-1, maxy+1), ylim = c(0,2.5*max(dat$N))))
+abline(v=2010, lty=2)
+#adding segments to represent 95% confidence intervals
+#assuming a lognormal distribution for abundance
+for(i in 1:nrow(dat)){
+  m <- dat$N[i]
+  s <- dat$SE[i]
+  data_set <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  qts<-quantile(data_set,probs=c(0.025,0.975))
+  segments(x0=dat$Year[i],x1=dat$Year[i],y0=qts[1],y1=qts[2])
+}
+```
+
+We can calculate the reduction from before to after, generating means from before and after
+
+```{r}
+m <- dat$N[1]
+s <- dat$SE[1]
+data_set1 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+m <- dat$N[2]
+s <- dat$SE[2]
+data_set2 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  
+m <- dat$N[3]
+s <- dat$SE[3]
+data_set3 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+m <- dat$N[4]
+s <- dat$SE[4]
+data_set4 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+m <- dat$N[5]
+s <- dat$SE[5]
+data_set5 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+# after to before ratio - i.e. a reduction factor
+# if <1 means a decrease, if >1 means an increase
+redBwsp <- ((data_set4+data_set5)/2)/((data_set1+data_set2+data_set3)/3)
+#mean empirical observed reduction (O)
+meanRedsO <- mean(redBwsp)
+#quantiles for 95% IC
+q025RedsO <- quantile(redBwsp,0.025)
+q975RedsO <- quantile(redBwsp,0.975)
+#boxplot(redBwsp)
+```
+
+Therefore, given the surveys, there was actually an increase in the abundance of beaked whales in the area of `r round(meanRedsO,3)`, with a 95% confidence interval of (`r round(q025RedsO,3)`,`r round(q975RedsO,3)`). This means there is large uncertainty over what was the evolution of the population, which could have been anywhere from a severe decrease to a large increase.
+
+```{r}
+load("InOutBySp/Beaked_whales/Bwspsimres10000Sim.RData")
+#the sum of all age classes, for year 8, for each simulation, divided by the same quantity, for year 1
+RedsS <- apply(simres[,8,1:10000,1],2,sum)/apply(simres[,1,1:10000,1],2,sum)
+#mean simulated reduction (S)
+meanRedsS<-mean(RedsS)
+#quantiles for 95% IC
+q025RedsS <- quantile(RedsS,0.025)
+q975RedsS <- quantile(RedsS,0.975)
+```
+
+On the other hand, based on our simulations, we obtain the following reduction factor: `r round(meanRedsS,3)`, with a 95% confidence interval of (`r round(q025RedsS,3)`,`r round(q975RedsS,3)`). A comparison of these mean values and corresponding 95% confidence intervals is shown in the figure below. Values above the horizontal line actually correspond to population increases.
+
+```{r}
+plot(x=c(0.5,2.5),y=c(0,3),type="n",xlab="Period",ylab="Reduction",xaxt="n")
+axis(1,at=1:2,labels=c("Observed","Simulated"))
+points(1,meanRedsO)
+segments(x0=1,x1=1,y0=q025RedsO,y1=q975RedsO)
+points(2,meanRedsS)
+segments(x0=2,x1=2,y0=q025RedsS,y1=q975RedsS)
+abline(h=1, lty=2,col="grey")
+```
+
+While the reduction factor based on the empirical data from the surveys and that from the simulations are not inconsistent, the truth is the precision associated with these, most especially the large variance in the survey data, would not allow us to find anything but astronomical differences. 
+
+## Pygmy killer whale $Feresa~attenuata$
+
+```{r,eval=FALSE}
+dat <-GOMMAPS[GOMMAPS$sp=="Fatt",] 
+with(dat,plot(Year,N,xlim=c(miny-1,maxy+1), ylim = c(0,2.5*max(dat$N))))
+abline(v=2010,lty=2)
+#adding segments to represent 95% confidence intervals
+#assuming a lognormal distribution for abundance
+for(i in 1:nrow(dat)){
+  m <- dat$N[i]
+  s <- dat$SE[i]
+  if (m==0) next
+  data_set <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  qts<-quantile(data_set,probs=c(0.025,0.975))
+  segments(x0=dat$Year[i],x1=dat$Year[i],y0=qts[1],y1=qts[2])
+}
+```
+
+We can calculate the reduction from before to after, generating means from before and after
+
+```{r}
+m <- dat$N[1]
+s <- dat$SE[1]
+data_set1 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+m <- dat$N[2]
+s <- dat$SE[2]
+data_set2 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  
+m <- dat$N[3]
+s <- dat$SE[3]
+data_set3 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+m <- dat$N[4]
+s <- dat$SE[4]
+data_set4 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+
+
+redFatt <- ((data_set4+data_set5)/2)/((data_set1+data_set2+data_set3)/3)
+#mean empirical observed reduction (O)
+meanRedsO <- mean(redFatt)
+#quantiles for 95% IC
+q025RedsO <- quantile(redFatt,0.025)
+q975RedsO <- quantile(redFatt,0.975)
+#boxplot(redBwsp)
+```
+
+Therefore, given the surveys, there was actually an increase in the abundance of beaked whales in the area of `r round(meanRedsO,3)`, with a 95% confidence interval of (`r round(q025RedsO,3)`,`r round(q975RedsO,3)`). This means there is large uncertainty over what was the evolution of the population, which could have been anywhere from a severe decrease to a large increase.
+
+```{r}
+load("InOutBySp/Pygmy_killer_whale/Fattsimres10000Sim.RData")
+#the sum of all age classes, for year 8, for each simulation, divided by the same quantity, for year 1
+RedsS <- apply(simres[,8,1:10000,1],2,sum)/apply(simres[,1,1:10000,1],2,sum)
+#mean simulated reduction (S)
+meanRedsS<-mean(RedsS)
+#quantiles for 95% IC
+q025RedsS <- quantile(RedsS,0.025)
+q975RedsS <- quantile(RedsS,0.975)
+```
+
+On the other hand, based on our simulations, we obtain the following reduction factor: `r round(meanRedsS,3)`, with a 95% confidence interval of (`r round(q025RedsS,3)`,`r round(q975RedsS,3)`). A comparison of these mean values and corresponding 95% confidence intervals is shown in the figure below.
+
+```{r}
+plot(x=c(0.5,2.5),y=c(0,8),type="n",xlab="Period",ylab="Before to After Ratio",xaxt="n")
+axis(1,at=1:2,labels=c("Observed","Simulated"))
+points(1,meanRedsO)
+segments(x0=1,x1=1,y0=q025RedsO,y1=q975RedsO)
+points(2,meanRedsS)
+segments(x0=2,x1=2,y0=q025RedsS,y1=q975RedsS)
+abline(h=1, lty=2,col="grey")
+```
+
+While the reduction factor based on the empirical data from the surveys and that from the simulations are not inconsistent, the truth is the precision associated with these, most especially the large variance in the survey data, would not allow us to find anything but astronomical differences. 
+
+
+## Risso's dolphin $Grampus~griseus$
+
+```{r}
+dat <-GOMMAPS[GOMMAPS$sp=="Ggri",] 
+with(dat,plot(Year,N,xlim=c(miny-1,maxy+1), ylim = c(0,2.8*max(dat$N))))
+abline(v=2010,lty=2)
+#adding segments to represent 95% confidence intervals
+#assuming a lognormal distribution for abundance
+for(i in 1:nrow(dat)){
+  m <- dat$N[i]
+  s <- dat$SE[i]
+  data_set <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  qts<-quantile(data_set,probs=c(0.025,0.975))
+  segments(x0=dat$Year[i],x1=dat$Year[i],y0=qts[1],y1=qts[2])
+}
+```
+
+We can calculate the reduction from before to after, generating means from before and after
+
+```{r}
+m <- dat$N[1]
+s <- dat$SE[1]
+data_set1 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+m <- dat$N[2]
+s <- dat$SE[2]
+data_set2 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  
+m <- dat$N[3]
+s <- dat$SE[3]
+data_set3 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+m <- dat$N[4]
+s <- dat$SE[4]
+data_set4 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+m <- dat$N[5]
+s <- dat$SE[5]
+data_set5 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+redGgri <- ((data_set4+data_set5)/2)/((data_set1+data_set2+data_set3)/3)
+#mean empirical observed reduction (O)
+meanRedsO <- mean(redGgri)
+#quantiles for 95% IC
+q025RedsO <- quantile(redGgri,0.025)
+q975RedsO <- quantile(redGgri,0.975)
+#boxplot(redBwsp)
+```
+
+Based on the  surveys there seems to have been a decrease on the abundance of Rissos's dolphin of `r round(meanRedsO,3)`, 95% confidence interval of (`r round(q025RedsO,3)`,`r round(q975RedsO,3)`). 
+
+```{r}
+load("InOutBySp/Rissos_dolphin/Ggrisimres10000Sim.RData")
+#the sum of all age classes, for year 8, for each simulation, divided by the same quantity, for year 1
+RedsS <- apply(simres[,8,1:10000,1],2,sum)/apply(simres[,1,1:10000,1],2,sum)
+#mean simulated reduction (S)
+meanRedsS<-mean(RedsS)
+#quantiles for 95% IC
+q025RedsS <- quantile(RedsS,0.025)
+q975RedsS <- quantile(RedsS,0.975)
+```
+
+On the other hand, based on our simulations, we obtain the following reduction factor: `r round(meanRedsS,3)`, with a 95% confidence interval of (`r round(q025RedsS,3)`,`r round(q975RedsS,3)`). A comparison of these mean values and corresponding 95% confidence intervals is shown in the figure below.
+
+```{r}
+plot(x=c(0.5,2.5),y=c(0,3),type="n",xlab="Period",ylab="Reduction",xaxt="n")
+axis(1,at=1:2,labels=c("Observed","Simulated"))
+points(1,meanRedsO)
+segments(x0=1,x1=1,y0=q025RedsO,y1=q975RedsO)
+points(2,meanRedsS)
+segments(x0=2,x1=2,y0=q025RedsS,y1=q975RedsS)
+abline(h=1, lty=2,col="grey")
+```
+
+The reduction factors based on the empirical data from the surveys and that from the simulations are not inconsistent.
+
+## Short-finned pilot whale $Globicephala~macrorhynchus$ 
+
+```{r}
+dat <-GOMMAPS[GOMMAPS$sp=="Gmac",] 
+with(dat,plot(Year,N,xlim=c(miny-1,maxy+1), ylim = c(0,2.5*max(dat$N))))
+abline(v=2010,lty=2)
+#adding segments to represent 95% confidence intervals
+#assuming a lognormal distribution for abundance
+for(i in 1:nrow(dat)){
+  m <- dat$N[i]
+  s <- dat$SE[i]
+  data_set <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  qts<-quantile(data_set,probs=c(0.025,0.975))
+  segments(x0=dat$Year[i],x1=dat$Year[i],y0=qts[1],y1=qts[2])
+}
+```
+
+We can calculate the reduction from before to after, generating means from before and after
+
+```{r}
+m <- dat$N[1]
+s <- dat$SE[1]
+data_set1 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+m <- dat$N[2]
+s <- dat$SE[2]
+data_set2 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  
+m <- dat$N[3]
+s <- dat$SE[3]
+data_set3 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+m <- dat$N[4]
+s <- dat$SE[4]
+data_set4 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+m <- dat$N[5]
+s <- dat$SE[5]
+data_set5 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+redGmac <- ((data_set4+data_set5)/2)/((data_set1+data_set2+data_set3)/3)
+#mean empirical observed reduction (O)
+meanRedsO <- mean(redGmac)
+#quantiles for 95% IC
+q025RedsO <- quantile(redGmac,0.025)
+q975RedsO <- quantile(redGmac,0.975)
+#boxplot(redBwsp)
+```
+
+
+Based on the  surveys there seems to have been a decrease on the abundance of pilot whales of `r round(meanRedsO,3)`, 95% confidence interval of (`r round(q025RedsO,3)`,`r round(q975RedsO,3)`). 
+
+```{r}
+load("InOutBySp/Pilot_whales/Gmacsimres10000Sim.RData")
+#the sum of all age classes, for year 8, for each simulation, divided by the same quantity, for year 1
+RedsS <- apply(simres[,8,1:10000,1],2,sum)/apply(simres[,1,1:10000,1],2,sum)
+#mean simulated reduction (S)
+meanRedsS<-mean(RedsS)
+#quantiles for 95% IC
+q025RedsS <- quantile(RedsS,0.025)
+q975RedsS <- quantile(RedsS,0.975)
+```
+
+On the other hand, based on our simulations, we obtain the following reduction factor: `r round(meanRedsS,3)`, with a 95% confidence interval of (`r round(q025RedsS,3)`,`r round(q975RedsS,3)`). A comparison of these mean values and corresponding 95% confidence intervals is shown in the figure below. Values above the horizontal line actually correspond to population increases.
+
+```{r}
+plot(x=c(0.5,2.5),y=c(0,3),type="n",xlab="Period",ylab="Reduction",xaxt="n")
+axis(1,at=1:2,labels=c("Observed","Simulated"))
+points(1,meanRedsO)
+segments(x0=1,x1=1,y0=q025RedsO,y1=q975RedsO)
+points(2,meanRedsS)
+segments(x0=2,x1=2,y0=q025RedsS,y1=q975RedsS)
+abline(h=1, lty=2,col="grey")
+```
+
+While the reduction factor based on the empirical data from the surveys and that from the simulations are not inconsistent, the truth is the precision associated with these, most especially the large variance in the survey data, would not allow us to find anything but astronomical differences. 
+
+## Kogia spp.
+
+```{r}
+dat <-GOMMAPS[GOMMAPS$sp=="Kosp",] 
+with(dat,plot(Year,N,xlim=c(miny-1,maxy+1), ylim = c(0,2.5*max(dat$N))))
+abline(v=2010,lty=2)
+#adding segments to represent 95% confidence intervals
+#assuming a lognormal distribution for abundance
+for(i in 1:nrow(dat)){
+  m <- dat$N[i]
+  s <- dat$SE[i]
+  data_set <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  qts<-quantile(data_set,probs=c(0.025,0.975))
+  segments(x0=dat$Year[i],x1=dat$Year[i],y0=qts[1],y1=qts[2])
+}
+```
+
+We can calculate the reduction from before to after, generating means from before and after
+
+```{r}
+m <- dat$N[1]
+s <- dat$SE[1]
+data_set1 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+m <- dat$N[2]
+s <- dat$SE[2]
+data_set2 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  
+m <- dat$N[3]
+s <- dat$SE[3]
+data_set3 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+m <- dat$N[4]
+s <- dat$SE[4]
+data_set4 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+m <- dat$N[5]
+s <- dat$SE[5]
+data_set5 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+redKosp <- ((data_set4+data_set5)/2)/((data_set1+data_set2+data_set3)/3)
+#mean empirical observed reduction (O)
+meanRedsO <- mean(redKosp)
+#quantiles for 95% IC
+q025RedsO <- quantile(redKosp,0.025)
+q975RedsO <- quantile(redKosp,0.975)
+#boxplot(redBwsp)
+```
+
+Based on the  surveys there seems to have been an increase on the abundance of Kogia whales of `r round(meanRedsO,3)`, 95% confidence interval of (`r round(q025RedsO,3)`,`r round(q975RedsO,3)`). 
+
+```{r}
+load("InOutBySp/Kogia_whales/Kospsimres10000Sim.RData")
+#the sum of all age classes, for year 8, for each simulation, divided by the same quantity, for year 1
+RedsS <- apply(simres[,8,1:10000,1],2,sum)/apply(simres[,1,1:10000,1],2,sum)
+#mean simulated reduction (S)
+meanRedsS<-mean(RedsS)
+#quantiles for 95% IC
+q025RedsS <- quantile(RedsS,0.025)
+q975RedsS <- quantile(RedsS,0.975)
+```
+
+On the other hand, based on our simulations, we obtain the following reduction factor: `r round(meanRedsS,3)`, with a 95% confidence interval of (`r round(q025RedsS,3)`,`r round(q975RedsS,3)`). A comparison of these mean values and corresponding 95% confidence intervals is shown in the figure below.
+
+```{r}
+plot(x=c(0.5,2.5),y=c(0,3),type="n",xlab="Period",ylab="Reduction",xaxt="n")
+axis(1,at=1:2,labels=c("Observed","Simulated"))
+points(1,meanRedsO)
+segments(x0=1,x1=1,y0=q025RedsO,y1=q975RedsO)
+points(2,meanRedsS)
+segments(x0=2,x1=2,y0=q025RedsS,y1=q975RedsS)
+abline(h=1, lty=2,col="grey")
+```
+
+The reduction factors based on the empirical data from the surveys and that from the simulations are not inconsistent.
+
+## Melon-headed whale $Peponocephala~electra$
+
+```{r}
+dat <-GOMMAPS[GOMMAPS$sp=="Pele",] 
+with(dat,plot(Year,N,xlim=c(miny-1,maxy+1), ylim = c(0,2.5*max(dat$N))))
+abline(v=2010,lty=2)
+#adding segments to represent 95% confidence intervals
+#assuming a lognormal distribution for abundance
+for(i in 1:nrow(dat)){
+  m <- dat$N[i]
+  s <- dat$SE[i]
+  data_set <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  qts<-quantile(data_set,probs=c(0.025,0.975))
+  segments(x0=dat$Year[i],x1=dat$Year[i],y0=qts[1],y1=qts[2])
+}
+```
+
+We can calculate the reduction from before to after, generating means from before and after
+
+```{r}
+m <- dat$N[1]
+s <- dat$SE[1]
+data_set1 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+m <- dat$N[2]
+s <- dat$SE[2]
+data_set2 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  
+m <- dat$N[3]
+s <- dat$SE[3]
+data_set3 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+m <- dat$N[4]
+s <- dat$SE[4]
+data_set4 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+m <- dat$N[5]
+s <- dat$SE[5]
+data_set5 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+redPele <- ((data_set4+data_set5)/2)/((data_set1+data_set2+data_set3)/3)
+#mean empirical observed reduction (O)
+meanRedsO <- mean(redPele)
+#quantiles for 95% IC
+q025RedsO <- quantile(redPele,0.025)
+q975RedsO <- quantile(redPele,0.975)
+#boxplot(redBwsp)
+```
+
+Based on the  surveys there seems to have been a decrease on the abundance of Kogia whales of `r round(meanRedsO,3)`, 95% confidence interval of (`r round(q025RedsO,3)`,`r round(q975RedsO,3)`). 
+
+```{r}
+load("InOutBySp/Melon-headed_whale/Pelesimres10000Sim.RData")
+#the sum of all age classes, for year 8, for each simulation, divided by the same quantity, for year 1
+RedsS <- apply(simres[,8,1:10000,1],2,sum)/apply(simres[,1,1:10000,1],2,sum)
+#mean simulated reduction (S)
+meanRedsS<-mean(RedsS)
+#quantiles for 95% IC
+q025RedsS <- quantile(RedsS,0.025)
+q975RedsS <- quantile(RedsS,0.975)
+```
+
+On the other hand, based on our simulations, we obtain the following reduction factor: `r round(meanRedsS,3)`, with a 95% confidence interval of (`r round(q025RedsS,3)`,`r round(q975RedsS,3)`). A comparison of these mean values and corresponding 95% confidence intervals is shown in the figure below.
+
+```{r}
+plot(x=c(0.5,2.5),y=c(0,3),type="n",xlab="Period",ylab="Reduction",xaxt="n")
+axis(1,at=1:2,labels=c("Observed","Simulated"))
+points(1,meanRedsO)
+segments(x0=1,x1=1,y0=q025RedsO,y1=q975RedsO)
+points(2,meanRedsS)
+segments(x0=2,x1=2,y0=q025RedsS,y1=q975RedsS)
+abline(h=1, lty=2,col="grey")
+```
+
+The reduction factors based on the empirical data from the surveys and that from the simulations are not inconsistent.
+
+## Sperm whale $Physeter~macrocephalus$
+
+```{r}
+dat <-GOMMAPS[GOMMAPS$sp=="Pmac",] 
+with(dat,plot(Year,N,xlim=c(miny-1,maxy+1), ylim = c(0,2.5*max(dat$N))))
+abline(v=2010,lty=2)
+#adding segments to represent 95% confidence intervals
+#assuming a lognormal distribution for abundance
+for(i in 1:nrow(dat)){
+  m <- dat$N[i]
+  s <- dat$SE[i]
+  data_set <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  qts<-quantile(data_set,probs=c(0.025,0.975))
+  segments(x0=dat$Year[i],x1=dat$Year[i],y0=qts[1],y1=qts[2])
+}
+```
+
+
+We can calculate the reduction from before to after, generating means from before and after
+
+```{r}
+m <- dat$N[1]
+s <- dat$SE[1]
+data_set1 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+m <- dat$N[2]
+s <- dat$SE[2]
+data_set2 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  
+m <- dat$N[3]
+s <- dat$SE[3]
+data_set3 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+m <- dat$N[4]
+s <- dat$SE[4]
+data_set4 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+m <- dat$N[5]
+s <- dat$SE[5]
+data_set5 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+redPmac <- ((data_set4+data_set5)/2)/((data_set1+data_set2+data_set3)/3)
+#mean empirical observed reduction (O)
+meanRedsO <- mean(redPmac)
+#quantiles for 95% IC
+q025RedsO <- quantile(redPmac,0.025)
+q975RedsO <- quantile(redPmac,0.975)
+#boxplot(redBwsp)
+```
+
+Based on the  surveys there seems to have been a decrease on the abundance of Kogia whales of `r round(meanRedsO,3)`, 95% confidence interval of (`r round(q025RedsO,3)`,`r round(q975RedsO,3)`). 
+
+```{r}
+load("InOutBySp/Sperm_whale/Pmacsimres10000Sim.RData")
+#the sum of all age classes, for year 8, for each simulation, divided by the same quantity, for year 1
+RedsS <- apply(simres[,8,1:10000,1],2,sum)/apply(simres[,1,1:10000,1],2,sum)
+#mean simulated reduction (S)
+meanRedsS<-mean(RedsS)
+#quantiles for 95% IC
+q025RedsS <- quantile(RedsS,0.025)
+q975RedsS <- quantile(RedsS,0.975)
+```
+
+On the other hand, based on our simulations, we obtain the following reduction factor: `r round(meanRedsS,3)`, with a 95% confidence interval of (`r round(q025RedsS,3)`,`r round(q975RedsS,3)`). A comparison of these mean values and corresponding 95% confidence intervals is shown in the figure below.
+
+```{r}
+plot(x=c(0.5,2.5),y=c(0,3),type="n",xlab="Period",ylab="Reduction",xaxt="n")
+axis(1,at=1:2,labels=c("Observed","Simulated"))
+points(1,meanRedsO)
+segments(x0=1,x1=1,y0=q025RedsO,y1=q975RedsO)
+points(2,meanRedsS)
+segments(x0=2,x1=2,y0=q025RedsS,y1=q975RedsS)
+abline(h=1, lty=2,col="grey")
+```
+
+The reduction factors based on the empirical data from the surveys and that from the simulations are not inconsistent.
+
+
+## Pantropical spotted dolphin $Stenella~attenuata$ 
+
+```{r}
+dat <-GOMMAPS[GOMMAPS$sp=="Satt",] 
+with(dat,plot(Year,N,xlim=c(miny-1,maxy+1), ylim = c(0,2.5*max(dat$N))))
+abline(v=2010,lty=2)
+#adding segments to represent 95% confidence intervals
+#assuming a lognormal distribution for abundance
+for(i in 1:nrow(dat)){
+  m <- dat$N[i]
+  s <- dat$SE[i]
+  data_set <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  qts<-quantile(data_set,probs=c(0.025,0.975))
+  segments(x0=dat$Year[i],x1=dat$Year[i],y0=qts[1],y1=qts[2])
+}
+```
+
+
+We can calculate the reduction from before to after, generating means from before and after
+
+```{r}
+m <- dat$N[1]
+s <- dat$SE[1]
+data_set1 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+m <- dat$N[2]
+s <- dat$SE[2]
+data_set2 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  
+m <- dat$N[3]
+s <- dat$SE[3]
+data_set3 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+m <- dat$N[4]
+s <- dat$SE[4]
+data_set4 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+m <- dat$N[5]
+s <- dat$SE[5]
+data_set5 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+redSatt <- ((data_set4+data_set5)/2)/((data_set1+data_set2+data_set3)/3)
+#mean empirical observed reduction (O)
+meanRedsO <- mean(redSatt)
+#quantiles for 95% IC
+q025RedsO <- quantile(redSatt,0.025)
+q975RedsO <- quantile(redSatt,0.975)
+```
+
+Based on the  surveys there seems to have been a decrease on the abundance of Kogia whales of `r round(meanRedsO,3)`, 95% confidence interval of (`r round(q025RedsO,3)`,`r round(q975RedsO,3)`). 
+
+```{r}
+load("InOutBySp/Pantropical_spotted_dolphin/Sattsimres10000Sim.RData")
+#the sum of all age classes, for year 8, for each simulation, divided by the same quantity, for year 1
+RedsS <- apply(simres[,8,1:10000,1],2,sum)/apply(simres[,1,1:10000,1],2,sum)
+#mean simulated reduction (S)
+meanRedsS<-mean(RedsS)
+#quantiles for 95% IC
+q025RedsS <- quantile(RedsS,0.025)
+q975RedsS <- quantile(RedsS,0.975)
+```
+
+On the other hand, based on our simulations, we obtain the following reduction factor: `r round(meanRedsS,3)`, with a 95% confidence interval of (`r round(q025RedsS,3)`,`r round(q975RedsS,3)`). A comparison of these mean values and corresponding 95% confidence intervals is shown in the figure below.
+
+```{r}
+plot(x=c(0.5,2.5),y=c(0,3),type="n",xlab="Period",ylab="Reduction",xaxt="n")
+axis(1,at=1:2,labels=c("Observed","Simulated"))
+points(1,meanRedsO)
+segments(x0=1,x1=1,y0=q025RedsO,y1=q975RedsO)
+points(2,meanRedsS)
+segments(x0=2,x1=2,y0=q025RedsS,y1=q975RedsS)
+abline(h=1, lty=2,col="grey")
+```
+
+The reduction factors based on the empirical data from the surveys and that from the simulations are not inconsistent.
+
+
+
+## Rough-toothed dolphin $Steno~bredanensis$ 
+
+```{r}
+dat <-GOMMAPS[GOMMAPS$sp=="Sbre",] 
+with(dat,plot(Year,N,xlim=c(miny-1,maxy+1), ylim = c(0,2.5*max(dat$N))))
+abline(v=2010,lty=2)
+#adding segments to represent 95% confidence intervals
+#assuming a lognormal distribution for abundance
+for(i in 1:nrow(dat)){
+  m <- dat$N[i]
+  s <- dat$SE[i]
+  if (m==0) next 
+  data_set <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  qts<-quantile(data_set,probs=c(0.025,0.975))
+  segments(x0=dat$Year[i],x1=dat$Year[i],y0=qts[1],y1=qts[2])
+}
+```
+
+We do not present estimates of empirical reduction since there are no non-zero estimates for the post oil-spill period.
+
+## Clymene dolphin $Stenella~clymene$ 
+
+```{r}
+dat <-GOMMAPS[GOMMAPS$sp=="Scly",] 
+with(dat,plot(Year,N,xlim=c(miny-1,maxy+1), ylim = c(0,2.5*max(dat$N))))
+abline(v=2010,lty=2)
+#adding segments to represent 95% confidence intervals
+#assuming a lognormal distribution for abundance
+for(i in 1:nrow(dat)){
+  m <- dat$N[i]
+  s <- dat$SE[i]
+  if (m==0) next 
+  data_set <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  qts<-quantile(data_set,probs=c(0.025,0.975))
+  segments(x0=dat$Year[i],x1=dat$Year[i],y0=qts[1],y1=qts[2])
+}
+```
+
+We can calculate the reduction from before to after, generating means from before and after
+
+```{r}
+m <- dat$N[1]
+s <- dat$SE[1]
+data_set1 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+m <- dat$N[2]
+s <- dat$SE[2]
+data_set2 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  
+m <- dat$N[3]
+s <- dat$SE[3]
+data_set3 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+m <- dat$N[4]
+s <- dat$SE[4]
+data_set4 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+redScly <- ((data_set4+0)/2)/((data_set1+data_set2+data_set3)/3)
+#mean empirical observed reduction (O)
+meanRedsO <- mean(redScly)
+#quantiles for 95% IC
+q025RedsO <- quantile(redScly,0.025)
+q975RedsO <- quantile(redScly,0.975)
+```
+
+Based on the  surveys there seems to have been a decrease on the abundance of Kogia whales of `r round(meanRedsO,3)`, 95% confidence interval of (`r round(q025RedsO,3)`,`r round(q975RedsO,3)`). 
+
+```{r}
+load("InOutBySp/Clymene_dolphin/Sclysimres10000Sim.RData")
+#the sum of all age classes, for year 8, for each simulation, divided by the same quantity, for year 1
+RedsS <- apply(simres[,8,1:10000,1],2,sum)/apply(simres[,1,1:10000,1],2,sum)
+#mean simulated reduction (S)
+meanRedsS<-mean(RedsS)
+#quantiles for 95% IC
+q025RedsS <- quantile(RedsS,0.025)
+q975RedsS <- quantile(RedsS,0.975)
+```
+
+On the other hand, based on our simulations, we obtain the following reduction factor: `r round(meanRedsS,3)`, with a 95% confidence interval of (`r round(q025RedsS,3)`,`r round(q975RedsS,3)`). A comparison of these mean values and corresponding 95% confidence intervals is shown in the figure below.
+
+```{r}
+plot(x=c(0.5,2.5),y=c(0,3),type="n",xlab="Period",ylab="Reduction",xaxt="n")
+axis(1,at=1:2,labels=c("Observed","Simulated"))
+points(1,meanRedsO)
+segments(x0=1,x1=1,y0=q025RedsO,y1=q975RedsO)
+points(2,meanRedsS)
+segments(x0=2,x1=2,y0=q025RedsS,y1=q975RedsS)
+abline(h=1, lty=2,col="grey")
+```
+
+For the Clymene dolphin, the reduction factors estimated from the simulations seems to be considerably less severe than that observed empirically from the survey data.
+
+## Striped dolphin $Stenella~coeruleoalba$ 
+
+```{r}
+dat <-GOMMAPS[GOMMAPS$sp=="Scoe",] 
+with(dat,plot(Year,N,xlim=c(miny-1,maxy+1), ylim = c(0,2.5*max(dat$N))))
+abline(v=2010,lty=2)
+#adding segments to represent 95% confidence intervals
+#assuming a lognormal distribution for abundance
+for(i in 1:nrow(dat)){
+  m <- dat$N[i]
+  s <- dat$SE[i]
+    if (m==0) next 
+  data_set <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  qts<-quantile(data_set,probs=c(0.025,0.975))
+  segments(x0=dat$Year[i],x1=dat$Year[i],y0=qts[1],y1=qts[2])
+}
+```
+
+
+We can calculate the reduction from before to after, generating means from before and after
+
+```{r}
+m <- dat$N[1]
+s <- dat$SE[1]
+data_set1 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+m <- dat$N[2]
+s <- dat$SE[2]
+data_set2 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  
+m <- dat$N[3]
+s <- dat$SE[3]
+data_set3 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+m <- dat$N[5]
+s <- dat$SE[5]
+data_set5 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+redScoe <- ((0+data_set5)/2)/((data_set1+data_set2+data_set3)/3)
+#mean empirical observed reduction (O)
+meanRedsO <- mean(redScoe)
+#quantiles for 95% IC
+q025RedsO <- quantile(redScoe,0.025)
+q975RedsO <- quantile(redScoe,0.975)
+```
+
+Based on the  surveys there seems to have been a decrease on the abundance of Kogia whales of `r round(meanRedsO,3)`, 95% confidence interval of (`r round(q025RedsO,3)`,`r round(q975RedsO,3)`). 
+
+```{r}
+load("InOutBySp/Striped_dolphin/Scoesimres10000Sim.RData")
+#the sum of all age classes, for year 8, for each simulation, divided by the same quantity, for year 1
+RedsS <- apply(simres[,8,1:10000,1],2,sum)/apply(simres[,1,1:10000,1],2,sum)
+#mean simulated reduction (S)
+meanRedsS<-mean(RedsS)
+#quantiles for 95% IC
+q025RedsS <- quantile(RedsS,0.025)
+q975RedsS <- quantile(RedsS,0.975)
+```
+
+On the other hand, based on our simulations, we obtain the following reduction factor: `r round(meanRedsS,3)`, with a 95% confidence interval of (`r round(q025RedsS,3)`,`r round(q975RedsS,3)`). A comparison of these mean values and corresponding 95% confidence intervals is shown in the figure below.
+
+```{r}
+plot(x=c(0.5,2.5),y=c(0,3),type="n",xlab="Period",ylab="Reduction",xaxt="n")
+axis(1,at=1:2,labels=c("Observed","Simulated"))
+points(1,meanRedsO)
+segments(x0=1,x1=1,y0=q025RedsO,y1=q975RedsO)
+points(2,meanRedsS)
+segments(x0=2,x1=2,y0=q025RedsS,y1=q975RedsS)
+abline(h=1, lty=2,col="grey")
+```
+
+As for the Clymene dolphin, also for the striped dolphin the reduction factors estimated from the simulations seems to be considerably less severe than that observed empirically from the survey data.
+
+## Atlantic spotted dolphin $Stenella frontalis$ 
+
+```{r}
+dat <-GOMMAPS[GOMMAPS$sp=="Sfro",] 
+with(dat,plot(Year,N,xlim=c(miny-1,maxy+1), ylim = c(0,2.5*max(dat$N))))
+abline(v=2010,lty=2)
+#adding segments to represent 95% confidence intervals
+#assuming a lognormal distribution for abundance
+for(i in 1:nrow(dat)){
+  m <- dat$N[i]
+  s <- dat$SE[i]
+  if (m==0) next
+  data_set <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  qts<-quantile(data_set,probs=c(0.025,0.975))
+  segments(x0=dat$Year[i],x1=dat$Year[i],y0=qts[1],y1=qts[2])
+}
+```
+
+For these animals, the surveys in 2003, 2004, 2009, 2017 and 2018 were vessel surveys targeting oceanic animals, while in 2011-2012 and 2017-2018 there were aerial surveys targeting shelf animals. We ignored surveys before 2009, when the species was not detected. We assume that the surveys from the 2009 for oceanic summed summed with the 2011-2012 for shelf combined provide a best guess for the pre-spill population estimate, while the surveys for 2017 and 2018 for oceanic summed to those for 2017-2018 for shelf provide an estimate of the post spill population.
+
+Given that, we can calculate the reduction from before to after, generating means from before and after
+
+```{r}
+m <- dat$N[3]
+s <- dat$SE[3]
+data_set3 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+m <- dat$N[4]
+s <- dat$SE[4]
+data_set4 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  
+m <- dat$N[5]
+s <- dat$SE[5]
+data_set5 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+m <- dat$N[6]
+s <- dat$SE[6]
+data_set6 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+m <- dat$N[7]
+s <- dat$SE[7]
+data_set7 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+redSfro <- (((data_set4+data_set5)/2+data_set7)/2)/((data_set3+data_set6)/2)
+#mean empirical observed reduction (O)
+meanRedsO <- mean(redSfro)
+#quantiles for 95% IC
+q025RedsO <- quantile(redSfro,0.025)
+q975RedsO <- quantile(redSfro,0.975)
+```
+
+Based on the  surveys there seems to have been a decrease on the abundance of Kogia whales of `r round(meanRedsO,3)`, 95% confidence interval of (`r round(q025RedsO,3)`,`r round(q975RedsO,3)`). 
+
+```{r}
+load("InOutBySp/Atlantic_spotted_dolphin/Sfrosimres10000Sim.RData")
+#the sum of all age classes, for year 8, for each simulation, divided by the same quantity, for year 1
+RedsS <- apply(simres[,8,1:10000,1],2,sum)/apply(simres[,1,1:10000,1],2,sum)
+#mean simulated reduction (S)
+meanRedsS<-mean(RedsS)
+#quantiles for 95% IC
+q025RedsS <- quantile(RedsS,0.025)
+q975RedsS <- quantile(RedsS,0.975)
+```
+
+On the other hand, based on our simulations, we obtain the following reduction factor: `r round(meanRedsS,3)`, with a 95% confidence interval of (`r round(q025RedsS,3)`,`r round(q975RedsS,3)`). A comparison of these mean values and corresponding 95% confidence intervals is shown in the figure below.
+
+```{r}
+plot(x=c(0.5,2.5),y=c(0,3),type="n",xlab="Period",ylab="Reduction",xaxt="n")
+axis(1,at=1:2,labels=c("Observed","Simulated"))
+points(1,meanRedsO)
+segments(x0=1,x1=1,y0=q025RedsO,y1=q975RedsO)
+points(2,meanRedsS)
+segments(x0=2,x1=2,y0=q025RedsS,y1=q975RedsS)
+abline(h=1, lty=2,col="grey")
+```
+
+For the Atlantic spotted dolphin the wide variability in the survey reduction factor, with a point estimate even suggesting a population increase might have occurred, means the simulated reduction factor is not at odds with the empirical data.
+
+## Spinner dolphin $Stenella~longirostris$ 
+
+```{r}
+dat <-GOMMAPS[GOMMAPS$sp=="Slon",] 
+with(dat,plot(Year,N,xlim=c(miny-1,maxy+1), ylim = c(0,2.5*max(dat$N))))
+abline(v=2010,lty=2)
+#adding segments to represent 95% confidence intervals
+#assuming a lognormal distribution for abundance
+for(i in 1:nrow(dat)){
+  m <- dat$N[i]
+  s <- dat$SE[i]
+    if (m==0) next 
+  data_set <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  qts<-quantile(data_set,probs=c(0.025,0.975))
+  segments(x0=dat$Year[i],x1=dat$Year[i],y0=qts[1],y1=qts[2])
+}
+```
+
+We can calculate the reduction from before to after, generating means from before and after
+
+```{r}
+m <- dat$N[1]
+s <- dat$SE[1]
+data_set1 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+m <- dat$N[2]
+s <- dat$SE[2]
+data_set2 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  
+m <- dat$N[3]
+s <- dat$SE[3]
+data_set3 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+m <- dat$N[4]
+s <- dat$SE[4]
+data_set4 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+redSlon <- ((data_set4+0)/2)/((data_set1+data_set2+data_set3)/3)
+#mean empirical observed reduction (O)
+meanRedsO <- mean(redSlon)
+#quantiles for 95% IC
+q025RedsO <- quantile(redSlon,0.025)
+q975RedsO <- quantile(redSlon,0.975)
+```
+
+Based on the  surveys there seems to have been a decrease on the abundance of spinner dolphin of `r round(meanRedsO,3)`, 95% confidence interval of (`r round(q025RedsO,3)`,`r round(q975RedsO,3)`). 
+
+```{r}
+load("InOutBySp/Spinner_dolphin/Slonsimres10000Sim.RData")
+#the sum of all age classes, for year 8, for each simulation, divided by the same quantity, for year 1
+RedsS <- apply(simres[,8,1:10000,1],2,sum)/apply(simres[,1,1:10000,1],2,sum)
+#mean simulated reduction (S)
+meanRedsS<-mean(RedsS)
+#quantiles for 95% IC
+q025RedsS <- quantile(RedsS,0.025)
+q975RedsS <- quantile(RedsS,0.975)
+```
+
+On the other hand, based on our simulations, we obtain the following reduction factor: `r round(meanRedsS,3)`, with a 95% confidence interval of (`r round(q025RedsS,3)`,`r round(q975RedsS,3)`). A comparison of these mean values and corresponding 95% confidence intervals is shown in the figure below.
+
+```{r}
+plot(x=c(0.5,2.5),y=c(0,3),type="n",xlab="Period",ylab="Reduction",xaxt="n")
+axis(1,at=1:2,labels=c("Observed","Simulated"))
+points(1,meanRedsO)
+segments(x0=1,x1=1,y0=q025RedsO,y1=q975RedsO)
+points(2,meanRedsS)
+segments(x0=2,x1=2,y0=q025RedsS,y1=q975RedsS)
+abline(h=1, lty=2,col="grey")
+```
+
+As for both the Clymene dolphin and the striped dolphin, for the spinner dolphin the reduction factors estimated from the simulations seem to be considerably less severe than that observed empirically from the survey data.
+
+## Bottlenose dolphin $Tursiops~truncatus$ (oceanic) 
+
+```{r}
+dat <-GOMMAPS[GOMMAPS$sp=="Ttro",] 
+with(dat,plot(Year,N,xlim=c(miny-1,maxy+1), ylim = c(0,2.5*max(dat$N))))
+abline(v=2010,lty=2)
+#adding segments to represent 95% confidence intervals
+#assuming a lognormal distribution for abundance
+for(i in 1:nrow(dat)){
+  m <- dat$N[i]
+  s <- dat$SE[i]
+  if (m==0) next 
+  data_set <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  qts<-quantile(data_set,probs=c(0.025,0.975))
+  segments(x0=dat$Year[i],x1=dat$Year[i],y0=qts[1],y1=qts[2])
+}
+```
+
+
+We can calculate the reduction from before to after, generating means from before and after
+
+```{r}
+m <- dat$N[1]
+s <- dat$SE[1]
+data_set1 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+m <- dat$N[2]
+s <- dat$SE[2]
+data_set2 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  
+m <- dat$N[3]
+s <- dat$SE[3]
+data_set3 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+m <- dat$N[4]
+s <- dat$SE[4]
+data_set4 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+m <- dat$N[5]
+s <- dat$SE[5]
+data_set5 <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+
+redTtro <- ((data_set4+data_set5)/2)/((data_set1+data_set2+data_set3)/3)
+#mean empirical observed reduction (O)
+meanRedsO <- mean(redTtro)
+#quantiles for 95% IC
+q025RedsO <- quantile(redTtro,0.025)
+q975RedsO <- quantile(redTtro,0.975)
+```
+
+Based on the  surveys there seems to have been a decrease on the abundance of Kogia whales of `r round(meanRedsO,3)`, 95% confidence interval of (`r round(q025RedsO,3)`,`r round(q975RedsO,3)`). 
+
+```{r}
+load("InOutBySp/Bottlenose_dolphin_oceanic/Ttrosimres10000Sim.RData")
+#the sum of all age classes, for year 8, for each simulation, divided by the same quantity, for year 1
+RedsS <- apply(simres[,8,1:10000,1],2,sum)/apply(simres[,1,1:10000,1],2,sum)
+#mean simulated reduction (S)
+meanRedsS<-mean(RedsS)
+#quantiles for 95% IC
+q025RedsS <- quantile(RedsS,0.025)
+q975RedsS <- quantile(RedsS,0.975)
+```
+
+On the other hand, based on our simulations, we obtain the following reduction factor: `r round(meanRedsS,3)`, with a 95% confidence interval of (`r round(q025RedsS,3)`,`r round(q975RedsS,3)`). A comparison of these mean values and corresponding 95% confidence intervals is shown in the figure below.
+
+```{r}
+plot(x=c(0.5,2.5),y=c(0,3),type="n",xlab="Period",ylab="Reduction",xaxt="n")
+axis(1,at=1:2,labels=c("Observed","Simulated"))
+points(1,meanRedsO)
+segments(x0=1,x1=1,y0=q025RedsO,y1=q975RedsO)
+points(2,meanRedsS)
+segments(x0=2,x1=2,y0=q025RedsS,y1=q975RedsS)
+abline(h=1, lty=2,col="grey")
+```
+
+The reduction factors based on the empirical data from the surveys and that from the simulations are not inconsistent.
+
+## Bottlenose dolphin $Tursiops~truncatus$ (shelf) 
+
+```{r}
+dat <-GOMMAPS[GOMMAPS$sp=="Ttrs",] 
+with(dat,plot(Year,N,xlim=c(miny-1,maxy+1), ylim = c(0,2.5*max(dat$N))))
+abline(v=2010,lty=2)
+#adding segments to represent 95% confidence intervals
+#assuming a lognormal distribution for abundance
+for(i in 1:nrow(dat)){
+  m <- dat$N[i]
+  s <- dat$SE[i]
+  if (m==0) next 
+  data_set <- rlnorm(n=1000000, 
+                   meanlog=log(m^2 / sqrt(s^2 + m^2)), 
+                   sdlog=sqrt(log(1 + (s^2 / m^2))))
+  qts<-quantile(data_set,probs=c(0.025,0.975))
+  segments(x0=dat$Year[i],x1=dat$Year[i],y0=qts[1],y1=qts[2])
+}
+```
+ 
+No direct comparison is possible since there were no estimates prior to the oil-spill.
+ 
+# References
+
+* Garrison, Lance P., Ortega-Ortiz, Joel,Rappucci, Gina (2020) Abundance of Marine Mammals in Waters of the U.S. Gulf of Mexico During the Summers of 2017 and 2018. National Marine Fisheries Service.;Southeast Fisheries Science Center. Southeast Fisheries Science Center reference document PRBD 2020-07. https://doi.org/10.25923/3px6-9v48
+
+* Garrison, Lance P., Ortega-Ortiz, Joel, Rappucci, Gina (2021) Abundance of Coastal and Continental Shelf Stocks of Common Bottlenose and Atlantic Spotted Dolphins in the Northern Gulf of Mexico: 2017-2018,  National Marine Fisheries Service.;Southeast Fisheries Science Center. Southeast Fisheries Science Center reference document PRBD 2021-01. https://doi.org/10.25923/vk95-t881
+

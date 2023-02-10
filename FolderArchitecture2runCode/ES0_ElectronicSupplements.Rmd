@@ -23,15 +23,17 @@ library(knitr)
 
 This is an Electronic Supplement to the manuscript Marques et al. "Quantifying Deepwater Horizon oil spill induced injury on pelagic cetaceans" submitted to Marine Ecology Progress Series (MEPS).
 
-There are 7 Electronic Supplements to the paper. The master file containing links to all the other 6 additional Electronic Supplements related to this paper is [ES0_ElectronicSupplements](ES0_ElectronicSupplements.html). 
+There are 8 Electronic Supplements to the paper. The master file containing links to all the other 7 additional Electronic Supplements related to this paper is [ES0_ElectronicSupplements](ES0_ElectronicSupplements.html). 
 
-You might be reading this file as a pdf or as an html. The links on this file only work if you are using the html version of it, available via the github repository or if you compiled it yourself as html and you have all the 7 html files in the same folder. Otherwise, as a pdf distributed as an Electronic Supplement to the MEPS paper, the links might not work. ***They might work. If it is possible, we can work with the MEPS Editorial Office such that we can add links below that will link to actual files, say the pdfs of each of these 7 files, on the publisher server***.
+You might be reading this file as a pdf or as an html. The links on this file only work if you are using the html version of it, available via the github repository or if you compiled it yourself as html and you have all the 8 html files in the same folder. Otherwise, as a pdf distributed as an Electronic Supplement to the MEPS paper, the links might not work. ***They might work. If it is possible, we can work with the MEPS Editorial Office such that we can add links below that will link to actual files, say the pdfs of each of these 8 files, on the publisher server***.
 
 ## Version history
 
 This section details the version history for static pdf files submitted as Electronic Supplement pdfs:
 
 * 1.0 [12 Aug 2022] Version included as a pdf Electronic Supplement in the MEPS original submission
+
+* 2.0 [10 Feb 2023] Version included as a pdf Electronic Supplement in the MEPS re-submission after 1st round of reviewer's comments
 
 # Introduction
 
@@ -51,14 +53,14 @@ This means also that it should be straightforward for a reader to update the res
 
 [Back to Introduction](#introduction)
 
-There are 6 other main Electronic Supplements files submitted as such to MEPS. We labeled these ES1 to ES6 to help readers locating them in the repository and refer to them in the paper as such. Names and brief content descriptions follow:
+There are 7 other main Electronic Supplements files submitted as such to MEPS. We labeled these ES1 to ES7 to help readers locating them in the repository and refer to them in the paper as such. Names and brief content descriptions follow:
 
 * [ES1_ExpertElicitation](ES1_ExpertElicitation.html) – Supplementary material about the expert elicitation exercises, which includes information about
     - the density dependence scale parameter, 
     - the probability of an animal exposed to oil recovering, and 
     - the survival reduction.
 
-* [ES2_InitialPopulationSizes](ES2_InitialPopulationSizes.html) – Supplementary material about the initial population sizes and proportion of animals exposed to oil. Includes point estimates of the spatial models used to estimate the stock size, the oil footprint considered to have an impact on survival, and hence the delineation of the area including the proportion exposed for each of the species considered; Note that the initial population sizes and proportion exposed are provided as data. The reason we do not provide the code that allows the user to reproduce the objects is because the model and objects used to do so are not ours to distribute. For all taxonomic units these come from models reported by Roberts et al. (2015). This supplementary material also includes the code required to generate the paper tables 1 and 2 as well as a table used in `getInjury.Rmd`.
+* [ES2_InitialPopulationSizes](ES2_InitialPopulationSizes.html) – Supplementary material about the initial population sizes and proportion of animals exposed to oil. Includes point estimates of the spatial models used to estimate the stock size, the oil footprint considered to have an impact on survival, and hence the delineation of the area including the proportion exposed for each of the species considered; Note that the initial population sizes and proportion exposed are provided as data. The reason we do not provide the code that allows the user to reproduce the objects is because the model and objects used to do so are not ours to distribute. For all taxonomic units these come from models reported by Roberts et al. (2016). This supplementary material also includes the code required to generate the paper tables 1 and 2 as well as a table used in `getInjury.Rmd`.
 
 * [ES3_GestationDuration](ES3_GestationDuration.html)  - Supplementary material with details about how we obtained gestation duration for each taxonomic unit considered, which gets used to scale survival and fecundity/reproduction related parameters with respect to *Tursiops truncatus*.
 
@@ -67,6 +69,8 @@ There are 6 other main Electronic Supplements files submitted as such to MEPS. W
 * [ES5_GetInjury](ES5_GetInjury.html)  - the code for the production of all the injury measures presented on the paper; 
 
 * [ES6_ModelEvaluation](ES6_ModelEvaluation.html) - the code for the production of all the sensitivity and uncertainty results presented on the paper.
+
+* [ES7_ComparingWithSurveys](ES7_ComparingWithSurveys.html) - a comparison of the reduction in population sizes for each taxonomic unit between the simulations from our model and existing NOAA Gulf of Mexico Marine Assessment Program for Protected Species (GoMMAPPS) surveys.
 
 A couple of additional files regarding *Tursiops truncatus* used in Schwacke et al. (2021) might also be relevant, since we build on values and parameters on these to get components of the model parametrization of the different taxonomic units in the pelagic paper:
 
