@@ -3,6 +3,7 @@ title: "Comparing model results with existing surveys"
 author: ""
 date:  \today
 output: 
+  pdf_document: default
   html_document:
     toc: true
     toc_float: true
@@ -10,12 +11,11 @@ output:
     toc_depth: 3
     number_sections: true
     theme: lumen
-  pdf_document: default
 urlcolor: blue
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 library(knitr)
 library(readxl)
 library(latex2exp)  # for tex in plot labels
@@ -41,21 +41,23 @@ This section details the version history for static pdf files submitted as Elect
 
 # Introduction
 
-Here we provide a comparison with independent abundance estimates for the different taxonomic units.
+Here we provide a comparison of the abundance estimates from our simulation models a few years after the oil spill with independent abundance estimates for the different taxonomic units.
 
 There were surveys from 2003, 2004 and 2009, which we averaged and consider to be representative of pre-spill abundance, and then there are surveys from 2017 and 2018, which again we averaged and assume to represent 8 years post oil spill abundance. 
 
 We then compare the reduction in population size between these survey-based empirical estimates vs the reduction observed in our simulations.
 
+Details about the code used to produce the plots below is available in the corresponding ".Rmd" file ("ES7_ComparingWithSurveys.Rmd").
+
 # The survey data
 
-The survey data are taken out of Garrison et al. (2020, 2021), and were compiled in a .xlsx document also provided under the "InputFiles" folder.
+The survey data are taken out of Garrison et al. (2020, 2021), and were compiled in a .xlsx document also provided under the "InputFiles" folder. The file name is "GOMMAPS_ABUNDANCE_ESTIMATES.xlsx"
 
 ```{r}
-GOMMAPS <- read_excel("InputFiles/GOMMAPS_ABUNDANCE_ESTIMATES_forTiago.xlsx")
+GOMMAPS <- read_excel("InputFiles/GOMMAPS_ABUNDANCE_ESTIMATES.xlsx")
 ```
 
-Some surveys are for a pair of years, and we recode these for visual display purposes as a single year value, the mid point between those successive years.
+Some surveys are for a pair of years, and we first recodes these, for visual display purposes, as a single year value, corresponding to the the mid point between those successive years.
 
 ```{r}
 GOMMAPS$Year[GOMMAPS$Year=="2011-2012"]<-"2011.5"
@@ -65,8 +67,7 @@ GOMMAPS$Year <- as.numeric(GOMMAPS$Year)
 miny <- min(GOMMAPS$Year)
 maxy <- max(GOMMAPS$Year)
 ```
-
-Here we define the rows corresponding to each taxonomic unit via their corresponding 4 letter code, since the original data file did not include the taxonomic unit 4 letter code we consider in general on other relevant material for our paper.
+The original data file did not include the 4 letter code we considered in general for each taxonomic unit on the remaining documents. Therefore, we first define the rows corresponding to each taxonomic unit via their corresponding 4 letter code.
 
 ```{r}
 #adding the species codes used in CARMMHA
