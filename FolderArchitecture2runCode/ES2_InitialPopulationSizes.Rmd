@@ -130,6 +130,11 @@ study.area <- readOGR(supp.data.path, "Study_Area_GOM_10km_Polygon",verbose = FA
 
 
 ```{r, cache = FALSE, warnings = FALSE, message = FALSE, echo = FALSE, out.width="70%"}
+# this suppressWarnings() call is here as there was some update to R
+# after the first submission that was making some annoying yet
+# inconsequential warning messages to propagate 
+# into the .pfd and .html files - this kills them! hiya motherf*cker!
+suppressWarnings(
 for (j in 1:length(Sps)){
 Sp <- Sps[j]
 SpInfo <- getSpData(Sp)
@@ -204,6 +209,7 @@ sumNsPes$PeU[j] <-  quantile(Nexp/Nstart, 0.975)
 sumNsPes$Pecv[j] <- 100*sd(Nexp/Nstart)/mean(Nexp/Nstart)
 
 }
+)
 ```
 
 ## Summary tables
