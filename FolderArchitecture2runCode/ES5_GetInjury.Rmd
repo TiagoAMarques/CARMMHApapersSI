@@ -3,7 +3,6 @@ title: "Assessing injury on GOM cetaceans"
 author: ""
 date: \today
 output: 
-  pdf_document: default
   html_document:
     toc: true
     toc_float: true
@@ -11,13 +10,14 @@ output:
     toc_depth: 3
     number_sections: true
     theme: lumen
+  pdf_document: default
 urlcolor: blue
 ---
 
 ```{r setup, include=FALSE}
 library(knitr)
 library(bestglm)
-knitr::opts_chunk$set(echo = FALSE, dpi=50, dev='jpeg')
+knitr::opts_chunk$set(echo = FALSE)
 #to NOT disply scientific notation
 options(scipen=999)
 ```
@@ -149,7 +149,7 @@ inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+s
 
 Population trajectories
 
-```{r,cache=FALSE,echo=FALSE}
+```{r,cache=FALSE,echo=FALSE, dpi=200, dev='jpeg'}
 #windowsFonts(A = windowsFont("Times New Roman"))  
 plotSims(simres, nplots=2)
 ```
@@ -184,7 +184,7 @@ inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+s
 
 Population trajectories
 
-```{r,cache=FALSE,echo=FALSE}
+```{r,cache=FALSE,echo=FALSE, dpi=200, dev='jpeg'}
 plotSims(simres, nplots=2)
 ```
 
@@ -220,7 +220,7 @@ inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+s
 
 Population trajectories
 
-```{r,cache=FALSE,echo=FALSE}
+```{r,cache=FALSE,echo=FALSE, dpi=200, dev='jpeg'}
 plotSims(simres, nplots=2)
 ```
 
@@ -256,7 +256,7 @@ inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+s
 
 Population trajectories
 
-```{r,cache=FALSE,echo=FALSE}
+```{r,cache=FALSE,echo=FALSE, dpi=200, dev='jpeg'}
 plotSims(simres, nplots=2)
 ```
 
@@ -292,7 +292,7 @@ inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+s
 
 Population trajectories
 
-```{r,cache=FALSE,echo=FALSE}
+```{r,cache=FALSE,echo=FALSE, dpi=200, dev='jpeg'}
 plotSims(simres, nplots=2)
 ```
 
@@ -328,7 +328,7 @@ inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+s
 
 Population trajectories
 
-```{r,cache=FALSE,echo=FALSE}
+```{r,cache=FALSE,echo=FALSE, dpi=200, dev='jpeg'}
 plotSims(simres, nplots=2)
 ```
 
@@ -365,7 +365,7 @@ inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+s
 
 Population trajectories
 
-```{r,cache=FALSE,echo=FALSE}
+```{r,cache=FALSE,echo=FALSE, dpi=200, dev='jpeg'}
 plotSims(simres, nplots=2)
 ```
 
@@ -401,7 +401,7 @@ inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+s
 
 Population trajectories
 
-```{r,echo=FALSE}
+```{r,echo=FALSE, dpi=200, dev='jpeg'}
 plotSims(simres, nplots=2)
 ```
 
@@ -437,7 +437,7 @@ inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+s
 
 Population trajectories
 
-```{r,cache=FALSE,echo=FALSE}
+```{r,cache=FALSE,echo=FALSE, dpi=200, dev='jpeg'}
 plotSims(simres, nplots=2)
 ```
 
@@ -472,7 +472,7 @@ inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+s
 
 Population trajectories
 
-```{r,cache=FALSE,echo=FALSE}
+```{r,cache=FALSE,echo=FALSE, dpi=200, dev='jpeg'}
 plotSims(simres, nplots=2)
 ```
 
@@ -508,7 +508,7 @@ inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+s
 
 Population trajectories
 
-```{r,cache=FALSE,echo=FALSE}
+```{r,cache=FALSE,echo=FALSE, dpi=200, dev='jpeg'}
 plotSims(simres, nplots=2)
 ```
 
@@ -543,7 +543,7 @@ inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+s
 
 Population trajectories
 
-```{r,cache=FALSE,echo=FALSE}
+```{r,cache=FALSE,echo=FALSE, dpi=200, dev='jpeg'}
 plotSims(simres, nplots=2)
 ```
 
@@ -580,7 +580,7 @@ inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+s
 
 Population trajectories
 
-```{r,cache=FALSE,echo=FALSE}
+```{r,cache=FALSE,echo=FALSE, dpi=200, dev='jpeg'}
 plotSims(simres, nplots=2)
 ```
 
@@ -617,7 +617,7 @@ inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+s
 
 Population trajectories
 
-```{r,cache=FALSE,echo=FALSE}
+```{r,cache=FALSE,echo=FALSE, dpi=200, dev='jpeg'}
 plotSims(simres, nplots=2)
 ```
 
@@ -653,7 +653,7 @@ inputs$sr[inputs$Sp==Sp] <- with(SpInfo, mean(rbeta(10000, sra, srb)*(sru-srl)+s
 
 Population trajectories
 
-```{r,cache=FALSE}
+```{r,cache=FALSE, dpi=200, dev='jpeg'}
 plotSims(simres, nplots=2)
 ```
 
