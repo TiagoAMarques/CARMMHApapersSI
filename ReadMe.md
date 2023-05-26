@@ -5,7 +5,7 @@ These papers were created within the CARMMHA project, where a team of marine mam
 There are two main papers:
 
 1. A paper focused on bottlenose dolphins in Barataria Bay, where all the animals are assumed to have been exposed to oil. The published version of the paper is at: https://conbio.onlinelibrary.wiley.com/doi/10.1111/cobi.13878
-2. A paper focusing on 15 pelagic taxonomic units, including both dolphins :dolphin: and whales :whale:, where the different taxa were exposed to different extents to oil
+2. A paper focusing on 15 pelagic taxonomic units, including both dolphins :dolphin: and whales :whale:, where the different taxa were exposed to different extents to oil. The published version of the paper now in press at Marine Ecology Progress Series will be added here as soon as it is published online.
 
 Here we describe how you can navigate through this material. We note upfront that while there are two different papers, the underlying population dynamics simulation code that allows us to simulate populations of animals in the presence of oil and in the absence of oil is common to both papers. 
 
@@ -15,7 +15,7 @@ There are two master files that facilitate access to the material provided:
 
 * :boom: :fire: :arrow_right: :dolphin: [Bottlenose dolphin Barataria Bay paper master file](https://htmlpreview.github.io/?https://github.com/TiagoAMarques/CARMMHApapersSI/blob/master/FolderArchitecture2runCode/BND_ElectronicSupplements.html)
 
-* :boom: :fire: :arrow_right: :whale: [Pelagic paper master file](https://htmlpreview.github.io/?https://github.com/TiagoAMarques/CARMMHApapersSI/blob/master/FolderArchitecture2runCode/ES0_ElectronicSupplements.html)
+* :boom: :fire: :arrow_right: :whale: [Pelagic paper master file](https://htmlpreview.github.io/?https://github.com/TiagoAMarques/CARMMHApapersSI/blob/master/FolderArchitecture2runCode/Supplement_S1.html)
 
 A short paper submitted to Marine Mammal Science, describing the effects on Bottlenose dolphin Barataria Bay population dynamics of a proposed Mississippi river diversion project (Mid-Barataria Sediment Diversion) also uses a slight adaptation of the code required for the main papers. That paper is published here: https://onlinelibrary.wiley.com/doi/10.1111/mms.12930 
 
