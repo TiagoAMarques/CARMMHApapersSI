@@ -1,0 +1,240 @@
+---
+title: "Supplement S5"
+subtitle: "Scaling survival and comparing survival across taxonomic units based on gestation duration"
+author: ""
+date: \today
+output: 
+  pdf_document: default
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 3
+    number_sections: true
+    theme: lumen
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+In this document we look at the age specific survival used for each taxonomic unit scaled by the corresponding gestation duration, as described in the manuscript.
+
+# Reading relevant info
+
+```{r,echo=FALSE}
+library(readxl)
+library(knitr)
+library(ggplot2)
+# Siler model functions are here
+source("Functions/SilerFuns.R")       
+```
+
+We read in the species details, set the species which we want results for, and then filter the input data for those species only.
+
+```{r,echo=FALSE}
+#read the species definition file
+SDF <- read_excel("InputFiles/SpeciesDefinitionFile.xlsx",na="NA")
+```
+
+```{r,echo=FALSE}
+#remove irrelevant species rows
+sps<-c("Bwsp","Fatt","Gmac","Ggri","Kosp","Pele","Pmac","Satt","Sbre","Scly","Scoe","Sfro","Slon","Ttro","Ttrs","Ttru") 
+SDF <- SDF[SDF$Species %in% sps,]
+```
+
+We also read in *Tursiops truncatus* bottlenose dolphin (BND) Siler model posterior values. These can then be used to estimate:
+
+1. survival conditional on age, and 
+2. survivorship functions for this species. 
+
+The corresponding values for all other species/stocks are obtained by scaling the *Tursiops truncatus* values by gestation duration.
+
+```{r,echo=FALSE}
+#--------------------------------------------------------------------------
+# Survival
+#--------------------------------------------------------------------------
+# reading in Siler parameters, for males and females
+# These files were provided by LS via email on the Fri 5/22/2020 4:10 PM
+pf <- read.csv("InputFiles/var_female 15May2020.csv")
+pm <- read.csv("InputFiles/var_male 15May2020.csv")
+# remove useless ID first column 
+pf<-pf[, -1]
+pm<-pm[, -1]
+# rename columns
+names(pf) <- names(pm) <- c("a1", "a2", "a3", "b1", "b3", "rmean")
+#--------------------------------------------------------------------------
+```
+
+# *Tursiops truncatus*
+
+Here we represent the relevant functions and the associated variability is also illustrated.
+
+## Survivorship function
+
+We plot the age specific survival aka survivorship function for BND. See Schwacke et al. (2017) and the corresponding online material for details on how this was derived based on a Siler model fitted to strandings data. 
+
+```{r,fig.width = 10,echo=FALSE}
+ages <- 0:70
+ncols <- nrow(pf)
+nrows <- length(ages)
+#get a dataframe to use ggplot2
+#objects to hold female and male realizations
+lxFs <- matrix(NA,nrow=nrows,ncol=ncols)
+lxMs <- matrix(NA,nrow=nrows,ncol=ncols)
+#for each obseration of the posterior
+for(i in 1:nrow(pf)){
+  #get the funtion
+  lxFs[,i] <- lx(ages,pf[i,1],pf[i,2],pf[i,3],pf[i,4],pf[i,5])
+  lxMs[,i] <- lx(ages,pm[i,1],pm[i,2],pm[i,3],pm[i,4],pm[i,5])
+}
+#arrange as data frame
+lxFs2 <- data.frame(ages=ages,lxFs)
+lxMs2 <- data.frame(ages=ages,lxMs)
+# add means and relevant quantiles
+lxFs2$mean=rowMeans(lxFs)
+lxMs2$mean=rowMeans(lxMs)
+lxFs2$q025=apply(X=lxFs,MARGIN = 1,FUN=quantile,probs=0.025)
+lxMs2$q025=apply(X=lxMs,MARGIN = 1,FUN=quantile,probs=0.025)
+lxFs2$q975=apply(X=lxFs,MARGIN = 1,FUN=quantile,probs=0.975)
+lxMs2$q975=apply(X=lxMs,MARGIN = 1,FUN=quantile,probs=0.975)
+#add the sex
+lxFs2$sex="Female"
+lxMs2$sex="Male"
+#make single object
+lxMF <- rbind(lxFs2,lxMs2)
+#plot
+#https://www.r-graph-gallery.com/104-plot-lines-with-error-envelopes-ggplot2.html
+ggplot(data=lxMF, aes(x=ages, y=mean, ymin=q025, ymax=q975, fill=sex, linetype=sex)) + geom_line() + 
+ geom_ribbon(alpha=0.5) + 
+ xlab("Age") + 
+ ylab("Proportion surviving")
+```
+
+## Age specific Survival
+
+We plot age specific survival
+
+```{r,fig.width = 10,echo=FALSE,warning=FALSE,message=FALSE}
+ages <- 0:70
+ncols <- nrow(pf)
+nrows <- length(ages)
+#get a dataframe to use ggplot2
+#objects to hold female and male realizations
+pxFs <- matrix(NA,nrow=nrows,ncol=ncols)
+pxMs <- matrix(NA,nrow=nrows,ncol=ncols)
+#for each obseration of the posterior
+for(i in 1:nrow(pf)){
+  #get the funtion
+  pxFs[,i] <- px(ages,pf[i,1],pf[i,2],pf[i,3],pf[i,4],pf[i,5])
+  pxMs[,i] <- px(ages,pm[i,1],pm[i,2],pm[i,3],pm[i,4],pm[i,5])
+}
+#arrange as data frame
+pxFs2 <- data.frame(ages=ages,pxFs)
+pxMs2 <- data.frame(ages=ages,pxMs)
+# add means and relevant quantiles
+pxFs2$mean=rowMeans(pxFs)
+pxMs2$mean=rowMeans(pxMs)
+pxFs2$q025=apply(X=pxFs,MARGIN = 1,FUN=quantile,probs=0.025)
+#two out of 4000*71 values are NA's?
+pxMs2$q025=apply(X=pxMs,MARGIN = 1,FUN=quantile,probs=0.025,na.rm=TRUE)
+pxFs2$q975=apply(X=pxFs,MARGIN = 1,FUN=quantile,probs=0.975)
+pxMs2$q975=apply(X=pxMs,MARGIN = 1,FUN=quantile,probs=0.975,na.rm=TRUE)
+#add the sex
+pxFs2$sex="Female"
+pxMs2$sex="Male"
+#make single object
+pxMF <- rbind(pxFs2,pxMs2)
+#plot
+#https://www.r-graph-gallery.com/104-plot-lines-with-error-envelopes-ggplot2.html
+ggplot(data=pxMF, aes(x=ages, y=mean, ymin=q025, ymax=q975, fill=sex, linetype=sex)) + geom_line() + 
+ geom_ribbon(alpha=0.5) + 
+ xlab("Age") + 
+ ylab("Age specific Survival")
+```
+
+It is relevant to appreciate that the survival curves across iterations will tend to cross, and therefore we cannot really talk about higher survival probabilities across the board for a single iteration; the survival might be higher in a particular iteration for younger animals but higher for older animals. This is illustrated in the image below, where two iterations are highlighted (in green and red) against all the iterations.
+
+```{r, fig.width = 10,fig.height=6,echo=FALSE}
+par(mfrow=c(1,2))
+set.seed(123)
+#get the funtion
+plot(c(0,72),c(0,1),type="n",main="Female survival",xlab="Age (in years)",ylab="Survival")
+for(i in 2:(nrow(pf)-4)){
+    lines(1:71,pxFs2[,i])
+}
+
+lines(1:71,pxFs2[,23],lwd=3,col="red")
+
+lines(1:71,pxFs2[,32],lwd=3,col="lightblue",lty=2)
+
+plot(c(0,72),c(0,1),type="n",main="Male survival",xlab="Age (in years)",ylab="Survival")
+for(i in 2:(nrow(pf)-4)){
+  lines(1:71,pxMs2[,i])
+}
+
+lines(1:71,pxMs2[,23],lwd=3,col="red")
+
+lines(1:71,pxMs2[,32],lwd=3,col="lightblue")
+```
+
+# Comparing all species
+
+The scaling is done by gestation duration, so we look at the gestation duration considered for each of the species. The rationale for each species gestation duration used is provided on a separate document included as a separate file: Supplement S4.
+
+The range in gestation duration is shown below (note the x axis is just an index, species are shown from left to right in the increasing order of their gestation duration).
+
+```{r, fig.width = 10, fig.height = 6,echo=FALSE}
+par(mfrow = c(1, 1),mar=c(0.2,4,0.2,0.2))
+plot(1:16, sort(SDF$gd), ylab = "Gestation duration (in days)", xlab = "Species", type = "n",xaxt="n",ylim=c(300,max(SDF$gd)+10))
+text(1:16, sort(SDF$gd), labels = SDF$Species[order(SDF$gd)])
+```
+
+## Survivorship function
+
+We present the scaled survivorship by taxonomic unit and sex below. For reference Barataria Bay bottlenose dolphins shown in green, sperm whale in blue and spinner dolphin in light blue
+
+```{r, fig.width = 10,fig.height=6,echo=FALSE}
+par(mfrow = c(2, 1),mar = c(4, 4, 0.5, 0.5))
+ages <- 0:70
+# Proportion surviving to age x
+plot(ages, lx(ages*1, pf[1, 1], pf[1, 2], pf[1, 3], pf[1, 4], pf[1, 5]), type = "l", main = "", ylab = "Proportion", xlab = "Age (females)", lty = 1)
+for(i in 1:nrow(SDF)){
+  # Proportion surviving to age x
+lines(ages, lx(ages*(SDF$gd[1]/SDF$gd[i]), pf[1, 1], pf[1, 2], pf[1, 3], pf[1, 4], pf[1, 5]), type="l", main="Proportion surviving to age x", ylab="Proportion", xlab="Age (females)", lty=i,col=ifelse(SDF$Species[i]=="Ttru",3,ifelse(SDF$Species[i]=="Pmac",4,ifelse(SDF$Species[i]=="Slon",5,1))),lwd=ifelse(SDF$Species[i]=="Ttru",2,ifelse(SDF$Species[i]=="Pmac",2,ifelse(SDF$Species[i]=="Slon",2,1))))
+}
+plot(ages, lx(ages*1 , pm[1, 1], pm[1, 2], pm[1, 3], pm[1, 4], pm[1, 5]), type = "l", lty = 1, xlab="Age (males)", ylab="Proportion")
+for(i in 1:nrow(SDF)){
+# Proportion surviving to age x
+lines(ages, lx(ages*(SDF$gd[1]/SDF$gd[i]), pm[1, 1], pm[1, 2], pm[1, 3], pm[1, 4], pm[1, 5]), lty=i, xlab="Age (males)",col=ifelse(SDF$Species[i]=="Ttru",3,ifelse(SDF$Species[i]=="Pmac",4,ifelse(SDF$Species[i]=="Slon",5,1))),lwd=ifelse(SDF$Species[i]=="Ttru",2,ifelse(SDF$Species[i]=="Pmac",2,ifelse(SDF$Species[i]=="Slon",2,1))))
+}
+legend("topright",legend=c("Pmac","Ttru","Slon"),col=c(4,3,5),lwd=2,inset=0.05)
+```
+
+## Age specific survival
+
+We present the scalled age specific survival by function below. For reference BB BND shown in green, sperm whale in blue and spinner dolphin in light blue
+
+```{r, fig.width = 10,fig.height=6,echo=FALSE}
+par(mfrow = c(2, 1),mar = c(4, 4, 0.5, 0.5))
+ages <- 0:140
+# Proportion surviving to age x
+plot(ages, px(ages*1, pf[1, 1], pf[1, 2], pf[1, 3], pf[1, 4], pf[1, 5],scaling=1), type = "l", main = "", ylab = "Survival", xlab = "Age (females)", lty = 1, ylim = c(0, 1))
+for(i in 1:nrow(SDF)){
+  # Proportion surviving to age x
+lines(ages, px(ages*(SDF$gd[1]/SDF$gd[i]), pf[1, 1], pf[1, 2], pf[1, 3], pf[1, 4], pf[1, 5],scaling=(SDF$gd[1]/SDF$gd[i])), type="l", main="Proportion surviving to age x", ylab="Proportion", xlab="Age (females)", lty=i,col=ifelse(SDF$Species[i]=="Ttru",3,ifelse(SDF$Species[i]=="Pmac",4,ifelse(SDF$Species[i]=="Slon",5,1))),lwd=ifelse(SDF$Species[i]=="Ttru",2,ifelse(SDF$Species[i]=="Pmac",2,ifelse(SDF$Species[i]=="Slon",2,1))))
+}
+plot(ages, px(ages*1 , pm[1, 1], pm[1, 2], pm[1, 3], pm[1, 4], pm[1, 5],scaling=1), type = "l", lty = 1, xlab="Age (males)", ylab="Survival", ylim = c(0, 1))
+for(i in 1:nrow(SDF)){
+# Proportion surviving to age x
+lines(ages, px(ages*(SDF$gd[1]/SDF$gd[i]), pm[1, 1], pm[1, 2], pm[1, 3], pm[1, 4], pm[1, 5],scaling=(SDF$gd[1]/SDF$gd[i])), lty=i, xlab="Age (males)",col=ifelse(SDF$Species[i]=="Ttru",3,ifelse(SDF$Species[i]=="Pmac",4,ifelse(SDF$Species[i]=="Slon",5,1))),lwd=ifelse(SDF$Species[i]=="Ttru",2,ifelse(SDF$Species[i]=="Pmac",2,ifelse(SDF$Species[i]=="Slon",2,1))))
+}
+legend("topright",legend=c("Pmac","Ttru","Slon"),col=c(4,3,5),lwd=2,inset=0.05)
+```
+
+# References
+
+Schwacke, L.H., L. Thomas, R.S. Wells, W.E. McFee, A.A. Hahn, K.D. Mullin, E.S. Zolman, B.M. Quigley, T.K. Rowles and J.H. Schwacke. 2017. An age-, sex- and class-structured population model for estimating nearshore common bottlenose dolphin injury following the Deepwater Horizon oil spill. *Endangered Species Research* **33**: 265-279. DOI: [10.3354/esr00777](https://doi.org/10.3354/esr00777).

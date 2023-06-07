@@ -1,0 +1,253 @@
+---
+title: "Supplement S3"
+subtitle: "Initial population sizes"
+author: ""
+date:  \today
+output: 
+  pdf_document: default
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 3
+    number_sections: true
+    theme: lumen
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+#For reading and manipulating the GAMs
+library(mgcv)
+#For reading the raster data
+library(rgdal)
+library(raster)
+library(viridis)
+library(stringr)
+#library(kableExtra)
+```
+
+# Introduction
+
+In this document we present the distribution for the initial population sizes, population exposed and proportion exposed for each of the stocks considered in the pelagic paper.
+
+These population sizes were obtained from the models of 
+
+Roberts, J. J.; Best, B. D.; Mannocci, L.; Fujioka, E.; Halpin, P. N.; Palka, D. L.; Garrison, L. P.; Mullin, K. D.; Cole, T. V. N.; Khan, C. B.; McLellan, W. A.; Pabst, D. A. & Lockhart, G. G. 2016 Habitat-based cetacean density models for the U.S. Atlantic and Gulf of Mexico *Scientific Reports* **6**: 22615 DOI: 10.1038/srep22615. URL: https://www.nature.com/articles/srep22615
+
+To obtain the number of animals exposed to oil (and hence the proportion of the population exposed to oil) the estimated fraction of the population based on the density surfaces that was contained in the area considered to be affected by oil was quantified. This area is shown in the image below
+
+```{r, fig.align = 'center', out.width="80%",echo=FALSE}
+include_graphics(path = "figs/Figure1.jpg")
+```
+
+The taxonomic units considered and the corresponding codes are:
+
+* Bwsp - beaked whales,	Beaked whales spp.
+* Fatt - pygmy killer whale,	*Feresa attenuata*
+* Ggri - Risso's dolphin,	*Grampus griseus*
+* Gmac - short-finned pilot whale,	*Globicephala macrorhynchus*
+* Kosp - Kogia whales,	*Kogia* spp.
+* Pele - melon-headed whale,	*Peponocephala electra*
+* Pmac - sperm whale,	*Physeter macrocephalus*
+* Satt - pantropical spotted dolphin, *Stenella attenuata*
+* Sbre - rough-toothed dolphin,	*Steno bredanensis*
+* Scly - Clymene dolphin,	*Stenella clymene*
+* Scoe - striped dolphin,	*Stenella coeruleoalba*
+* Sfro - Atlantic spotted dolphin,	*Stenella frontalis*
+* Slon - spinner dolphin,	*Stenella longirostris*
+* Ttro - offshore bottlenose dolphins,	*Tursiops truncatus*
+* Ttrs - shelf bottlenose dolphins, *Tursiops truncatus*
+
+# Population size and proportion exposed
+
+For each taxonomic unit, we present estimated total population size, the estimated population size within the area covered (above threshold) by oil, and also show maps of density to demonstrate how the above values were derived.
+
+The realizations of population size, both for the total abundance as well as the proportion of animals exposed to oil, are in 2 separate files:
+
+* `N_boot.csv` - 10000 bootstrap replicates of the initial population size
+* `N_boot_in_oil.csv` - 10000 bootstrap replicates of the population size within the oil coverage
+
+For each taxonomic unit, both of these files are provided in the corresponding folder at the above github repository. All taxonomic units files are inside the corresponding folder inside the folder `InOutBySp`.
+
+To present a spatial perspective of the abundances we require 2 shapefiles (provided in the folder `InputFiles` at the above github repository) common to all pelagic taxonomic units:
+
+* `OilCoverage.shp` - the oil coverage above a threshold 
+* `Study_Area_GOM_10km_Polygon` - the study area in 10 km grid cells
+
+and two files per pelagic taxonomic unit:
+
+* `N_bycell.csv` - the point estimate of the number of animals per grid cell, where grid cells are defined in `Study_Area_GOM_10km_Polygon`; 
+* `Prediction_Area.img` - the prediction area for each species
+
+As above, these taxonomic unit specific files are in the folder `InOutBySp`, stored under a sub-folder corresponding to each taxonomic unit. 
+
+We can plot these abundance distributions and density estimates over species in turn for each taxonomic unit.
+
+```{r, cache = TRUE, echo = FALSE}
+# Define the species we run simulations for
+# Species ordered by alphabetic order of the 4 letter code used to refer to them.
+Sps <- c("Bwsp", "Fatt", "Gmac", "Ggri", "Kosp", "Pele", "Pmac", "Satt", "Sbre", "Scly", "Scoe", "Sfro", "Slon", "Ttro", "Ttrs")
+#this would include Ttru, but that is not from the pelagic paper!
+#Sps <- c("Bwsp", "Fatt", "Gmac", "Ggri", "Kosp", "Pele", "Pmac", "Satt", "Sbre", "Scly", "Scoe", "Sfro", "Slon", "Ttro", "Ttrs", "Ttru")
+source("Functions/reqfuns.R")         # most functions are here
+```
+
+
+```{r, cache=TRUE, echo = FALSE}
+#Set up a table to hold summary statistics by species
+sumNsPes <- data.frame(Sp = Sps, NL = NA, N = NA, NU = NA, Ncv = NA, NeL = NA, Ne = NA, NeU = NA, Necv=NA, PeL = NA, Pe = NA, PeU = NA, Pecv= NA)
+#and one to hold the number of iterations that were just non-sensically high
+nonsense <- data.frame(Sp = Sps, limit=NA, above.limit = NA)
+```
+
+In the following we produce a plot for the initial population versus the exposed population and for the initial population versus the proportion exposed for each of the stocks considered, illustrating the potential correlation structure between these. We also output the (usually 0 or very small) number of bootstrap resamples that were removed from further analysis for each species because they represented unrealistically large population sizes. These unrealistic realizations were created due to correspondingly unrealistic GAM extrapolations in the limits of the study area. 
+
+
+```{r setup2,warning=FALSE,message=FALSE,echo=FALSE}
+#Define paths and filenames
+supp.data.path <- "InputFiles/shapefiles"
+#Read in oil coverage polygon
+oil.coverage <- readOGR(supp.data.path, "OilCoverage",verbose = FALSE)
+#Read in study area polygon for later plotting
+study.area <- readOGR(supp.data.path, "Study_Area_GOM_10km_Polygon",verbose = FALSE)
+```
+
+
+```{r, cache = FALSE, warnings = FALSE, message = FALSE, echo = FALSE, out.width="70%"}
+# this suppressWarnings() call is here as there was some update to R
+# after the first submission that was making some annoying yet
+# inconsequential warning messages to propagate 
+# into the .pfd and .html files - this kills them! hiya motherf*cker!
+suppressWarnings(
+for (j in 1:length(Sps)){
+Sp <- Sps[j]
+SpInfo <- getSpData(Sp)
+print(paste0("The following plots are for ", Sps[j]))
+print(paste0("The spatial density for ", Sps[j]))
+# Spatial model
+# print(paste0("The spatial distribution for ", Sps[j]))
+  # Initial population size
+  predictionArea <- raster(paste0("InOutBySp/", SpInfo$folder, "/Prediction_Area.img"))
+  is.in.range <- getValues(predictionArea) == 1
+  is.in.range[is.na(is.in.range)] <- FALSE
+  n.grid.in.range <- sum(is.in.range)
+  #Get oiled portion
+  oiled.predictionArea <- mask(predictionArea, oil.coverage)
+  is.in.oil <- getValues(oiled.predictionArea) == 1
+  is.in.oil[is.na(is.in.oil)] <- FALSE
+  #Get index to oiled portion within prediction area
+  is.in.oil.within.range <- is.in.oil[is.in.range]
+ 
+  N.raster <- read.csv(file = paste0("InOutBySp/", SpInfo$folder, "/N_bycell.csv"))$V1
+  values(predictionArea)[is.in.range] <- N.raster
+  plot(study.area, col = "grey", main = paste0(Sp, " (Animals / 100 km2)"))
+  plot(predictionArea, col = viridis(100), add = TRUE)
+  plot(oil.coverage, border = "red", add = TRUE)
+
+# Initial population vs exposed population
+
+# Initial population size
+  Nstart <- read.csv(paste0("InOutBySp/", SpInfo$folder, "/N_boot.csv"), header = TRUE)
+  Nstart <- Nstart[, 2]
+  Nstart<-as.vector(Nstart)
+  # Population exposed
+  Nexp <- read.csv(paste0("InOutBySp/", SpInfo$folder, "/N_boot_in_oil.csv"), header = TRUE)
+  Nexp <- Nexp[, 2]
+  Nexp<-as.vector(Nexp)
+#Note: naturally the proportion exposed is Nexp/Nstart
+  
+#define a limit to exclude weird values caused by rogue GAM extrapolations
+# consider 1 order of magnitude above the mean
+# 5 is the value we ended with
+# 200 leads to effectively no exclusion and can be used for comparison
+mult.sd <- 5
+lim.rogue <- mean(Nstart) + mult.sd * sd(Nstart)
+#mult <- 5
+#lim.rogue <- mult*mean(Nstart)
+index.NOT.rogue <- Nstart < lim.rogue
+index.rogue <- Nstart > lim.rogue
+#print(paste0("We removed ", sum(index.rogue), " extreme observation(s) induced by unrealistic GAM extrapolations"))
+#save nonsense limit and number of simulations exceeding it
+nonsense$limit[j] <- lim.rogue
+nonsense$above.limit[j]  <-  sum(index.rogue)
+#selecting just non rogue values
+Nstart <- Nstart[index.NOT.rogue]
+Nexp <- Nexp[index.NOT.rogue]
+# plot initial populations
+print(paste0("The number of exposed animals against the number of animals in the initial population"))
+plotIP(Nstart, Nexp, type=1)
+#this was a tweak needed to ensure plots are organized nicely in the pdf
+print(paste0("The proportion of exposed animals against the number of animals in the initial population"))
+plotIP(Nstart, Nexp, type=2)
+sumNsPes$NL[j] <- quantile(Nstart, 0.025)
+sumNsPes$N[j] <- mean(Nstart)
+sumNsPes$NU[j] <- quantile(Nstart, 0.975)
+sumNsPes$Ncv[j] <- 100*sd(Nstart)/mean(Nstart)
+sumNsPes$NeL[j] <- quantile(Nexp, 0.025)
+sumNsPes$Ne[j] <- mean(Nexp)
+sumNsPes$NeU[j] <-  quantile(Nexp, 0.975)
+sumNsPes$Necv[j] <- 100*sd(Nexp)/mean(Nexp)
+sumNsPes$PeL[j] <-  quantile(Nexp/Nstart, 0.025)
+sumNsPes$Pe[j] <- mean(Nexp/Nstart)
+sumNsPes$PeU[j] <-  quantile(Nexp/Nstart, 0.975)
+sumNsPes$Pecv[j] <- 100*sd(Nexp/Nstart)/mean(Nexp/Nstart)
+
+}
+)
+```
+
+## Summary tables
+
+We present below a summary table with the estimated mean for the initial population size (N), the exposed population size (Ne) and the proportion exposed (Pe) for each of the taxonomic units considered. A summary table describing how many iterations were above the limit considered to be unrealistic and caused by GAM extrapolations and hence were removed from the analysis is also presented below.
+
+```{r, echo = FALSE}
+kable(sumNsPes,caption="Estimated mean for the initial population size (N), the exposed population size (Ne) and the proportion exposed (Pe) for each of the taxonomic units considered. The sufix cv, L and U stand for the empirical Coefficient of Variation and Lower and Upper confidence interval bounds. These intervals were obtained by the quantile method.", digits = c(0, rep(0, 3), 1, rep(0, 3), 1,rep(3, 3), 1)) 
+#kableExtra breaking knitr ???
+# %>% kable_styling(font_size = 12,latex_options = "striped") 
+#%>% row_spec(seq(2,14,by=2), color = 'white', background = 'black') 
+```
+
+```{r, echo = FALSE}
+kable(nonsense, digits = c(0, 0, 0),caption="Treshold value defining extreme realizations and number of realizations considered extreme, for each of the taxonomic units considered." , booktabs = TRUE) 
+#kableExtra breaking knitr ???
+# %>% kable_styling(font_size = 12,latex_options = "striped") 
+#%>% row_spec(seq(2,14,by=2), color = 'white', background = 'black') 
+```
+
+# Producing values for tables in the paper
+
+The following code is used for producing the content for the first table of the main paper, regarding the initial population sizes and proportion exposed (and corresponding precision).
+
+## Table 1
+
+### Initial population sizes
+
+```{r}
+Table1N <-  paste0(round(sumNsPes$N,0),"; ",round(sumNsPes$Ncv,1),
+                  " (",round(sumNsPes$NL,0)," ,",round(sumNsPes$NU),")")
+#note we remove the last row which has the Ttru for Barataria Bay
+write.table(Table1N,"Table1N.txt",sep="\t",row.names = FALSE,quote = FALSE,col.names = FALSE)
+```
+
+## About the Proportion exposed
+
+```{r}
+Table1P <-  paste0(round(sumNsPes$Pe,3),"; ",round(sumNsPes$Pecv,1),
+                  " (",round(sumNsPes$PeL,3)," ,",round(sumNsPes$PeU,3),")")
+#note we remove the last row which has the Ttru for Barataria Bay
+write.table(Table1P,"Table1P.txt",sep="\t",row.names = FALSE,quote = FALSE,col.names = FALSE)
+```
+
+# Additional Tables 
+
+The following code is used for producing a table containing the values for initial population size and proportion exposed used as input in the supplementary information file Supplement S6.
+
+```{r}
+write.table(sumNsPes,"Table4GetInjury.txt",sep="\t",
+            row.names = FALSE,quote = FALSE,col.names = TRUE)
+```
+
+# References
+
+Roberts, J. J.; Best, B. D.; Mannocci, L.; Fujioka, E.; Halpin, P. N.; Palka, D. L.; Garrison, L. P.; Mullin, K. D.; Cole, T. V. N.; Khan, C. B.; McLellan, W. A.; Pabst, D. A. & Lockhart, G. G. 2016 Habitat-based cetacean density models for the U.S. Atlantic and Gulf of Mexico *Scientific Reports* **6**: 22615 DOI: [10.1038/srep22615](https://www.nature.com/articles/srep22615)

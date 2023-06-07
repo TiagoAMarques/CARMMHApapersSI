@@ -1,0 +1,2566 @@
+---
+title: "Supplement S7"
+subtitle: "Model evaluation via sensitivity and elasticity analysis for pelagic taxonomic units"
+author: ""
+date: \today
+output: 
+  pdf_document: default
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 3
+    number_sections: true
+    theme: lumen
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(stringr)
+library(mgcv)
+library(knitr)
+```
+
+# Introduction
+
+This document describes how the injury results reported depend on the input parameters underlying the population dynamics model considered. We have 3 injury metrics: 
+
+* lost cetacean years (LCY), 
+* maximum proportional decrease (MPD), and 
+* years to recovery (YTR).
+ 
+We undertook two types of sensitivity analysis:
+
+* Uncertainty analysis. The aim was to determine how much the uncertainty in each input parameter influences uncertainty in the resulting injury metrics.  Each model parameter for which a distribution was available was allowed to vary by sampling from this distribution while keeping all the other parameters constant at their nominal value (i.e., the mean of their corresponding distributions).  The relative contribution of uncertainty in each input parameter to overall uncertainty in injury metrics was thereby evaluated.  This is akin to the sensitivity analysis undertaken by Schwacke et al. (2017, Supplemental Materials).
+
+* Elasticity analysis. The aim is to estimate the proportional change in the injury metrics caused by a proportional change in each model parameter. This allows us to quantify the "inherent sensitivity" of each model parameter.  Elasticity is traditionally used in the population dynamics literature (Benton & Grant 1999, Caswell 2006) to determine the proportional change in population growth rate to a proportional change in population vital rate; here we extend the concept to cover the injury metrics.
+
+To contrast the two, imagine two model parameters for which uncertainty on inputs produces the same moderate level of uncertainty on the estimate of an injury metric.  In one case this might be because there is considerable uncertainty on the input (i.e., the parameter is not known at all precisely) combined with low elasticity (i.e., little effect of this uncertainty on the injury metric); in the second case this might be because there is little uncertainty on the input combined with high elasticity.  Undertaking both an uncertainty and an elasticity analysis allows us to distinguish between these scenarios.
+
+The analyses reported in this document are based on files produced by sourcing the file `RunAllPopSimsSensitivity`. That source file produces for each species a set of result files, one for each parameter, that we then post-process here to obtain both uncertainty and elasticity values.
+
+# The model parameters
+
+We provide a complete list of the parameters considered in the population dynamics model, that might therefore have an impact in the injury metrics. These are parameters:
+
+* based on the models and results from Roberts et al., with distributions  available via parametric bootstrap resampling; see also Supplement S3 for details.
+    - $N_0$: initial population size
+    - $p_e$: the proportion of the population exposed to oil
+
+* based on the Expert Elicitation exercise, see document Supplement S2, for details
+    - $\rho$: density dependence shape parameter; modeled as a shifted gamma distribution
+    - $P_{recovery}$: proportion of exposed animals that recover to baseline survival and fecundity levels within their lifetime; modeled as a shifted beta distribution
+    - $SR$: post-spill survival reduction; modeled as a shifted beta distribution
+
+* based on earlier published work on bottlenose dolphin data, then scaled for each taxonomic unit as described in Supplement S4. For additional details regarding the bottlenose dolphin data see also Schwacke et al. 2017 and Schwacke et al. 2021 (SI, Table S2.1 - Input parameters for population model).
+    - $S_m$ and $S_f$: a vector of age and sex dependent survival for males and females, based on the Siler model parameters, see Supplement S5 for details
+    - $ASM$: age of sexual maturity; modeled as a gamma distribution; see the supplementary information for Schwacke et al. 2021, document AgeOfSexualMaturity, hosted at https://github.com/TiagoAMarques/CARMMHApapersSI, for details.
+    - $F_{max}$: maximum fecundity - modeled as a beta-PERT distribution
+    - $F_{nom}$: nominal fecundity - modeled as a beta-PERT distribution
+    
+* based on earlier published work on bottlenose dolphin data (Schwacke et al. 2021)
+    - $Br_{Tt}$: baseline reproductive success - modeled as beta distribution ($R_{baseline}$ in Schwacke et al. 2021)
+    - $Por_{Tt}$: post-spill reproductive success - modeled as beta distribution ($R_1$ in Schwacke et al. 2021)
+
+All these quantities and their respective distributions/parameters are provided in file `SpeciesDefinitionFile.xlsx`.
+
+A note regarding `ASM`. Given that this is a value for age in a model where age is incremented yearly, it needs to be an integer. As it turns out, the range of possible values of integers given the assumed distribution for ASM only covers, with non negligible probability, two to four different values depending on species. This is the reason why, for the injury metric associated with `ASM`, there are only a reduced number of different values. That induces that the median and the lower/upper percentile of the injury distributions might sometimes coincide.
+
+# Sensitivity Analysis 
+
+```{r}
+# number of iterations used in the sensitivity analysis
+runs4Sens <- 500
+# pattern to look for the files relating to sensitivity analysis in the "InOutBySp/" folder
+patt <- paste0(runs4Sens, "Sens")
+```
+
+
+We want to estimate the sensitivity to the 11 parameters defined above. We have run `r runs4Sens` iterations for each parameter (and each species) to evaluate sensitivity, and then we derive the elasticity by post-processing these runs to evaluate how the injury metric changes by changing the parameter in the vicinity of its mean value. We address these in turn in the following two sub-sections.
+
+## Uncertainty
+
+Consider a given parameter $K$. Consider $I$ as an example injury metric (i.e. I can be one of LCY, MPD and YTR. The mean $I$ from the `r runs4Sens` observations of a given injury metric for parameter $k$ is $\bar{I}^K$. We represent as $PC^k(I)$ the proportional change in $I$ for parameter $K$, where, for each parameter $K$ for which uncertainty is being evaluated, $K$ is allowed to change but all other parameters are kept at their mean value. 
+
+We show in plots below, for each injury metric and each parameter, the corresponding proportional change, in particular, the median, 2.5 and 97.5 percentiles of the distribution of proportional changes, across the `r runs4Sens` uncertainty iterations for each parameter $K$
+
+$$PC^K_{j}(I)=\frac{I^K_{j}-\bar{I}^K}{\bar{I}^K},~j=1,2,...,500$$.
+
+
+## Elasticity
+
+In this analysis we used the values obtained under the uncertainty analysis - see previous sub-section - to model the percentage change in the 3 injury metrics (Lost Cetacean Years LCY, Years to Recovery YTR and Maximum Proportional Decrease MPD) as a function of a unit percentage change in the different input parameters. 
+
+To do so, we used a generalized additive model (GAM), Gaussian response, and identity link. The reported results are virtually insensitive to the specific model chosen since the relations are all extremely smooth where it matters to evaluate elasticity, which is in the vicinity of the point estimate (here we considered the mean) of the parameter being evaluated. 
+
+From this model we can predict the injury metric given a value $v$ for the input parameter $k$, represented by $\hat I_k^v$. We represent the nominal mean value of the input parameter $k$ as $\bar k$. Therefore the elasticity is computed as
+
+$$E_k(I)=\frac{\hat I_k^{1.005\bar k}-\hat I_k^{0.995\bar k}}{\hat I_k^{\bar k}}$$.
+
+For a few of the injury metrics and parameters combinations the fit is poor, in particular for YTR. Sometimes the fit is not even sensible, because there is low to no variation in YTR. This happens mostly when the impact was very small or even absent (i.e. no change in YTR with a 1% change in the input parameter). Therefore, very large values of elasticity are estimated for that parameter with respect to LCY (because the denominator of the above expression is close to 0 or 0) when in fact the elasticity is negligible. For this reason, when for a given parameter the corresponding value of nominal LCY is lower than 1, $\hat I^{\bar k}<1$, we set the value for elasticity to not available (NA), which allows a much better visualization of the elasticity for the other parameters and metrics. Note this happens because the omnibus approach we used assumes that there is a change in the injury metric when changing the parameter, and if that is not the case elasticity is extremely small the effects are negligible. These problems originate also partially because we are approximating the change in a discrete injury metric (YTR) with a continuous function.
+
+The corresponding results are shown below, where we report the percentage change on the 3 injury metrics when each parameter is varied by 1% around the mean (i.e.  increased or decreased by 0.5%), while all the other parameters are kept at their mean value.
+
+Here we calculate the injury metrics percent change for a change in 1% on each of the 11 parameters, with that change being evaluated around the mean value of the input parameter. However, for
+
+* $S_{f,j}$ and $S_{m,j}$, and 
+* $P_{marked}$,
+
+since there is no univariate quantity to consider that the injury metric depends on, the above procedure needs an extension, where we use a univariate measure to represent these quantities. We used the weighted (weighted by the proportion in each age and sex class) average survival, which we refer to as `meanSiler` (we also look at these means by sex, namely `meanSilerF` for females and `meanSilerM` for males), and the average $P_{marked}$, that we refer to as `paPM`, as the corresponding univariate quantities to evaluate the injury metrics against. Note that, because the same mean value can be obtained with different combinations of the vector and different combinations of the corresponding vectors will have different impacts on the injury metric, this will lead to noise around the relationship we are trying to estimate.
+
+# Sensitivity results by  taxonomic unit
+
+The taxonomic units and the corresponding codes considered in this document are:
+
+* Bwsp - beaked whales, Beaked whales spp.
+* Fatt - pygmy killer whale,	*Feresa attenuata*
+* Ggri - Risso's dolphin,	*Grampus griseus*
+* Gmac - short-finned pilot whale,	*Globicephala macrorhynchus*
+* Kosp - Kogia,	*Kogia* spp.
+* Pele - melon-headed whale,	*Peponocephala electra*
+* Pmac - sperm whale,	*Physeter macrocephalus*
+* Satt - pantropical spotted dolphin, *Stenella attenuata*
+* Sbre - rough-toothed dolphin,	*Steno bredanensis*
+* Scly - Clymene dolphin,	*Stenella clymene*
+* Scoe - striped dolphin,	*Stenella coeruleoalba*
+* Sfro - Atlantic spotted dolphin,	*Stenella frontalis*
+* Slon - spinner dolphin,	*Stenella longirostris*
+* Ttro - offshore bottlenose dolphins,	*Tursiops truncatus*
+* Ttrs - shelf bottlenose dolphins, *Tursiops truncatus*
+
+The results for each taxonomic unit are presented in turn below.
+
+For each species we present in turn:
+
+* a summary plot showing the results of the uncertainty analysis for all parameters;
+* a list of plots - for each species these correspond to 11 (parameters) times 3 (injury metrics) - that show the values of the injury metric against the corresponding parameter for each of the 500 iterations. These plots illustrate the information used to estimate uncertainty and how from it we evaluated elasticity. The elasticity is approximated by the estimated change in the injury metric over 1% change around the input parameters (these points are highlighted in the plots below by the red lines) around the mean value (highlighted in the plots below by the green line); 
+* a summary plot showing the results of the elasticity analysis for all parameters, derived from the information shown in the parameter-by-injury plots as described above.
+
+Unlike for the order considered or most of the results presented in the paper and in other SI files, we present the uncertainty analysis for the sperm whales first, because we use  sperm whales to illustrate some additional insights about how one might explore the uncertainty analysis to better understand the sensitivity to different parameters. For the other species we just present the 3 sets of plots referred to in the previous list of outputs.
+
+
+## Sperm whale
+
+### Uncertainty
+
+We calculate the uncertainty measures per parameter and plot them:
+
+```{r}
+species <- "Sperm_whale"
+# get files names
+files <- list.files(path = paste0("InOutBySp/",species), pattern = patt)
+# check how many files
+nfiles <- length(files)
+# set up number of plots in figure
+par(mfrow = c(1, 1), mar = c(5, 4, 2.5, 0.5))
+plot(c(0.5, 11.5), c(-1, 1), type = "n", xlab = "", main = species, xaxt = "n", ylab = "Proportional change (95% CI)")
+abline(h = 0, lty = 2)
+for (i in 1:nfiles) {
+  # for each parameter
+  # load the sensitivity results
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by runs4Sens iterations data.frame
+  ## a 3 column (one per injury metric) by nsims iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  # scale the injury by subtracting mean injury for each injury metric
+  sinjury <- scale(injury, scale = FALSE)
+  # divide by mean for each injury metric
+  sinjury[, 1] <- sinjury[, 1] / mean(injury[, 1], na.rm = TRUE)
+  sinjury[, 2] <- sinjury[, 2] / mean(injury[, 2], na.rm = TRUE)
+  sinjury[, 3] <- sinjury[, 3] / mean(injury[, 3], na.rm = TRUE)
+  # plot results
+  qsinjury <- apply(sinjury, 2, quantile, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+  segments(i - 0.2, qsinjury[1, 1], i - 0.2, qsinjury[3, 1], col = 4)
+  segments(i, qsinjury[1, 2], i, qsinjury[3, 2], col = 2)
+  segments(i + 0.2, qsinjury[1, 2], i + 0.2, qsinjury[3, 2], col = 1)
+  points(c(i - 0.2, i, i + 0.2), qsinjury[2, ], col = c(4, 2, 1), pch = c(16, 15, 18))
+  label <- par.name
+  if (par.name == "N0") label <- expression(N[0])
+  if (par.name == "br") label <- expression(R[baseline])
+  if (par.name == "rho") label <- expression(rho)
+  if (par.name == "per") label <- expression(P[recovery])
+  if (par.name == "Fmax") label <- expression(F[max])
+  if (par.name == "Fnom") label <- expression(F[nom])
+  if (par.name == "ascS") label <- expression(paste(S[f, j], " & ", S[m, j]))
+  if (par.name == "PM") label <- expression(P[marked])
+  axis(side = 1, at = i, labels = label, las = 2)
+  legend("topleft", inset = 0.05, legend = names(injury), col = c(4, 2, 1), lty = 1, pch = c(16, 15, 18))
+}
+```
+
+### Elasticity
+
+Next we calculate the elasticity measures per parameter and plot them.
+
+```{r,echo=FALSE}
+#We first define an object to hold the elasticity measure for each parameter.
+metrics <- c("LCY", "YTR", "MPD")
+nmetrics <- length(metrics)
+elasticity <- data.frame(parID = 1:nfiles, parameter = NA, LCY = NA, YTR = NA, MPD = NA)
+#```{r, results='hide', fig.show='hide'}
+# set up number of plots in figure
+par(mfrow = c(1, 3), mar = c(4, 4, 2.5, 0.5))
+for (i in 1:nfiles) {
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by number of iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # for each parameter
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  elasticity$parameter[i] <- par.name
+  # select the parameter being evaluated - change parameter name later to avoid this tweak
+  if (par.name == "ascS") par.name <- "meanSiler"
+  if (par.name == "PM") par.name <- "paPM"
+  cat(paste0("Elasticity analysis for parameter ",par.name," ; species:", species))
+  p2spar <- eval(parse(text = paste0("pars2save$", par.name)))
+  for (k in 1:nmetrics) {
+    # select the k_th injury (k = 1,2,3)
+    inj <- eval(parse(text = paste0("injury$", metrics[k])))
+    # plot results
+    plot(p2spar, inj, xlab = par.name, ylab = metrics[k])
+    dat4mod <- data.frame(par = p2spar, inj = injury[, k])
+    # if there are not enough unique values of the parameter being evaluated
+    # only happens if the parameter is ASM (2-3 unique values)
+    # force a linear model fit, else a relatively inflexible GAM
+    if (length(unique(inj))<=3) {
+      mod <- lm(inj ~ par, data = dat4mod)
+    } else {
+      mod <- gam(inj ~ s(par,k=3), data = dat4mod)
+    }
+    seqpars <- seq(min(p2spar), max(p2spar), length = 500)
+    preds <- predict(mod, newdata = data.frame(par = seqpars), type = "response")
+    # check model adequate for predictions by plotting relationship and add model on top
+    lines(seqpars, preds)
+    mpar <- mean(p2spar)
+    delta <- c(0.995, 1, 1.005)
+    nd <- data.frame(par = mpar * delta)
+    preds <- predict(mod, newdata = nd, type = "response")
+    m.metrics <- mean(inj)
+    abline(v = c(mpar * delta), col = c("red", "green", "red"))
+    abline(h = c(preds), col = c("red", "green", "red"))
+    # calculate elasticity measure for the m_th parameter and k_th injury metric
+    elas <- 100 * (preds[3] - preds[1]) / preds[2]     
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
+    # save it in the right slot
+    elasticity[i, 3 + k] <- elas
+    # add number to top of the plot
+    mtext(text = round(elas,3), side = 3, cex = 0.8)
+  }
+}
+```
+
+We represent the elasticity measures per parameter here:
+
+```{r}
+par(mfrow = c(1, 1), mar = c(4, 6, 2.5, 0.5))
+barplot(t(as.matrix(elasticity[, 4:6])), col = c(4, 2, 1), beside = TRUE, ylab = "Percent change per 1% change in parameter", main = species)
+for (i in 1:nrow(elasticity)) {
+  # set reasonable label
+  label <- switch(elasticity$parameter[i],
+    ASM = "ASM",
+    N0 = expression(N[0]),
+    br = expression(R[baseline]),
+    por = expression(R[1]),
+    rho = expression(rho),
+    per = expression(P[recovery]),
+    spos = expression(S[1]),
+    Fmax = expression(F[max]),
+    Fnom = expression(F[nom]),
+    ascS = expression(paste(S[f, j], " & ", S[m, j])),
+    PM = expression(P[marked]),
+    BrTt = "BrTt",
+    pe = expression(p[e]),
+    PorTt = "PorTt",
+    SR = "SR"
+  )
+  axis(side = 1, at = 2.5 + (i - 1) * 4, labels = label, las = 2)
+}
+legend("bottomleft", col = c(4, 2, 1), pt.bg = c(4, 2, 1), legend = metrics, inset = 0.2, cex = 1.2, pch = 22)
+```
+
+To further understand elasticity it might be useful to represent population trajectories under different extreme realizations of a given parameter. As an example, we show said trajectories for the mean Siler survival (i.e. mean Survival weighted for the proportion in each age class and sex, but not weighted for the proportion marked) below:
+
+```{r}
+load(paste0("InOutBySp/",species,"/Pmacsimres500SensascS.RData"))
+sr <- simres
+par(mfrow=c(1,1),mar = c(4, 4, 2, 0.1))
+nyears <- dim(sr)[2]
+nsims <- dim(sr)[3]
+ylims <- c(min(c(colSums(sr[, , 1:nsims, 2]), colSums(sr[, , 1:nsims, 1])))*0.9, max(c(colSums(sr[, , 1:nsims, 2]), colSums(sr[, , 1:nsims, 1])))*1.1)
+plot(colSums(sr[, , 1, 2]), type = "n", ylim = ylims, xlab = "Years post spill", ylab = "Predicted population size", las = 1,main="Mean Siler")
+iMAX <- which(pars2save$meanSiler==max(pars2save$meanSiler))[1]
+iMIN <- which(pars2save$meanSiler==min(pars2save$meanSiler))[1]
+# baseline under minimum value for parameter
+lines(colSums(sr[, , iMIN, 2]), type = "l", lwd = 0.7, col = 2)
+# baseline under maximum value for parameter
+lines(colSums(sr[, , iMAX, 2]), type = "l", lwd = 1, col = 3)
+# under oil minimum value for parameter
+lines(colSums(sr[, , iMIN, 1]), type = "l", lwd = 0.7, col = 2)
+# under oil maximum value for parameter
+lines(colSums(sr[, , iMAX, 1]), type = "l", lwd = 1, col = 3)
+# add a legend
+legend("bottomright",inset=0.05,cex=1.2,col=2:3,lty=1,legend=c("min meanSiler","max meanSiler"))
+```
+
+In general terms, for each of the parameters, the relationship between what are the relative impacts in terms of uncertainty also reflect in similar patterns for elasticity. A noticeable difference is perhaps what happens for baseline survival, where the effect on the MPD presents an opposing pattern in elasticity. This pattern happens because while both YTR and LCY are naturally affected by the lower survival inducing longer recoveries, and hence much larger values for those injury metrics under low survival, the MPD is actually larger under high survival because the baseline scenario population size increases much more compared to post-spill scenario under the same conditions.
+
+One might also want to identify why there is such variability in the MPD when considering the meanSiler. It is perhaps unanticipated why not so different "average" meanSiler survivals could lead to MPD ranging from 44% to 50%. Visualizing those below show us that in fact the trajectories are somewhat different. But if the meanSiler is similar, what causes the difference?
+
+```{r}
+sr <- simres
+par(mfrow=c(1,1),mar = c(4, 4, 2, 0.1))
+nyears <- dim(sr)[2]
+nsims <- dim(sr)[3]
+ylims <- c(min(c(colSums(sr[, , 1:nsims, 2]), colSums(sr[, , 1:nsims, 1])))*0.9, max(c(colSums(sr[, , 1:nsims, 2]), colSums(sr[, , 1:nsims, 1])))*1.1)
+plot(colSums(sr[, , 1, 2]), type = "n", ylim = ylims, xlab = "Years post spill", ylab = "Predicted population size", las = 1,main="Mean Siler")
+iMAX <- which(injury$MPD==max(injury$MPD))[1]
+iMIN <- which(injury$MPD==min(injury$MPD))[1]
+# baseline under minimum value for parameter
+lines(colSums(sr[, , iMIN, 2]), type = "l", lwd = 0.7, col = 2)
+# baseline under maximum value for parameter
+lines(colSums(sr[, , iMAX, 2]), type = "l", lwd = 1, col = 3)
+# under oil minimum value for parameter
+lines(colSums(sr[, , iMIN, 1]), type = "l", lwd = 0.7, col = 2)
+# under oil maximum value for parameter
+lines(colSums(sr[, , iMAX, 1]), type = "l", lwd = 1, col = 3)
+# add a legend
+legend("bottomright",inset=0.05,cex=1.2,col=2:3,lty=1,legend=c("min MPD","max MPD"))
+```
+
+Do we get a hint of what is going on if we plot these injury metrics against survival separated by sex?
+
+```{r}
+par(mfrow = c(3, 3), mar = c(4, 4, 2.5, 0.5))
+#for each possible x-axis value to evaluate elasticity against in the case of baseline survival
+par.names<-c("meanSilerM","meanSilerF","meanSiler")
+for(s in 1:3){
+  par.name <- par.names[s]
+  p2spar <- eval(parse(text = paste0("pars2save$", par.name)))
+  for (k in 1:nmetrics) {
+    # select the k_th injury (k = 1,2,3)
+    inj <- eval(parse(text = paste0("injury$", metrics[k])))
+    # plot results
+    plot(p2spar, inj, xlab = par.name, ylab = metrics[k])
+    dat4mod <- data.frame(par = p2spar, inj = injury[, k])
+    # if there are not enough unique values of the parameter being evaluated
+    # only happens if the parameter is ASM (2 unique values)
+    # force a linear model fit, else a relatively inflexible GAM
+    if (length(unique(inj))<=2) {
+      mod <- lm(inj ~ par, data = dat4mod)
+    } else {
+      mod <- gam(inj ~ s(par, k = 3), data = dat4mod)
+    }
+    seqpars <- seq(min(p2spar), max(p2spar), length = 500)
+    preds <- predict(mod, newdata = data.frame(par = seqpars), type = "response")
+    # check model adequate for predictions by plotting relationship and addinmodel on top
+    lines(seqpars, preds)
+    mpar <- mean(p2spar)
+    delta <- c(0.995, 1, 1.005)
+    nd <- data.frame(par = mpar * delta)
+    preds <- predict(mod, newdata = nd, type = "response")
+    m.metrics <- mean(inj)
+    abline(v = c(mpar * delta), col = c("red", "green", "red"))
+    abline(h = c(preds), col = c("red", "green", "red"))
+    # calculate elasticity measure for the m_th parameter and k_th injury metric
+    elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
+    # save it in the right slot
+    mtext(text = round(elas,3), side = 3, cex = 0.8)
+  }
+}
+```
+
+We can get a feeling for how female survival seems to be more relevant for the injury metrics if we investigate what induces the larger differences in MPD. Looking at the female and male survivals for the two iterations that lead to the largest differences in MPD, even though they have very similar meanSiler survivals of `r round(pars2save$meanSiler[iMIN],3)` (minimum MPD) and `r round(pars2save$meanSiler[iMAX],3)` (maximum MPD).
+
+```{r}
+source("Functions/SilerFuns.R") # Siler model functions are here
+naBND <- 61 # number of age classes for BND
+agesBND <- 0:(naBND - 1)
+  #--------------------------------------------------------------------------
+  # Survival
+  #--------------------------------------------------------------------------
+  # reading in Siler parameters, for male and female BNDs
+  # These files were provided by LS via email on the Fri 5/22/2020 4:10 PM
+  pf <- read.csv("InputFiles/var_female 15May2020.csv")
+  pm <- read.csv("InputFiles/var_male 15May2020.csv")
+  # remove first column, which is just ID (not needed)
+  pf <- pf[, -1]
+  pm <- pm[, -1]
+  # get a sample from the Siler model for each sim - which is a posterior distribution
+  # number of Siler model draws
+  nS <- nrow(pf)
+  # objects to hold female and male realizations - Ttru
+  pxFs <- matrix(NA, nrow = length(agesBND), ncol = nS)
+  pxMs <- matrix(NA, nrow = length(agesBND), ncol = nS)
+   # for each observation of the posterior
+  for (s in 1:nS) {
+    # Survival Ttru
+    pxFs[, s] <- px(agesBND, pf[s, 1], pf[s, 2], pf[s, 3], pf[s, 4], pf[s, 5])
+    pxMs[, s] <- px(agesBND, pm[s, 1], pm[s, 2], pm[s, 3], pm[s, 4], pm[s, 5])
+   }
+plot(agesBND,pxFs[,pars2save$iS[iMAX]],col="green",type="l",lty=1,ylab="Survival probability",xlab="Age")
+points(agesBND,pxMs[,pars2save$iS[iMAX]],col="green",type="l",lty=2)
+points(agesBND,pxFs[,pars2save$iS[iMIN]],col="red",type="l",lty=1)
+points(agesBND,pxMs[,pars2save$iS[iMIN]],col="red",type="l",lty=2)
+legend("bottomleft",inset=0.05,legend=c("Female max MPD","Male max MPD","Female min MPD","Male min MPD"),lty=c(1,2,1,2),col=c("green","green","red","red"))
+#just taking a peak at these iteration parameters
+#pars2save[c(iMIN,iMAX),]
+```
+
+
+
+
+## Beaked whales
+
+### Uncertainty
+
+We calculate the uncertainty measures per parameter and then plot them:
+
+```{r,echo=FALSE}
+species <- "Beaked_whales"
+# get files names
+files <- list.files(path = paste0("InOutBySp/",species), pattern = patt)
+# check how many files
+nfiles <- length(files)
+# set up number of plots in figure
+par(mfrow = c(1, 1), mar = c(5, 4, 2.5, 0.5))
+plot(c(0.5, 11.5), c(-1.2, 1.2), type = "n", xlab = "", main = species, xaxt = "n", ylab = "Proportional change (95% CI)")
+abline(h = 0, lty = 2)
+for (i in 1:nfiles) {
+  # for each parameter
+  # load the sensitivity results
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by runs4Sens iterations data.frame
+  ## a 3 column (one per injury metric) by nsims iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  # scale the injury by subtracting mean injury for each injury metric
+  sinjury <- scale(injury, scale = FALSE)
+  # divide by mean for each injury metric
+  sinjury[, 1] <- sinjury[, 1] / mean(injury[, 1], na.rm = TRUE)
+  sinjury[, 2] <- sinjury[, 2] / mean(injury[, 2], na.rm = TRUE)
+  sinjury[, 3] <- sinjury[, 3] / mean(injury[, 3], na.rm = TRUE)
+  # plot results
+  qsinjury <- apply(sinjury, 2, quantile, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+  segments(i - 0.2, qsinjury[1, 1], i - 0.2, qsinjury[3, 1], col = 4)
+  segments(i, qsinjury[1, 2], i, qsinjury[3, 2], col = 2)
+  segments(i + 0.2, qsinjury[1, 2], i + 0.2, qsinjury[3, 2], col = 1)
+  points(c(i - 0.2, i, i + 0.2), qsinjury[2, ], col = c(4, 2, 1), pch = c(16, 15, 18))
+  label <- par.name
+  if (par.name == "N0") label <- expression(N[0])
+  if (par.name == "br") label <- expression(R[baseline])
+  if (par.name == "rho") label <- expression(rho)
+  if (par.name == "per") label <- expression(P[recovery])
+  if (par.name == "Fmax") label <- expression(F[max])
+  if (par.name == "Fnom") label <- expression(F[nom])
+  if (par.name == "ascS") label <- expression(paste(S[f, j], " & ", S[m, j]))
+  if (par.name == "PM") label <- expression(P[marked])
+  axis(side = 1, at = i, labels = label, las = 2)
+  legend("topleft", inset = 0.05, legend = names(injury), col = c(4, 2, 1), lty = 1, pch = c(16, 15, 18))
+}
+```
+
+### Elasticity
+
+Next we calculate the elasticity measures per parameter and plot them.
+
+```{r,echo=FALSE}
+#We first define an object to hold the elasticity measure for each parameter.
+metrics <- c("LCY", "YTR", "MPD")
+nmetrics <- length(metrics)
+elasticity <- data.frame(parID = 1:nfiles, parameter = NA, LCY = NA, YTR = NA, MPD = NA)
+#```{r, results='hide', fig.show='hide'}
+# set up number of plots in figure
+par(mfrow = c(1, 3), mar = c(4, 4, 2.5, 0.5))
+for (i in 1:nfiles) {
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by number of iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # for each parameter
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  elasticity$parameter[i] <- par.name
+  # select the parameter being evaluated - change parameter name later to avoid this tweak
+  if (par.name == "ascS") par.name <- "meanSiler"
+  if (par.name == "PM") par.name <- "paPM"
+  cat(paste0("Elasticity analysis for parameter ",par.name," ; species:", species))
+  p2spar <- eval(parse(text = paste0("pars2save$", par.name)))
+  for (k in 1:nmetrics) {
+    # select the k_th injury (k = 1,2,3)
+    inj <- eval(parse(text = paste0("injury$", metrics[k])))
+    # plot results
+    plot(p2spar, inj, xlab = par.name, ylab = metrics[k])
+    dat4mod <- data.frame(par = p2spar, inj = injury[, k])
+    # if there are not enough unique values of the parameter being evaluated
+    # only happens if the parameter is ASM (2-3 unique values)
+    # force a linear model fit, else a relatively inflexible GAM
+    if (length(unique(inj))<=3) {
+      mod <- lm(inj ~ par, data = dat4mod)
+    } else {
+      mod <- gam(inj ~ s(par,k=3), data = dat4mod)
+    }
+    seqpars <- seq(min(p2spar), max(p2spar), length = 500)
+    preds <- predict(mod, newdata = data.frame(par = seqpars), type = "response")
+    # check model adequate for predictions by plotting relationship and add model on top
+    lines(seqpars, preds)
+    mpar <- mean(p2spar)
+    delta <- c(0.995, 1, 1.005)
+    nd <- data.frame(par = mpar * delta)
+    preds <- predict(mod, newdata = nd, type = "response")
+    m.metrics <- mean(inj)
+    abline(v = c(mpar * delta), col = c("red", "green", "red"))
+    abline(h = c(preds), col = c("red", "green", "red"))
+    # calculate elasticity measure for the m_th parameter and k_th injury metric
+    elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
+    # save it in the right slot
+    elasticity[i, 3 + k] <- elas
+    # add number to top of the plot
+    mtext(text = round(elas,3), side = 3, cex = 0.8)
+  }
+}
+```
+
+We represent a summary of the elasticity measures per parameter below:
+
+```{r}
+par(mfrow = c(1, 1), mar = c(4, 6, 2.5, 0.5))
+barplot(t(as.matrix(elasticity[, 4:6])), col = c(4, 2, 1), beside = TRUE, ylab = "Percent change per 1% change in parameter", main = species)
+for (i in 1:nrow(elasticity)) {
+  # set reasonable label
+  label <- switch(elasticity$parameter[i],
+    ASM = "ASM",
+    N0 = expression(N[0]),
+    br = expression(R[baseline]),
+    por = expression(R[1]),
+    rho = expression(rho),
+    per = expression(P[recovery]),
+    spos = expression(S[1]),
+    Fmax = expression(F[max]),
+    Fnom = expression(F[nom]),
+    ascS = expression(paste(S[f, j], " & ", S[m, j])),
+    PM = expression(P[marked]),
+    BrTt = "BrTt",
+    pe = expression(p[e]),
+    PorTt = "PorTt",
+    SR = "SR"
+  )
+  axis(side = 1, at = 2.5 + (i - 1) * 4, labels = label, las = 2)
+}
+legend("bottomleft", col = c(4, 2, 1), pt.bg = c(4, 2, 1), legend = metrics, inset = 0.2, cex = 1.2, pch = 22)
+```
+
+
+## Pygmy killer whale
+
+### Uncertainty
+
+We calculate the uncertainty measures per parameter and plot them:
+
+```{r}
+species <- "Pygmy_killer_whale"
+# get files names
+files <- list.files(path = paste0("InOutBySp/",species), pattern = patt)
+# check how many files
+nfiles <- length(files)
+# set up number of plots in figure
+par(mfrow = c(1, 1), mar = c(5, 4, 2.5, 0.5))
+plot(c(0.5, 11.5), c(-1, 1), type = "n", xlab = "", main = species, xaxt = "n", ylab = "Proportional change (95% CI)")
+abline(h = 0, lty = 2)
+for (i in 1:nfiles) {
+  # for each parameter
+  # load the sensitivity results
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by runs4Sens iterations data.frame
+  ## a 3 column (one per injury metric) by nsims iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  # scale the injury by subtracting mean injury for each injury metric
+  sinjury <- scale(injury, scale = FALSE)
+  # divide by mean for each injury metric
+  sinjury[, 1] <- sinjury[, 1] / mean(injury[, 1], na.rm = TRUE)
+  sinjury[, 2] <- sinjury[, 2] / mean(injury[, 2], na.rm = TRUE)
+  sinjury[, 3] <- sinjury[, 3] / mean(injury[, 3], na.rm = TRUE)
+  # plot results
+  qsinjury <- apply(sinjury, 2, quantile, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+  segments(i - 0.2, qsinjury[1, 1], i - 0.2, qsinjury[3, 1], col = 4)
+  segments(i, qsinjury[1, 2], i, qsinjury[3, 2], col = 2)
+  segments(i + 0.2, qsinjury[1, 2], i + 0.2, qsinjury[3, 2], col = 1)
+  points(c(i - 0.2, i, i + 0.2), qsinjury[2, ], col = c(4, 2, 1), pch = c(16, 15, 18))
+  label <- par.name
+  if (par.name == "N0") label <- expression(N[0])
+  if (par.name == "br") label <- expression(R[baseline])
+  if (par.name == "rho") label <- expression(rho)
+  if (par.name == "per") label <- expression(P[recovery])
+  if (par.name == "Fmax") label <- expression(F[max])
+  if (par.name == "Fnom") label <- expression(F[nom])
+  if (par.name == "ascS") label <- expression(paste(S[f, j], " & ", S[m, j]))
+  if (par.name == "PM") label <- expression(P[marked])
+  axis(side = 1, at = i, labels = label, las = 2)
+  legend("topleft", inset = 0.05, legend = names(injury), col = c(4, 2, 1), lty = 1, pch = c(16, 15, 18))
+}
+```
+
+### Elasticity
+
+Next we calculate the elasticity measures per parameter and plot them.
+
+```{r,echo=FALSE}
+#We first define an object to hold the elasticity measure for each parameter.
+metrics <- c("LCY", "YTR", "MPD")
+nmetrics <- length(metrics)
+elasticity <- data.frame(parID = 1:nfiles, parameter = NA, LCY = NA, YTR = NA, MPD = NA)
+#```{r, results='hide', fig.show='hide'}
+# set up number of plots in figure
+par(mfrow = c(1, 3), mar = c(4, 4, 2.5, 0.5))
+for (i in 1:nfiles) {
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by number of iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # for each parameter
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  elasticity$parameter[i] <- par.name
+  # select the parameter being evaluated - change parameter name later to avoid this tweak
+  if (par.name == "ascS") par.name <- "meanSiler"
+  if (par.name == "PM") par.name <- "paPM"
+  cat(paste0("Elasticity analysis for parameter ",par.name," ; species:", species))
+  p2spar <- eval(parse(text = paste0("pars2save$", par.name)))
+  for (k in 1:nmetrics) {
+    # select the k_th injury (k = 1,2,3)
+    inj <- eval(parse(text = paste0("injury$", metrics[k])))
+    # plot results
+    plot(p2spar, inj, xlab = par.name, ylab = metrics[k])
+    dat4mod <- data.frame(par = p2spar, inj = injury[, k])
+    # if there are not enough unique values of the parameter being evaluated
+    # only happens if the parameter is ASM (2-3 unique values)
+    # force a linear model fit, else a relatively inflexible GAM
+    if (length(unique(inj))<=3) {
+      mod <- lm(inj ~ par, data = dat4mod)
+    } else {
+      mod <- gam(inj ~ s(par,k=3), data = dat4mod)
+    }
+    seqpars <- seq(min(p2spar), max(p2spar), length = 500)
+    preds <- predict(mod, newdata = data.frame(par = seqpars), type = "response")
+    # check model adequate for predictions by plotting relationship and add model on top
+    lines(seqpars, preds)
+    mpar <- mean(p2spar)
+    delta <- c(0.995, 1, 1.005)
+    nd <- data.frame(par = mpar * delta)
+    preds <- predict(mod, newdata = nd, type = "response")
+    m.metrics <- mean(inj)
+    abline(v = c(mpar * delta), col = c("red", "green", "red"))
+    abline(h = c(preds), col = c("red", "green", "red"))
+    # calculate elasticity measure for the m_th parameter and k_th injury metric
+    elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
+    # save it in the right slot
+    elasticity[i, 3 + k] <- elas
+    # add number to top of the plot
+    mtext(text = round(elas,3), side = 3, cex = 0.8)
+  }
+}
+```
+
+We represent the elasticity measures per parameter here:
+
+```{r}
+par(mfrow = c(1, 1), mar = c(4, 6, 2.5, 0.5))
+barplot(t(as.matrix(elasticity[, 4:6])), col = c(4, 2, 1), beside = TRUE, ylab = "Percent change per 1% change in parameter", main = species)
+for (i in 1:nrow(elasticity)) {
+  # set reasonable label
+  label <- switch(elasticity$parameter[i],
+    ASM = "ASM",
+    N0 = expression(N[0]),
+    br = expression(R[baseline]),
+    por = expression(R[1]),
+    rho = expression(rho),
+    per = expression(P[recovery]),
+    spos = expression(S[1]),
+    Fmax = expression(F[max]),
+    Fnom = expression(F[nom]),
+    ascS = expression(paste(S[f, j], " & ", S[m, j])),
+    PM = expression(P[marked]),
+    BrTt = "BrTt",
+    pe = expression(p[e]),
+    PorTt = "PorTt",
+    SR = "SR"
+  )
+  axis(side = 1, at = 2.5 + (i - 1) * 4, labels = label, las = 2)
+}
+legend("bottomleft", col = c(4, 2, 1), pt.bg = c(4, 2, 1), legend = metrics, inset = 0.2, cex = 1.2, pch = 22)
+```
+
+
+## Risso's dolphin
+
+### Uncertainty
+
+We calculate the uncertainty measures per parameter and plot them:
+
+```{r}
+species <- "Rissos_dolphin"
+# get files names
+files <- list.files(path = paste0("InOutBySp/",species), pattern = patt)
+# check how many files
+nfiles <- length(files)
+# set up number of plots in figure
+par(mfrow = c(1, 1), mar = c(5, 4, 2.5, 0.5))
+plot(c(0.5, 11.5), c(-1, 1), type = "n", xlab = "", main = species, xaxt = "n", ylab = "Proportional change (95% CI)")
+abline(h = 0, lty = 2)
+for (i in 1:nfiles) {
+  # for each parameter
+  # load the sensitivity results
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by runs4Sens iterations data.frame
+  ## a 3 column (one per injury metric) by nsims iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  # scale the injury by subtracting mean injury for each injury metric
+  sinjury <- scale(injury, scale = FALSE)
+  # divide by mean for each injury metric
+  sinjury[, 1] <- sinjury[, 1] / mean(injury[, 1], na.rm = TRUE)
+  sinjury[, 2] <- sinjury[, 2] / mean(injury[, 2], na.rm = TRUE)
+  sinjury[, 3] <- sinjury[, 3] / mean(injury[, 3], na.rm = TRUE)
+  # plot results
+  qsinjury <- apply(sinjury, 2, quantile, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+  segments(i - 0.2, qsinjury[1, 1], i - 0.2, qsinjury[3, 1], col = 4)
+  segments(i, qsinjury[1, 2], i, qsinjury[3, 2], col = 2)
+  segments(i + 0.2, qsinjury[1, 2], i + 0.2, qsinjury[3, 2], col = 1)
+  points(c(i - 0.2, i, i + 0.2), qsinjury[2, ], col = c(4, 2, 1), pch = c(16, 15, 18))
+  label <- par.name
+  if (par.name == "N0") label <- expression(N[0])
+  if (par.name == "br") label <- expression(R[baseline])
+  if (par.name == "rho") label <- expression(rho)
+  if (par.name == "per") label <- expression(P[recovery])
+  if (par.name == "Fmax") label <- expression(F[max])
+  if (par.name == "Fnom") label <- expression(F[nom])
+  if (par.name == "ascS") label <- expression(paste(S[f, j], " & ", S[m, j]))
+  if (par.name == "PM") label <- expression(P[marked])
+  axis(side = 1, at = i, labels = label, las = 2)
+  legend("topleft", inset = 0.05, legend = names(injury), col = c(4, 2, 1), lty = 1, pch = c(16, 15, 18))
+}
+```
+
+### Elasticity
+
+Next we calculate the elasticity measures per parameter and plot them.
+
+```{r,echo=FALSE}
+#We first define an object to hold the elasticity measure for each parameter.
+metrics <- c("LCY", "YTR", "MPD")
+nmetrics <- length(metrics)
+elasticity <- data.frame(parID = 1:nfiles, parameter = NA, LCY = NA, YTR = NA, MPD = NA)
+#```{r, results='hide', fig.show='hide'}
+# set up number of plots in figure
+par(mfrow = c(1, 3), mar = c(4, 4, 2.5, 0.5))
+for (i in 1:nfiles) {
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by number of iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # for each parameter
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  elasticity$parameter[i] <- par.name
+  # select the parameter being evaluated - change parameter name later to avoid this tweak
+  if (par.name == "ascS") par.name <- "meanSiler"
+  if (par.name == "PM") par.name <- "paPM"
+  cat(paste0("Elasticity analysis for parameter ",par.name," ; species:", species))
+  p2spar <- eval(parse(text = paste0("pars2save$", par.name)))
+  for (k in 1:nmetrics) {
+    # select the k_th injury (k = 1,2,3)
+    inj <- eval(parse(text = paste0("injury$", metrics[k])))
+    # plot results
+    plot(p2spar, inj, xlab = par.name, ylab = metrics[k])
+    dat4mod <- data.frame(par = p2spar, inj = injury[, k])
+    # if there are not enough unique values of the parameter being evaluated
+    # only happens if the parameter is ASM (2-3 unique values)
+    # force a linear model fit, else a relatively inflexible GAM
+    if (length(unique(inj))<=3) {
+      mod <- lm(inj ~ par, data = dat4mod)
+    } else {
+      mod <- gam(inj ~ s(par,k=3), data = dat4mod)
+    }
+    seqpars <- seq(min(p2spar), max(p2spar), length = 500)
+    preds <- predict(mod, newdata = data.frame(par = seqpars), type = "response")
+    # check model adequate for predictions by plotting relationship and add model on top
+    lines(seqpars, preds)
+    mpar <- mean(p2spar)
+    delta <- c(0.995, 1, 1.005)
+    nd <- data.frame(par = mpar * delta)
+    preds <- predict(mod, newdata = nd, type = "response")
+    m.metrics <- mean(inj)
+    abline(v = c(mpar * delta), col = c("red", "green", "red"))
+    abline(h = c(preds), col = c("red", "green", "red"))
+    # calculate elasticity measure for the m_th parameter and k_th injury metric
+    elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
+    # save it in the right slot
+    elasticity[i, 3 + k] <- elas
+    # add number to top of the plot
+    mtext(text = round(elas,3), side = 3, cex = 0.8)
+  }
+}
+```
+
+We represent the elasticity measures per parameter here:
+
+```{r}
+par(mfrow = c(1, 1), mar = c(4, 6, 2.5, 0.5))
+barplot(t(as.matrix(elasticity[, 4:6])), col = c(4, 2, 1), beside = TRUE, ylab = "Percent change per 1% change in parameter", main = species)
+for (i in 1:nrow(elasticity)) {
+  # set reasonable label
+  label <- switch(elasticity$parameter[i],
+    ASM = "ASM",
+    N0 = expression(N[0]),
+    br = expression(R[baseline]),
+    por = expression(R[1]),
+    rho = expression(rho),
+    per = expression(P[recovery]),
+    spos = expression(S[1]),
+    Fmax = expression(F[max]),
+    Fnom = expression(F[nom]),
+    ascS = expression(paste(S[f, j], " & ", S[m, j])),
+    PM = expression(P[marked]),
+    BrTt = "BrTt",
+    pe = expression(p[e]),
+    PorTt = "PorTt",
+    SR = "SR"
+  )
+  axis(side = 1, at = 2.5 + (i - 1) * 4, labels = label, las = 2)
+}
+legend("bottomleft", col = c(4, 2, 1), pt.bg = c(4, 2, 1), legend = metrics, inset = 0.2, cex = 1.2, pch = 22)
+```
+
+## Short-finned pilot whale
+
+### Uncertainty
+
+We calculate the uncertainty measures per parameter and plot them:
+
+```{r}
+species <- "Pilot_whales"
+# get files names
+files <- list.files(path = paste0("InOutBySp/",species), pattern = patt)
+# check how many files
+nfiles <- length(files)
+# set up number of plots in figure
+par(mfrow = c(1, 1), mar = c(5, 4, 2.5, 0.5))
+plot(c(0.5, 11.5), c(-1, 1), type = "n", xlab = "", main = species, xaxt = "n", ylab = "Proportional change (95% CI)")
+abline(h = 0, lty = 2)
+for (i in 1:nfiles) {
+  # for each parameter
+  # load the sensitivity results
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by runs4Sens iterations data.frame
+  ## a 3 column (one per injury metric) by nsims iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  # scale the injury by subtracting mean injury for each injury metric
+  sinjury <- scale(injury, scale = FALSE)
+  # divide by mean for each injury metric
+  sinjury[, 1] <- sinjury[, 1] / mean(injury[, 1], na.rm = TRUE)
+  sinjury[, 2] <- sinjury[, 2] / mean(injury[, 2], na.rm = TRUE)
+  sinjury[, 3] <- sinjury[, 3] / mean(injury[, 3], na.rm = TRUE)
+  # plot results
+  qsinjury <- apply(sinjury, 2, quantile, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+  segments(i - 0.2, qsinjury[1, 1], i - 0.2, qsinjury[3, 1], col = 4)
+  segments(i, qsinjury[1, 2], i, qsinjury[3, 2], col = 2)
+  segments(i + 0.2, qsinjury[1, 2], i + 0.2, qsinjury[3, 2], col = 1)
+  points(c(i - 0.2, i, i + 0.2), qsinjury[2, ], col = c(4, 2, 1), pch = c(16, 15, 18))
+  label <- par.name
+  if (par.name == "N0") label <- expression(N[0])
+  if (par.name == "br") label <- expression(R[baseline])
+  if (par.name == "rho") label <- expression(rho)
+  if (par.name == "per") label <- expression(P[recovery])
+  if (par.name == "Fmax") label <- expression(F[max])
+  if (par.name == "Fnom") label <- expression(F[nom])
+  if (par.name == "ascS") label <- expression(paste(S[f, j], " & ", S[m, j]))
+  if (par.name == "PM") label <- expression(P[marked])
+  axis(side = 1, at = i, labels = label, las = 2)
+  legend("topleft", inset = 0.05, legend = names(injury), col = c(4, 2, 1), lty = 1, pch = c(16, 15, 18))
+}
+```
+
+### Elasticity
+
+Next we calculate the elasticity measures per parameter and plot them.
+
+```{r,echo=FALSE}
+#We first define an object to hold the elasticity measure for each parameter.
+metrics <- c("LCY", "YTR", "MPD")
+nmetrics <- length(metrics)
+elasticity <- data.frame(parID = 1:nfiles, parameter = NA, LCY = NA, YTR = NA, MPD = NA)
+#```{r, results='hide', fig.show='hide'}
+# set up number of plots in figure
+par(mfrow = c(1, 3), mar = c(4, 4, 2.5, 0.5))
+for (i in 1:nfiles) {
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by number of iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # for each parameter
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  elasticity$parameter[i] <- par.name
+  # select the parameter being evaluated - change parameter name later to avoid this tweak
+  if (par.name == "ascS") par.name <- "meanSiler"
+  if (par.name == "PM") par.name <- "paPM"
+  cat(paste0("Elasticity analysis for parameter ",par.name," ; species:", species))
+  p2spar <- eval(parse(text = paste0("pars2save$", par.name)))
+  for (k in 1:nmetrics) {
+    # select the k_th injury (k = 1,2,3)
+    inj <- eval(parse(text = paste0("injury$", metrics[k])))
+    # plot results
+    plot(p2spar, inj, xlab = par.name, ylab = metrics[k])
+    dat4mod <- data.frame(par = p2spar, inj = injury[, k])
+    # if there are not enough unique values of the parameter being evaluated
+    # only happens if the parameter is ASM (2-3 unique values)
+    # force a linear model fit, else a relatively inflexible GAM
+    if (length(unique(inj))<=3) {
+      mod <- lm(inj ~ par, data = dat4mod)
+    } else {
+      mod <- gam(inj ~ s(par,k=3), data = dat4mod)
+    }
+    seqpars <- seq(min(p2spar), max(p2spar), length = 500)
+    preds <- predict(mod, newdata = data.frame(par = seqpars), type = "response")
+    # check model adequate for predictions by plotting relationship and add model on top
+    lines(seqpars, preds)
+    mpar <- mean(p2spar)
+    delta <- c(0.995, 1, 1.005)
+    nd <- data.frame(par = mpar * delta)
+    preds <- predict(mod, newdata = nd, type = "response")
+    m.metrics <- mean(inj)
+    abline(v = c(mpar * delta), col = c("red", "green", "red"))
+    abline(h = c(preds), col = c("red", "green", "red"))
+    # calculate elasticity measure for the m_th parameter and k_th injury metric
+    elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
+    # save it in the right slot
+    elasticity[i, 3 + k] <- elas
+    # add number to top of the plot
+    mtext(text = round(elas,3), side = 3, cex = 0.8)
+  }
+}
+```
+
+We represent the elasticity measures per parameter here:
+
+```{r}
+par(mfrow = c(1, 1), mar = c(4, 6, 2.5, 0.5))
+barplot(t(as.matrix(elasticity[, 4:6])), col = c(4, 2, 1), beside = TRUE, ylab = "Percent change per 1% change in parameter", main = species)
+for (i in 1:nrow(elasticity)) {
+  # set reasonable label
+  label <- switch(elasticity$parameter[i],
+    ASM = "ASM",
+    N0 = expression(N[0]),
+    br = expression(R[baseline]),
+    por = expression(R[1]),
+    rho = expression(rho),
+    per = expression(P[recovery]),
+    spos = expression(S[1]),
+    Fmax = expression(F[max]),
+    Fnom = expression(F[nom]),
+    ascS = expression(paste(S[f, j], " & ", S[m, j])),
+    PM = expression(P[marked]),
+    BrTt = "BrTt",
+    pe = expression(p[e]),
+    PorTt = "PorTt",
+    SR = "SR"
+  )
+  axis(side = 1, at = 2.5 + (i - 1) * 4, labels = label, las = 2)
+}
+legend("bottomleft", col = c(4, 2, 1), pt.bg = c(4, 2, 1), legend = metrics, inset = 0.2, cex = 1.2, pch = 22)
+```
+
+
+## Kogia
+
+### Uncertainty
+
+We calculate the uncertainty measures per parameter and plot them:
+
+```{r}
+species <- "Kogia_whales"
+# get files names
+files <- list.files(path = paste0("InOutBySp/",species), pattern = patt)
+# check how many files
+nfiles <- length(files)
+# set up number of plots in figure
+par(mfrow = c(1, 1), mar = c(5, 4, 2.5, 0.5))
+plot(c(0.5, 11.5), c(-1, 1), type = "n", xlab = "", main = species, xaxt = "n", ylab = "Proportional change (95% CI)")
+abline(h = 0, lty = 2)
+for (i in 1:nfiles) {
+  # for each parameter
+  # load the sensitivity results
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by runs4Sens iterations data.frame
+  ## a 3 column (one per injury metric) by nsims iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  # scale the injury by subtracting mean injury for each injury metric
+  sinjury <- scale(injury, scale = FALSE)
+  # divide by mean for each injury metric
+  sinjury[, 1] <- sinjury[, 1] / mean(injury[, 1], na.rm = TRUE)
+  sinjury[, 2] <- sinjury[, 2] / mean(injury[, 2], na.rm = TRUE)
+  sinjury[, 3] <- sinjury[, 3] / mean(injury[, 3], na.rm = TRUE)
+  # plot results
+  qsinjury <- apply(sinjury, 2, quantile, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+  segments(i - 0.2, qsinjury[1, 1], i - 0.2, qsinjury[3, 1], col = 4)
+  segments(i, qsinjury[1, 2], i, qsinjury[3, 2], col = 2)
+  segments(i + 0.2, qsinjury[1, 2], i + 0.2, qsinjury[3, 2], col = 1)
+  points(c(i - 0.2, i, i + 0.2), qsinjury[2, ], col = c(4, 2, 1), pch = c(16, 15, 18))
+  label <- par.name
+  if (par.name == "N0") label <- expression(N[0])
+  if (par.name == "br") label <- expression(R[baseline])
+  if (par.name == "rho") label <- expression(rho)
+  if (par.name == "per") label <- expression(P[recovery])
+  if (par.name == "Fmax") label <- expression(F[max])
+  if (par.name == "Fnom") label <- expression(F[nom])
+  if (par.name == "ascS") label <- expression(paste(S[f, j], " & ", S[m, j]))
+  if (par.name == "PM") label <- expression(P[marked])
+  axis(side = 1, at = i, labels = label, las = 2)
+  legend("topleft", inset = 0.05, legend = names(injury), col = c(4, 2, 1), lty = 1, pch = c(16, 15, 18))
+}
+```
+
+### Elasticity
+
+Next we calculate the elasticity measures per parameter and plot them.
+
+```{r,echo=FALSE}
+#We first define an object to hold the elasticity measure for each parameter.
+metrics <- c("LCY", "YTR", "MPD")
+nmetrics <- length(metrics)
+elasticity <- data.frame(parID = 1:nfiles, parameter = NA, LCY = NA, YTR = NA, MPD = NA)
+#```{r, results='hide', fig.show='hide'}
+# set up number of plots in figure
+par(mfrow = c(1, 3), mar = c(4, 4, 2.5, 0.5))
+for (i in 1:nfiles) {
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by number of iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # for each parameter
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  elasticity$parameter[i] <- par.name
+  # select the parameter being evaluated - change parameter name later to avoid this tweak
+  if (par.name == "ascS") par.name <- "meanSiler"
+  if (par.name == "PM") par.name <- "paPM"
+  cat(paste0("Elasticity analysis for parameter ",par.name," ; species:", species))
+  p2spar <- eval(parse(text = paste0("pars2save$", par.name)))
+  for (k in 1:nmetrics) {
+    # select the k_th injury (k = 1,2,3)
+    inj <- eval(parse(text = paste0("injury$", metrics[k])))
+    # plot results
+    plot(p2spar, inj, xlab = par.name, ylab = metrics[k])
+    dat4mod <- data.frame(par = p2spar, inj = injury[, k])
+    # if there are not enough unique values of the parameter being evaluated
+    # only happens if the parameter is ASM (2-3 unique values)
+    # force a linear model fit, else a relatively inflexible GAM
+    if (length(unique(inj))<=3) {
+      mod <- lm(inj ~ par, data = dat4mod)
+    } else {
+      mod <- gam(inj ~ s(par,k=3), data = dat4mod)
+    }
+    seqpars <- seq(min(p2spar), max(p2spar), length = 500)
+    preds <- predict(mod, newdata = data.frame(par = seqpars), type = "response")
+    # check model adequate for predictions by plotting relationship and add model on top
+    lines(seqpars, preds)
+    mpar <- mean(p2spar)
+    delta <- c(0.995, 1, 1.005)
+    nd <- data.frame(par = mpar * delta)
+    preds <- predict(mod, newdata = nd, type = "response")
+    m.metrics <- mean(inj)
+    abline(v = c(mpar * delta), col = c("red", "green", "red"))
+    abline(h = c(preds), col = c("red", "green", "red"))
+    # calculate elasticity measure for the m_th parameter and k_th injury metric
+    elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
+    # save it in the right slot
+    elasticity[i, 3 + k] <- elas
+    # add number to top of the plot
+    mtext(text = round(elas,3), side = 3, cex = 0.8)
+  }
+}
+```
+
+We represent the elasticity measures per parameter here:
+
+```{r}
+par(mfrow = c(1, 1), mar = c(4, 6, 2.5, 0.5))
+barplot(t(as.matrix(elasticity[, 4:6])), col = c(4, 2, 1), beside = TRUE, ylab = "Percent change per 1% change in parameter", main = species)
+for (i in 1:nrow(elasticity)) {
+  # set reasonable label
+  label <- switch(elasticity$parameter[i],
+    ASM = "ASM",
+    N0 = expression(N[0]),
+    br = expression(R[baseline]),
+    por = expression(R[1]),
+    rho = expression(rho),
+    per = expression(P[recovery]),
+    spos = expression(S[1]),
+    Fmax = expression(F[max]),
+    Fnom = expression(F[nom]),
+    ascS = expression(paste(S[f, j], " & ", S[m, j])),
+    PM = expression(P[marked]),
+    BrTt = "BrTt",
+    pe = expression(p[e]),
+    PorTt = "PorTt",
+    SR = "SR"
+  )
+  axis(side = 1, at = 2.5 + (i - 1) * 4, labels = label, las = 2)
+}
+legend("bottomleft", col = c(4, 2, 1), pt.bg = c(4, 2, 1), legend = metrics, inset = 0.2, cex = 1.2, pch = 22)
+```
+
+
+## Melon-headed whale
+
+### Uncertainty
+
+We calculate the uncertainty measures per parameter and plot them:
+
+```{r}
+species <- "Melon-headed_whale"
+# get files names
+files <- list.files(path = paste0("InOutBySp/",species), pattern = patt)
+# check how many files
+nfiles <- length(files)
+# set up number of plots in figure
+par(mfrow = c(1, 1), mar = c(5, 4, 2.5, 0.5))
+plot(c(0.5, 11.5), c(-1, 1), type = "n", xlab = "", main = species, xaxt = "n", ylab = "Proportional change (95% CI)")
+abline(h = 0, lty = 2)
+for (i in 1:nfiles) {
+  # for each parameter
+  # load the sensitivity results
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by runs4Sens iterations data.frame
+  ## a 3 column (one per injury metric) by nsims iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  # scale the injury by subtracting mean injury for each injury metric
+  sinjury <- scale(injury, scale = FALSE)
+  # divide by mean for each injury metric
+  sinjury[, 1] <- sinjury[, 1] / mean(injury[, 1], na.rm = TRUE)
+  sinjury[, 2] <- sinjury[, 2] / mean(injury[, 2], na.rm = TRUE)
+  sinjury[, 3] <- sinjury[, 3] / mean(injury[, 3], na.rm = TRUE)
+  # plot results
+  qsinjury <- apply(sinjury, 2, quantile, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+  segments(i - 0.2, qsinjury[1, 1], i - 0.2, qsinjury[3, 1], col = 4)
+  segments(i, qsinjury[1, 2], i, qsinjury[3, 2], col = 2)
+  segments(i + 0.2, qsinjury[1, 2], i + 0.2, qsinjury[3, 2], col = 1)
+  points(c(i - 0.2, i, i + 0.2), qsinjury[2, ], col = c(4, 2, 1), pch = c(16, 15, 18))
+  label <- par.name
+  if (par.name == "N0") label <- expression(N[0])
+  if (par.name == "br") label <- expression(R[baseline])
+  if (par.name == "rho") label <- expression(rho)
+  if (par.name == "per") label <- expression(P[recovery])
+  if (par.name == "Fmax") label <- expression(F[max])
+  if (par.name == "Fnom") label <- expression(F[nom])
+  if (par.name == "ascS") label <- expression(paste(S[f, j], " & ", S[m, j]))
+  if (par.name == "PM") label <- expression(P[marked])
+  axis(side = 1, at = i, labels = label, las = 2)
+  legend("topleft", inset = 0.05, legend = names(injury), col = c(4, 2, 1), lty = 1, pch = c(16, 15, 18))
+}
+```
+
+### Elasticity
+
+Next we calculate the elasticity measures per parameter and plot them.
+
+```{r,echo=FALSE}
+#We first define an object to hold the elasticity measure for each parameter.
+metrics <- c("LCY", "YTR", "MPD")
+nmetrics <- length(metrics)
+elasticity <- data.frame(parID = 1:nfiles, parameter = NA, LCY = NA, YTR = NA, MPD = NA)#```{r, results='hide', fig.show='hide'}
+# set up number of plots in figure
+par(mfrow = c(1, 3), mar = c(4, 4, 2.5, 0.5))
+for (i in 1:nfiles) {
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by number of iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # for each parameter
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  elasticity$parameter[i] <- par.name
+  # select the parameter being evaluated - change parameter name later to avoid this tweak
+  if (par.name == "ascS") par.name <- "meanSiler"
+  if (par.name == "PM") par.name <- "paPM"
+  cat(paste0("Elasticity analysis for parameter ",par.name," ; species:", species))
+  p2spar <- eval(parse(text = paste0("pars2save$", par.name)))
+  for (k in 1:nmetrics) {
+    # select the k_th injury (k = 1,2,3)
+    inj <- eval(parse(text = paste0("injury$", metrics[k])))
+    # plot results
+    plot(p2spar, inj, xlab = par.name, ylab = metrics[k])
+    dat4mod <- data.frame(par = p2spar, inj = injury[, k])
+    # if there are not enough unique values of the parameter being evaluated
+    # only happens if the parameter is ASM (2-3 unique values)
+    # force a linear model fit, else a relatively inflexible GAM
+    if (length(unique(inj))<=3) {
+      mod <- lm(inj ~ par, data = dat4mod)
+    } else {
+      mod <- gam(inj ~ s(par,k=3), data = dat4mod)
+    }
+    seqpars <- seq(min(p2spar), max(p2spar), length = 500)
+    preds <- predict(mod, newdata = data.frame(par = seqpars), type = "response")
+    # check model adequate for predictions by plotting relationship and add model on top
+    lines(seqpars, preds)
+    mpar <- mean(p2spar)
+    delta <- c(0.995, 1, 1.005)
+    nd <- data.frame(par = mpar * delta)
+    preds <- predict(mod, newdata = nd, type = "response")
+    m.metrics <- mean(inj)
+    abline(v = c(mpar * delta), col = c("red", "green", "red"))
+    abline(h = c(preds), col = c("red", "green", "red"))
+    # calculate elasticity measure for the m_th parameter and k_th injury metric
+    elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
+    # save it in the right slot
+    elasticity[i, 3 + k] <- elas
+    # add number to top of the plot
+    mtext(text = round(elas,3), side = 3, cex = 0.8)
+  }
+}
+```
+
+We represent the elasticity measures per parameter here:
+
+```{r}
+par(mfrow = c(1, 1), mar = c(4, 6, 2.5, 0.5))
+barplot(t(as.matrix(elasticity[, 4:6])), col = c(4, 2, 1), beside = TRUE, ylab = "Percent change per 1% change in parameter", main = species)
+for (i in 1:nrow(elasticity)) {
+  # set reasonable label
+  label <- switch(elasticity$parameter[i],
+    ASM = "ASM",
+    N0 = expression(N[0]),
+    br = expression(R[baseline]),
+    por = expression(R[1]),
+    rho = expression(rho),
+    per = expression(P[recovery]),
+    spos = expression(S[1]),
+    Fmax = expression(F[max]),
+    Fnom = expression(F[nom]),
+    ascS = expression(paste(S[f, j], " & ", S[m, j])),
+    PM = expression(P[marked]),
+    BrTt = "BrTt",
+    pe = expression(p[e]),
+    PorTt = "PorTt",
+    SR = "SR"
+  )
+  axis(side = 1, at = 2.5 + (i - 1) * 4, labels = label, las = 2)
+}
+legend("bottomleft", col = c(4, 2, 1), pt.bg = c(4, 2, 1), legend = metrics, inset = 0.2, cex = 1.2, pch = 22)
+```
+
+
+## Pantropical spotted dolphin
+
+### Uncertainty
+
+We calculate the uncertainty measures per parameter and plot them:
+
+```{r}
+species <- "Pantropical_spotted_dolphin"
+# get files names
+files <- list.files(path = paste0("InOutBySp/",species), pattern = patt)
+# check how many files
+nfiles <- length(files)
+# set up number of plots in figure
+par(mfrow = c(1, 1), mar = c(5, 4, 2.5, 0.5))
+plot(c(0.5, 11.5), c(-1, 1), type = "n", xlab = "", main = species, xaxt = "n", ylab = "Proportional change (95% CI)")
+abline(h = 0, lty = 2)
+for (i in 1:nfiles) {
+  # for each parameter
+  # load the sensitivity results
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by runs4Sens iterations data.frame
+  ## a 3 column (one per injury metric) by nsims iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  # scale the injury by subtracting mean injury for each injury metric
+  sinjury <- scale(injury, scale = FALSE)
+  # divide by mean for each injury metric
+  sinjury[, 1] <- sinjury[, 1] / mean(injury[, 1], na.rm = TRUE)
+  sinjury[, 2] <- sinjury[, 2] / mean(injury[, 2], na.rm = TRUE)
+  sinjury[, 3] <- sinjury[, 3] / mean(injury[, 3], na.rm = TRUE)
+  # plot results
+  qsinjury <- apply(sinjury, 2, quantile, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+  segments(i - 0.2, qsinjury[1, 1], i - 0.2, qsinjury[3, 1], col = 4)
+  segments(i, qsinjury[1, 2], i, qsinjury[3, 2], col = 2)
+  segments(i + 0.2, qsinjury[1, 2], i + 0.2, qsinjury[3, 2], col = 1)
+  points(c(i - 0.2, i, i + 0.2), qsinjury[2, ], col = c(4, 2, 1), pch = c(16, 15, 18))
+  label <- par.name
+  if (par.name == "N0") label <- expression(N[0])
+  if (par.name == "br") label <- expression(R[baseline])
+  if (par.name == "rho") label <- expression(rho)
+  if (par.name == "per") label <- expression(P[recovery])
+  if (par.name == "Fmax") label <- expression(F[max])
+  if (par.name == "Fnom") label <- expression(F[nom])
+  if (par.name == "ascS") label <- expression(paste(S[f, j], " & ", S[m, j]))
+  if (par.name == "PM") label <- expression(P[marked])
+  axis(side = 1, at = i, labels = label, las = 2)
+  legend("topleft", inset = 0.05, legend = names(injury), col = c(4, 2, 1), lty = 1, pch = c(16, 15, 18))
+}
+```
+
+### Elasticity
+
+Next we calculate the elasticity measures per parameter and plot them.
+
+```{r,echo=FALSE}
+#We first define an object to hold the elasticity measure for each parameter.
+metrics <- c("LCY", "YTR", "MPD")
+nmetrics <- length(metrics)
+elasticity <- data.frame(parID = 1:nfiles, parameter = NA, LCY = NA, YTR = NA, MPD = NA)#```{r, results='hide', fig.show='hide'}
+# set up number of plots in figure
+par(mfrow = c(1, 3), mar = c(4, 4, 2.5, 0.5))
+for (i in 1:nfiles) {
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by number of iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # for each parameter
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  elasticity$parameter[i] <- par.name
+  # select the parameter being evaluated - change parameter name later to avoid this tweak
+  if (par.name == "ascS") par.name <- "meanSiler"
+  if (par.name == "PM") par.name <- "paPM"
+  cat(paste0("Elasticity analysis for parameter ",par.name," ; species:", species))
+  p2spar <- eval(parse(text = paste0("pars2save$", par.name)))
+  for (k in 1:nmetrics) {
+    # select the k_th injury (k = 1,2,3)
+    inj <- eval(parse(text = paste0("injury$", metrics[k])))
+    # plot results
+    plot(p2spar, inj, xlab = par.name, ylab = metrics[k])
+    dat4mod <- data.frame(par = p2spar, inj = injury[, k])
+    # if there are not enough unique values of the parameter being evaluated
+    # only happens if the parameter is ASM (2-3 unique values)
+    # force a linear model fit, else a relatively inflexible GAM
+    if (length(unique(inj))<=3) {
+      mod <- lm(inj ~ par, data = dat4mod)
+    } else {
+      mod <- gam(inj ~ s(par,k=3), data = dat4mod)
+    }
+    seqpars <- seq(min(p2spar), max(p2spar), length = 500)
+    preds <- predict(mod, newdata = data.frame(par = seqpars), type = "response")
+    # check model adequate for predictions by plotting relationship and add model on top
+    lines(seqpars, preds)
+    mpar <- mean(p2spar)
+    delta <- c(0.995, 1, 1.005)
+    nd <- data.frame(par = mpar * delta)
+    preds <- predict(mod, newdata = nd, type = "response")
+    m.metrics <- mean(inj)
+    abline(v = c(mpar * delta), col = c("red", "green", "red"))
+    abline(h = c(preds), col = c("red", "green", "red"))
+    # calculate elasticity measure for the m_th parameter and k_th injury metric
+    elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
+    # save it in the right slot
+    elasticity[i, 3 + k] <- elas
+    # add number to top of the plot
+    mtext(text = round(elas,3), side = 3, cex = 0.8)
+  }
+}
+```
+
+We represent the elasticity measures per parameter here:
+
+```{r}
+par(mfrow = c(1, 1), mar = c(4, 6, 2.5, 0.5))
+barplot(t(as.matrix(elasticity[, 4:6])), col = c(4, 2, 1), beside = TRUE, ylab = "Percent change per 1% change in parameter", main = species)
+for (i in 1:nrow(elasticity)) {
+  # set reasonable label
+  label <- switch(elasticity$parameter[i],
+    ASM = "ASM",
+    N0 = expression(N[0]),
+    br = expression(R[baseline]),
+    por = expression(R[1]),
+    rho = expression(rho),
+    per = expression(P[recovery]),
+    spos = expression(S[1]),
+    Fmax = expression(F[max]),
+    Fnom = expression(F[nom]),
+    ascS = expression(paste(S[f, j], " & ", S[m, j])),
+    PM = expression(P[marked]),
+    BrTt = "BrTt",
+    pe = expression(p[e]),
+    PorTt = "PorTt",
+    SR = "SR"
+  )
+  axis(side = 1, at = 2.5 + (i - 1) * 4, labels = label, las = 2)
+}
+legend("bottomleft", col = c(4, 2, 1), pt.bg = c(4, 2, 1), legend = metrics, inset = 0.2, cex = 1.2, pch = 22)
+```
+
+
+
+## Rough-toothed dolphin
+
+### Uncertainty
+
+We calculate the uncertainty measures per parameter and plot them:
+
+```{r}
+species <- "Rough-toothed_dolphin"
+# get files names
+files <- list.files(path = paste0("InOutBySp/",species), pattern = patt)
+# check how many files
+nfiles <- length(files)
+# set up number of plots in figure
+par(mfrow = c(1, 1), mar = c(5, 4, 2.5, 0.5))
+plot(c(0.5, 11.5), c(-1, 1), type = "n", xlab = "", main = species, xaxt = "n", ylab = "Proportional change (95% CI)")
+abline(h = 0, lty = 2)
+for (i in 1:nfiles) {
+  # for each parameter
+  # load the sensitivity results
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by runs4Sens iterations data.frame
+  ## a 3 column (one per injury metric) by nsims iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  # scale the injury by subtracting mean injury for each injury metric
+  sinjury <- scale(injury, scale = FALSE)
+  # divide by mean for each injury metric
+  sinjury[, 1] <- sinjury[, 1] / mean(injury[, 1], na.rm = TRUE)
+  sinjury[, 2] <- sinjury[, 2] / mean(injury[, 2], na.rm = TRUE)
+  sinjury[, 3] <- sinjury[, 3] / mean(injury[, 3], na.rm = TRUE)
+  # plot results
+  qsinjury <- apply(sinjury, 2, quantile, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+  segments(i - 0.2, qsinjury[1, 1], i - 0.2, qsinjury[3, 1], col = 4)
+  segments(i, qsinjury[1, 2], i, qsinjury[3, 2], col = 2)
+  segments(i + 0.2, qsinjury[1, 2], i + 0.2, qsinjury[3, 2], col = 1)
+  points(c(i - 0.2, i, i + 0.2), qsinjury[2, ], col = c(4, 2, 1), pch = c(16, 15, 18))
+  label <- par.name
+  if (par.name == "N0") label <- expression(N[0])
+  if (par.name == "br") label <- expression(R[baseline])
+  if (par.name == "rho") label <- expression(rho)
+  if (par.name == "per") label <- expression(P[recovery])
+  if (par.name == "Fmax") label <- expression(F[max])
+  if (par.name == "Fnom") label <- expression(F[nom])
+  if (par.name == "ascS") label <- expression(paste(S[f, j], " & ", S[m, j]))
+  if (par.name == "PM") label <- expression(P[marked])
+  axis(side = 1, at = i, labels = label, las = 2)
+  legend("topleft", inset = 0.05, legend = names(injury), col = c(4, 2, 1), lty = 1, pch = c(16, 15, 18))
+}
+```
+
+### Elasticity
+
+Next we calculate the elasticity measures per parameter and plot them.
+
+```{r,echo=FALSE}
+#We first define an object to hold the elasticity measure for each parameter.
+metrics <- c("LCY", "YTR", "MPD")
+nmetrics <- length(metrics)
+elasticity <- data.frame(parID = 1:nfiles, parameter = NA, LCY = NA, YTR = NA, MPD = NA)
+#```{r, results='hide', fig.show='hide'}
+# set up number of plots in figure
+par(mfrow = c(1, 3), mar = c(4, 4, 2.5, 0.5))
+for (i in 1:nfiles) {
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by number of iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # for each parameter
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  elasticity$parameter[i] <- par.name
+  # select the parameter being evaluated - change parameter name later to avoid this tweak
+  if (par.name == "ascS") par.name <- "meanSiler"
+  if (par.name == "PM") par.name <- "paPM"
+  cat(paste0("Elasticity analysis for parameter ",par.name," ; species:", species))
+  p2spar <- eval(parse(text = paste0("pars2save$", par.name)))
+  for (k in 1:nmetrics) {
+    # select the k_th injury (k = 1,2,3)
+    inj <- eval(parse(text = paste0("injury$", metrics[k])))
+    # plot results
+    plot(p2spar, inj, xlab = par.name, ylab = metrics[k])
+    dat4mod <- data.frame(par = p2spar, inj = injury[, k])
+    # if there are not enough unique values of the parameter being evaluated
+    # only happens if the parameter is ASM (2-3 unique values)
+    # force a linear model fit, else a relatively inflexible GAM
+    if (length(unique(inj))<=3) {
+      mod <- lm(inj ~ par, data = dat4mod)
+    } else {
+      mod <- gam(inj ~ s(par,k=3), data = dat4mod)
+    }
+    seqpars <- seq(min(p2spar), max(p2spar), length = 500)
+    preds <- predict(mod, newdata = data.frame(par = seqpars), type = "response")
+    # check model adequate for predictions by plotting relationship and add model on top
+    lines(seqpars, preds)
+    mpar <- mean(p2spar)
+    delta <- c(0.995, 1, 1.005)
+    nd <- data.frame(par = mpar * delta)
+    preds <- predict(mod, newdata = nd, type = "response")
+    m.metrics <- mean(inj)
+    abline(v = c(mpar * delta), col = c("red", "green", "red"))
+    abline(h = c(preds), col = c("red", "green", "red"))
+    # calculate elasticity measure for the m_th parameter and k_th injury metric
+    elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
+    # save it in the right slot
+    elasticity[i, 3 + k] <- elas
+    # add number to top of the plot
+    mtext(text = round(elas,3), side = 3, cex = 0.8)
+  }
+}
+```
+
+We represent the elasticity measures per parameter here:
+
+```{r}
+par(mfrow = c(1, 1), mar = c(4, 6, 2.5, 0.5))
+barplot(t(as.matrix(elasticity[, 4:6])), col = c(4, 2, 1), beside = TRUE, ylab = "Percent change per 1% change in parameter", main = species)
+for (i in 1:nrow(elasticity)) {
+  # set reasonable label
+  label <- switch(elasticity$parameter[i],
+    ASM = "ASM",
+    N0 = expression(N[0]),
+    br = expression(R[baseline]),
+    por = expression(R[1]),
+    rho = expression(rho),
+    per = expression(P[recovery]),
+    spos = expression(S[1]),
+    Fmax = expression(F[max]),
+    Fnom = expression(F[nom]),
+    ascS = expression(paste(S[f, j], " & ", S[m, j])),
+    PM = expression(P[marked]),
+    BrTt = "BrTt",
+    pe = expression(p[e]),
+    PorTt = "PorTt",
+    SR = "SR"
+  )
+  axis(side = 1, at = 2.5 + (i - 1) * 4, labels = label, las = 2)
+}
+legend("bottomleft", col = c(4, 2, 1), pt.bg = c(4, 2, 1), legend = metrics, inset = 0.2, cex = 1.2, pch = 22)
+```
+
+
+
+
+
+## Clymene dolphin
+
+### Uncertainty
+
+We calculate the uncertainty measures per parameter and plot them:
+
+```{r}
+species <- "Clymene_dolphin"
+# get files names
+files <- list.files(path = paste0("InOutBySp/",species), pattern = patt)
+# check how many files
+nfiles <- length(files)
+# set up number of plots in figure
+par(mfrow = c(1, 1), mar = c(5, 4, 2.5, 0.5))
+plot(c(0.5, 11.5), c(-1, 1), type = "n", xlab = "", main = species, xaxt = "n", ylab = "Proportional change (95% CI)")
+abline(h = 0, lty = 2)
+for (i in 1:nfiles) {
+  # for each parameter
+  # load the sensitivity results
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by runs4Sens iterations data.frame
+  ## a 3 column (one per injury metric) by nsims iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  # scale the injury by subtracting mean injury for each injury metric
+  sinjury <- scale(injury, scale = FALSE)
+  # divide by mean for each injury metric
+  sinjury[, 1] <- sinjury[, 1] / mean(injury[, 1], na.rm = TRUE)
+  sinjury[, 2] <- sinjury[, 2] / mean(injury[, 2], na.rm = TRUE)
+  sinjury[, 3] <- sinjury[, 3] / mean(injury[, 3], na.rm = TRUE)
+  # plot results
+  qsinjury <- apply(sinjury, 2, quantile, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+  segments(i - 0.2, qsinjury[1, 1], i - 0.2, qsinjury[3, 1], col = 4)
+  segments(i, qsinjury[1, 2], i, qsinjury[3, 2], col = 2)
+  segments(i + 0.2, qsinjury[1, 2], i + 0.2, qsinjury[3, 2], col = 1)
+  points(c(i - 0.2, i, i + 0.2), qsinjury[2, ], col = c(4, 2, 1), pch = c(16, 15, 18))
+  label <- par.name
+  if (par.name == "N0") label <- expression(N[0])
+  if (par.name == "br") label <- expression(R[baseline])
+  if (par.name == "rho") label <- expression(rho)
+  if (par.name == "per") label <- expression(P[recovery])
+  if (par.name == "Fmax") label <- expression(F[max])
+  if (par.name == "Fnom") label <- expression(F[nom])
+  if (par.name == "ascS") label <- expression(paste(S[f, j], " & ", S[m, j]))
+  if (par.name == "PM") label <- expression(P[marked])
+  axis(side = 1, at = i, labels = label, las = 2)
+  legend("topleft", inset = 0.05, legend = names(injury), col = c(4, 2, 1), lty = 1, pch = c(16, 15, 18))
+}
+```
+
+### Elasticity
+
+Next we calculate the elasticity measures per parameter and plot them.
+
+```{r,echo=FALSE}
+#We first define an object to hold the elasticity measure for each parameter.
+metrics <- c("LCY", "YTR", "MPD")
+nmetrics <- length(metrics)
+elasticity <- data.frame(parID = 1:nfiles, parameter = NA, LCY = NA, YTR = NA, MPD = NA)
+#```{r, results='hide', fig.show='hide'}
+# set up number of plots in figure
+par(mfrow = c(1, 3), mar = c(4, 4, 2.5, 0.5))
+for (i in 1:nfiles) {
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by number of iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # for each parameter
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  elasticity$parameter[i] <- par.name
+  # select the parameter being evaluated - change parameter name later to avoid this tweak
+  if (par.name == "ascS") par.name <- "meanSiler"
+  if (par.name == "PM") par.name <- "paPM"
+  cat(paste0("Elasticity analysis for parameter ",par.name," ; species:", species))
+  p2spar <- eval(parse(text = paste0("pars2save$", par.name)))
+  for (k in 1:nmetrics) {
+    # select the k_th injury (k = 1,2,3)
+    inj <- eval(parse(text = paste0("injury$", metrics[k])))
+    # plot results
+    plot(p2spar, inj, xlab = par.name, ylab = metrics[k])
+    dat4mod <- data.frame(par = p2spar, inj = injury[, k])
+    # if there are not enough unique values of the parameter being evaluated
+    # only happens if the parameter is ASM (2-3 unique values)
+    # force a linear model fit, else a relatively inflexible GAM
+    if (length(unique(inj))<=3) {
+      mod <- lm(inj ~ par, data = dat4mod)
+    } else {
+      mod <- gam(inj ~ s(par,k=3), data = dat4mod)
+    }
+    seqpars <- seq(min(p2spar), max(p2spar), length = 500)
+    preds <- predict(mod, newdata = data.frame(par = seqpars), type = "response")
+    # check model adequate for predictions by plotting relationship and add model on top
+    lines(seqpars, preds)
+    mpar <- mean(p2spar)
+    delta <- c(0.995, 1, 1.005)
+    nd <- data.frame(par = mpar * delta)
+    preds <- predict(mod, newdata = nd, type = "response")
+    m.metrics <- mean(inj)
+    abline(v = c(mpar * delta), col = c("red", "green", "red"))
+    abline(h = c(preds), col = c("red", "green", "red"))
+    # calculate elasticity measure for the m_th parameter and k_th injury metric
+    elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
+    # save it in the right slot
+    elasticity[i, 3 + k] <- elas
+    # add number to top of the plot
+    mtext(text = round(elas,3), side = 3, cex = 0.8)
+  }
+}
+```
+
+We represent the elasticity measures per parameter here:
+
+```{r}
+par(mfrow = c(1, 1), mar = c(4, 6, 2.5, 0.5))
+barplot(t(as.matrix(elasticity[, 4:6])), col = c(4, 2, 1), beside = TRUE, ylab = "Percent change per 1% change in parameter", main = species)
+for (i in 1:nrow(elasticity)) {
+  # set reasonable label
+  label <- switch(elasticity$parameter[i],
+    ASM = "ASM",
+    N0 = expression(N[0]),
+    br = expression(R[baseline]),
+    por = expression(R[1]),
+    rho = expression(rho),
+    per = expression(P[recovery]),
+    spos = expression(S[1]),
+    Fmax = expression(F[max]),
+    Fnom = expression(F[nom]),
+    ascS = expression(paste(S[f, j], " & ", S[m, j])),
+    PM = expression(P[marked]),
+    BrTt = "BrTt",
+    pe = expression(p[e]),
+    PorTt = "PorTt",
+    SR = "SR"
+  )
+  axis(side = 1, at = 2.5 + (i - 1) * 4, labels = label, las = 2)
+}
+legend("bottomleft", col = c(4, 2, 1), pt.bg = c(4, 2, 1), legend = metrics, inset = 0.2, cex = 1.2, pch = 22)
+```
+
+
+## Striped dolphin
+
+### Uncertainty
+
+We calculate the uncertainty measures per parameter and plot them:
+
+```{r}
+species <- "Striped_dolphin"
+# get files names
+files <- list.files(path = paste0("InOutBySp/",species), pattern = patt)
+# check how many files
+nfiles <- length(files)
+# set up number of plots in figure
+par(mfrow = c(1, 1), mar = c(5, 4, 2.5, 0.5))
+plot(c(0.5, 11.5), c(-1, 1), type = "n", xlab = "", main = species, xaxt = "n", ylab = "Proportional change (95% CI)")
+abline(h = 0, lty = 2)
+for (i in 1:nfiles) {
+  # for each parameter
+  # load the sensitivity results
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by runs4Sens iterations data.frame
+  ## a 3 column (one per injury metric) by nsims iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  # scale the injury by subtracting mean injury for each injury metric
+  sinjury <- scale(injury, scale = FALSE)
+  # divide by mean for each injury metric
+  sinjury[, 1] <- sinjury[, 1] / mean(injury[, 1], na.rm = TRUE)
+  sinjury[, 2] <- sinjury[, 2] / mean(injury[, 2], na.rm = TRUE)
+  sinjury[, 3] <- sinjury[, 3] / mean(injury[, 3], na.rm = TRUE)
+  # plot results
+  qsinjury <- apply(sinjury, 2, quantile, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+  segments(i - 0.2, qsinjury[1, 1], i - 0.2, qsinjury[3, 1], col = 4)
+  segments(i, qsinjury[1, 2], i, qsinjury[3, 2], col = 2)
+  segments(i + 0.2, qsinjury[1, 2], i + 0.2, qsinjury[3, 2], col = 1)
+  points(c(i - 0.2, i, i + 0.2), qsinjury[2, ], col = c(4, 2, 1), pch = c(16, 15, 18))
+  label <- par.name
+  if (par.name == "N0") label <- expression(N[0])
+  if (par.name == "br") label <- expression(R[baseline])
+  if (par.name == "rho") label <- expression(rho)
+  if (par.name == "per") label <- expression(P[recovery])
+  if (par.name == "Fmax") label <- expression(F[max])
+  if (par.name == "Fnom") label <- expression(F[nom])
+  if (par.name == "ascS") label <- expression(paste(S[f, j], " & ", S[m, j]))
+  if (par.name == "PM") label <- expression(P[marked])
+  axis(side = 1, at = i, labels = label, las = 2)
+  legend("topleft", inset = 0.05, legend = names(injury), col = c(4, 2, 1), lty = 1, pch = c(16, 15, 18))
+}
+```
+
+### Elasticity
+
+Next we calculate the elasticity measures per parameter and plot them.
+
+```{r,echo=FALSE}
+#We first define an object to hold the elasticity measure for each parameter.
+metrics <- c("LCY", "YTR", "MPD")
+nmetrics <- length(metrics)
+elasticity <- data.frame(parID = 1:nfiles, parameter = NA, LCY = NA, YTR = NA, MPD = NA)#```{r, results='hide', fig.show='hide'}
+# set up number of plots in figure
+par(mfrow = c(1, 3), mar = c(4, 4, 2.5, 0.5))
+for (i in 1:nfiles) {
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by number of iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # for each parameter
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  elasticity$parameter[i] <- par.name
+  # select the parameter being evaluated - change parameter name later to avoid this tweak
+  if (par.name == "ascS") par.name <- "meanSiler"
+  if (par.name == "PM") par.name <- "paPM"
+  cat(paste0("Elasticity analysis for parameter ",par.name," ; species:", species))
+  p2spar <- eval(parse(text = paste0("pars2save$", par.name)))
+  for (k in 1:nmetrics) {
+    # select the k_th injury (k = 1,2,3)
+    inj <- eval(parse(text = paste0("injury$", metrics[k])))
+    # plot results
+    plot(p2spar, inj, xlab = par.name, ylab = metrics[k])
+    dat4mod <- data.frame(par = p2spar, inj = injury[, k])
+    # if there are not enough unique values of the parameter being evaluated
+    # only happens if the parameter is ASM (2-3 unique values)
+    # force a linear model fit, else a relatively inflexible GAM
+    if (length(unique(inj))<=3) {
+      mod <- lm(inj ~ par, data = dat4mod)
+    } else {
+      mod <- gam(inj ~ s(par,k=3), data = dat4mod)
+    }
+    seqpars <- seq(min(p2spar), max(p2spar), length = 500)
+    preds <- predict(mod, newdata = data.frame(par = seqpars), type = "response")
+    # check model adequate for predictions by plotting relationship and add model on top
+    lines(seqpars, preds)
+    mpar <- mean(p2spar)
+    delta <- c(0.995, 1, 1.005)
+    nd <- data.frame(par = mpar * delta)
+    preds <- predict(mod, newdata = nd, type = "response")
+    m.metrics <- mean(inj)
+    abline(v = c(mpar * delta), col = c("red", "green", "red"))
+    abline(h = c(preds), col = c("red", "green", "red"))
+    # calculate elasticity measure for the m_th parameter and k_th injury metric
+    elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
+    # save it in the right slot
+    elasticity[i, 3 + k] <- elas
+    # add number to top of the plot
+    mtext(text = round(elas,3), side = 3, cex = 0.8)
+  }
+}
+```
+
+We represent the elasticity measures per parameter here:
+
+```{r}
+par(mfrow = c(1, 1), mar = c(4, 6, 2.5, 0.5))
+barplot(t(as.matrix(elasticity[, 4:6])), col = c(4, 2, 1), beside = TRUE, ylab = "Percent change per 1% change in parameter", main = species)
+for (i in 1:nrow(elasticity)) {
+  # set reasonable label
+  label <- switch(elasticity$parameter[i],
+    ASM = "ASM",
+    N0 = expression(N[0]),
+    br = expression(R[baseline]),
+    por = expression(R[1]),
+    rho = expression(rho),
+    per = expression(P[recovery]),
+    spos = expression(S[1]),
+    Fmax = expression(F[max]),
+    Fnom = expression(F[nom]),
+    ascS = expression(paste(S[f, j], " & ", S[m, j])),
+    PM = expression(P[marked]),
+    BrTt = "BrTt",
+    pe = expression(p[e]),
+    PorTt = "PorTt",
+    SR = "SR"
+  )
+  axis(side = 1, at = 2.5 + (i - 1) * 4, labels = label, las = 2)
+}
+legend("bottomleft", col = c(4, 2, 1), pt.bg = c(4, 2, 1), legend = metrics, inset = 0.2, cex = 1.2, pch = 22)
+```
+
+## Atlantic spotted dolphin
+
+### Uncertainty
+
+We calculate the uncertainty measures per parameter and plot them:
+
+```{r}
+species <- "Atlantic_spotted_dolphin"
+# get files names
+files <- list.files(path = paste0("InOutBySp/",species), pattern = patt)
+# check how many files
+nfiles <- length(files)
+# set up number of plots in figure
+par(mfrow = c(1, 1), mar = c(5, 4, 2.5, 0.5))
+plot(c(0.5, 11.5), c(-1, 1), type = "n", xlab = "", main = species, xaxt = "n", ylab = "Proportional change (95% CI)")
+abline(h = 0, lty = 2)
+for (i in 1:nfiles) {
+  # for each parameter
+  # load the sensitivity results
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by runs4Sens iterations data.frame
+  ## a 3 column (one per injury metric) by nsims iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  # scale the injury by subtracting mean injury for each injury metric
+  sinjury <- scale(injury, scale = FALSE)
+  # divide by mean for each injury metric
+  sinjury[, 1] <- sinjury[, 1] / mean(injury[, 1], na.rm = TRUE)
+  sinjury[, 2] <- sinjury[, 2] / mean(injury[, 2], na.rm = TRUE)
+  sinjury[, 3] <- sinjury[, 3] / mean(injury[, 3], na.rm = TRUE)
+  # plot results
+  qsinjury <- apply(sinjury, 2, quantile, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+  segments(i - 0.2, qsinjury[1, 1], i - 0.2, qsinjury[3, 1], col = 4)
+  segments(i, qsinjury[1, 2], i, qsinjury[3, 2], col = 2)
+  segments(i + 0.2, qsinjury[1, 2], i + 0.2, qsinjury[3, 2], col = 1)
+  points(c(i - 0.2, i, i + 0.2), qsinjury[2, ], col = c(4, 2, 1), pch = c(16, 15, 18))
+  label <- par.name
+  if (par.name == "N0") label <- expression(N[0])
+  if (par.name == "br") label <- expression(R[baseline])
+  if (par.name == "rho") label <- expression(rho)
+  if (par.name == "per") label <- expression(P[recovery])
+  if (par.name == "Fmax") label <- expression(F[max])
+  if (par.name == "Fnom") label <- expression(F[nom])
+  if (par.name == "ascS") label <- expression(paste(S[f, j], " & ", S[m, j]))
+  if (par.name == "PM") label <- expression(P[marked])
+  axis(side = 1, at = i, labels = label, las = 2)
+  legend("topleft", inset = 0.05, legend = names(injury), col = c(4, 2, 1), lty = 1, pch = c(16, 15, 18))
+}
+```
+
+### Elasticity
+
+Next we calculate the elasticity measures per parameter and plot them.
+
+```{r,echo=FALSE}
+#We first define an object to hold the elasticity measure for each parameter.
+metrics <- c("LCY", "YTR", "MPD")
+nmetrics <- length(metrics)
+elasticity <- data.frame(parID = 1:nfiles, parameter = NA, LCY = NA, YTR = NA, MPD = NA)#```{r, results='hide', fig.show='hide'}
+# set up number of plots in figure
+par(mfrow = c(1, 3), mar = c(4, 4, 2.5, 0.5))
+for (i in 1:nfiles) {
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by number of iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # for each parameter
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  elasticity$parameter[i] <- par.name
+  # select the parameter being evaluated - change parameter name later to avoid this tweak
+  if (par.name == "ascS") par.name <- "meanSiler"
+  if (par.name == "PM") par.name <- "paPM"
+  cat(paste0("Elasticity analysis for parameter ",par.name," ; species:", species))
+  p2spar <- eval(parse(text = paste0("pars2save$", par.name)))
+  for (k in 1:nmetrics) {
+    # select the k_th injury (k = 1,2,3)
+    inj <- eval(parse(text = paste0("injury$", metrics[k])))
+    # plot results
+    plot(p2spar, inj, xlab = par.name, ylab = metrics[k])
+    dat4mod <- data.frame(par = p2spar, inj = injury[, k])
+    # if there are not enough unique values of the parameter being evaluated
+    # only happens if the parameter is ASM (2-3 unique values)
+    # force a linear model fit, else a relatively inflexible GAM
+    if (length(unique(inj))<=3) {
+      mod <- lm(inj ~ par, data = dat4mod)
+    } else {
+      mod <- gam(inj ~ s(par,k=3), data = dat4mod)
+    }
+    seqpars <- seq(min(p2spar), max(p2spar), length = 500)
+    preds <- predict(mod, newdata = data.frame(par = seqpars), type = "response")
+    # check model adequate for predictions by plotting relationship and add model on top
+    lines(seqpars, preds)
+    mpar <- mean(p2spar)
+    delta <- c(0.995, 1, 1.005)
+    nd <- data.frame(par = mpar * delta)
+    preds <- predict(mod, newdata = nd, type = "response")
+    m.metrics <- mean(inj)
+    abline(v = c(mpar * delta), col = c("red", "green", "red"))
+    abline(h = c(preds), col = c("red", "green", "red"))
+    # calculate elasticity measure for the m_th parameter and k_th injury metric
+    elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
+    # save it in the right slot
+    elasticity[i, 3 + k] <- elas
+    # add number to top of the plot
+    mtext(text = round(elas,3), side = 3, cex = 0.8)
+  }
+}
+```
+
+We represent the elasticity measures per parameter here:
+
+```{r}
+par(mfrow = c(1, 1), mar = c(4, 6, 2.5, 0.5))
+barplot(t(as.matrix(elasticity[, 4:6])), col = c(4, 2, 1), beside = TRUE, ylab = "Percent change per 1% change in parameter", main = species)
+for (i in 1:nrow(elasticity)) {
+  # set reasonable label
+  label <- switch(elasticity$parameter[i],
+    ASM = "ASM",
+    N0 = expression(N[0]),
+    br = expression(R[baseline]),
+    por = expression(R[1]),
+    rho = expression(rho),
+    per = expression(P[recovery]),
+    spos = expression(S[1]),
+    Fmax = expression(F[max]),
+    Fnom = expression(F[nom]),
+    ascS = expression(paste(S[f, j], " & ", S[m, j])),
+    PM = expression(P[marked]),
+    BrTt = "BrTt",
+    pe = expression(p[e]),
+    PorTt = "PorTt",
+    SR = "SR"
+  )
+  axis(side = 1, at = 2.5 + (i - 1) * 4, labels = label, las = 2)
+}
+legend("bottomleft", col = c(4, 2, 1), pt.bg = c(4, 2, 1), legend = metrics, inset = 0.2, cex = 1.2, pch = 22)
+```
+
+
+
+## Spinner dolphin
+
+### Uncertainty
+
+We calculate the uncertainty measures per parameter and plot them:
+
+```{r}
+species <- "Spinner_dolphin"
+# get files names
+files <- list.files(path = paste0("InOutBySp/",species), pattern = patt)
+# check how many files
+nfiles <- length(files)
+# set up number of plots in figure
+par(mfrow = c(1, 1), mar = c(5, 4, 2.5, 0.5))
+plot(c(0.5, 11.5), c(-1, 1), type = "n", xlab = "", main = species, xaxt = "n", ylab = "Proportional change (95% CI)")
+abline(h = 0, lty = 2)
+for (i in 1:nfiles) {
+  # for each parameter
+  # load the sensitivity results
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by runs4Sens iterations data.frame
+  ## a 3 column (one per injury metric) by nsims iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  # scale the injury by subtracting mean injury for each injury metric
+  sinjury <- scale(injury, scale = FALSE)
+  # divide by mean for each injury metric
+  sinjury[, 1] <- sinjury[, 1] / mean(injury[, 1], na.rm = TRUE)
+  sinjury[, 2] <- sinjury[, 2] / mean(injury[, 2], na.rm = TRUE)
+  sinjury[, 3] <- sinjury[, 3] / mean(injury[, 3], na.rm = TRUE)
+  # plot results
+  qsinjury <- apply(sinjury, 2, quantile, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+  segments(i - 0.2, qsinjury[1, 1], i - 0.2, qsinjury[3, 1], col = 4)
+  segments(i, qsinjury[1, 2], i, qsinjury[3, 2], col = 2)
+  segments(i + 0.2, qsinjury[1, 2], i + 0.2, qsinjury[3, 2], col = 1)
+  points(c(i - 0.2, i, i + 0.2), qsinjury[2, ], col = c(4, 2, 1), pch = c(16, 15, 18))
+  label <- par.name
+  if (par.name == "N0") label <- expression(N[0])
+  if (par.name == "br") label <- expression(R[baseline])
+  if (par.name == "rho") label <- expression(rho)
+  if (par.name == "per") label <- expression(P[recovery])
+  if (par.name == "Fmax") label <- expression(F[max])
+  if (par.name == "Fnom") label <- expression(F[nom])
+  if (par.name == "ascS") label <- expression(paste(S[f, j], " & ", S[m, j]))
+  if (par.name == "PM") label <- expression(P[marked])
+  axis(side = 1, at = i, labels = label, las = 2)
+  legend("topleft", inset = 0.05, legend = names(injury), col = c(4, 2, 1), lty = 1, pch = c(16, 15, 18))
+}
+```
+
+### Elasticity
+
+Next we calculate the elasticity measures per parameter and plot them.
+
+```{r,echo=FALSE}
+#We first define an object to hold the elasticity measure for each parameter.
+metrics <- c("LCY", "YTR", "MPD")
+nmetrics <- length(metrics)
+elasticity <- data.frame(parID = 1:nfiles, parameter = NA, LCY = NA, YTR = NA, MPD = NA)
+#```{r, results='hide', fig.show='hide'}
+# set up number of plots in figure
+par(mfrow = c(1, 3), mar = c(4, 4, 2.5, 0.5))
+for (i in 1:nfiles) {
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by number of iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # for each parameter
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  elasticity$parameter[i] <- par.name
+  # select the parameter being evaluated - change parameter name later to avoid this tweak
+  if (par.name == "ascS") par.name <- "meanSiler"
+  if (par.name == "PM") par.name <- "paPM"
+  cat(paste0("Elasticity analysis for parameter ",par.name," ; species:", species))
+  p2spar <- eval(parse(text = paste0("pars2save$", par.name)))
+  for (k in 1:nmetrics) {
+    # select the k_th injury (k = 1,2,3)
+    inj <- eval(parse(text = paste0("injury$", metrics[k])))
+    # plot results
+    plot(p2spar, inj, xlab = par.name, ylab = metrics[k])
+    dat4mod <- data.frame(par = p2spar, inj = injury[, k])
+    # if there are not enough unique values of the parameter being evaluated
+    # only happens if the parameter is ASM (2-3 unique values)
+    # force a linear model fit, else a relatively inflexible GAM
+    if (length(unique(inj))<=4) {
+      mod <- lm(inj ~ par, data = dat4mod)
+    } else {
+      mod <- gam(inj ~ s(par,k=3), data = dat4mod)
+    }
+    seqpars <- seq(min(p2spar), max(p2spar), length = 500)
+    preds <- predict(mod, newdata = data.frame(par = seqpars), type = "response")
+    # check model adequate for predictions by plotting relationship and add model on top
+    lines(seqpars, preds)
+    mpar <- mean(p2spar)
+    delta <- c(0.995, 1, 1.005)
+    nd <- data.frame(par = mpar * delta)
+    preds <- predict(mod, newdata = nd, type = "response")
+    m.metrics <- mean(inj)
+    abline(v = c(mpar * delta), col = c("red", "green", "red"))
+    abline(h = c(preds), col = c("red", "green", "red"))
+    # calculate elasticity measure for the m_th parameter and k_th injury metric
+    elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
+    # save it in the right slot
+    elasticity[i, 3 + k] <- elas
+    # add number to top of the plot
+    mtext(text = round(elas,3), side = 3, cex = 0.8)
+  }
+}
+```
+
+We represent the elasticity measures per parameter here:
+
+```{r}
+par(mfrow = c(1, 1), mar = c(4, 6, 2.5, 0.5))
+barplot(t(as.matrix(elasticity[, 4:6])), col = c(4, 2, 1), beside = TRUE, ylab = "Percent change per 1% change in parameter", main = species)
+for (i in 1:nrow(elasticity)) {
+  # set reasonable label
+  label <- switch(elasticity$parameter[i],
+    ASM = "ASM",
+    N0 = expression(N[0]),
+    br = expression(R[baseline]),
+    por = expression(R[1]),
+    rho = expression(rho),
+    per = expression(P[recovery]),
+    spos = expression(S[1]),
+    Fmax = expression(F[max]),
+    Fnom = expression(F[nom]),
+    ascS = expression(paste(S[f, j], " & ", S[m, j])),
+    PM = expression(P[marked]),
+    BrTt = "BrTt",
+    pe = expression(p[e]),
+    PorTt = "PorTt",
+    SR = "SR"
+  )
+  axis(side = 1, at = 2.5 + (i - 1) * 4, labels = label, las = 2)
+}
+legend("bottomleft", col = c(4, 2, 1), pt.bg = c(4, 2, 1), legend = metrics, inset = 0.2, cex = 1.2, pch = 22)
+```
+
+
+
+
+## Offshore bottlenose dolphins
+
+### Uncertainty
+
+We calculate the uncertainty measures per parameter and plot them:
+
+```{r}
+species <- "Bottlenose_dolphin_oceanic"
+# get files names
+files <- list.files(path = paste0("InOutBySp/",species), pattern = patt)
+# check how many files
+nfiles <- length(files)
+# set up number of plots in figure
+par(mfrow = c(1, 1), mar = c(5, 4, 2.5, 0.5))
+plot(c(0.5, 11.5), c(-1, 1), type = "n", xlab = "", main = species, xaxt = "n", ylab = "Proportional change (95% CI)")
+abline(h = 0, lty = 2)
+for (i in 1:nfiles) {
+  # for each parameter
+  # load the sensitivity results
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by runs4Sens iterations data.frame
+  ## a 3 column (one per injury metric) by nsims iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  # scale the injury by subtracting mean injury for each injury metric
+  sinjury <- scale(injury, scale = FALSE)
+  # divide by mean for each injury metric
+  sinjury[, 1] <- sinjury[, 1] / mean(injury[, 1], na.rm = TRUE)
+  sinjury[, 2] <- sinjury[, 2] / mean(injury[, 2], na.rm = TRUE)
+  sinjury[, 3] <- sinjury[, 3] / mean(injury[, 3], na.rm = TRUE)
+  # plot results
+  qsinjury <- apply(sinjury, 2, quantile, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+  segments(i - 0.2, qsinjury[1, 1], i - 0.2, qsinjury[3, 1], col = 4)
+  segments(i, qsinjury[1, 2], i, qsinjury[3, 2], col = 2)
+  segments(i + 0.2, qsinjury[1, 2], i + 0.2, qsinjury[3, 2], col = 1)
+  points(c(i - 0.2, i, i + 0.2), qsinjury[2, ], col = c(4, 2, 1), pch = c(16, 15, 18))
+  label <- par.name
+  if (par.name == "N0") label <- expression(N[0])
+  if (par.name == "br") label <- expression(R[baseline])
+  if (par.name == "rho") label <- expression(rho)
+  if (par.name == "per") label <- expression(P[recovery])
+  if (par.name == "Fmax") label <- expression(F[max])
+  if (par.name == "Fnom") label <- expression(F[nom])
+  if (par.name == "ascS") label <- expression(paste(S[f, j], " & ", S[m, j]))
+  if (par.name == "PM") label <- expression(P[marked])
+  axis(side = 1, at = i, labels = label, las = 2)
+  legend("topleft", inset = 0.05, legend = names(injury), col = c(4, 2, 1), lty = 1, pch = c(16, 15, 18))
+}
+```
+
+### Elasticity
+
+Next we calculate the elasticity measures per parameter and plot them.
+
+```{r,echo=FALSE}
+#We first define an object to hold the elasticity measure for each parameter.
+metrics <- c("LCY", "YTR", "MPD")
+nmetrics <- length(metrics)
+elasticity <- data.frame(parID = 1:nfiles, parameter = NA, LCY = NA, YTR = NA, MPD = NA)
+#```{r, results='hide', fig.show='hide'}
+# set up number of plots in figure
+par(mfrow = c(1, 3), mar = c(4, 4, 2.5, 0.5))
+for (i in 1:nfiles) {
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by number of iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # for each parameter
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  elasticity$parameter[i] <- par.name
+  # select the parameter being evaluated - change parameter name later to avoid this tweak
+  if (par.name == "ascS") par.name <- "meanSiler"
+  if (par.name == "PM") par.name <- "paPM"
+  cat(paste0("Elasticity analysis for parameter ",par.name," ; species:", species))
+  p2spar <- eval(parse(text = paste0("pars2save$", par.name)))
+  for (k in 1:nmetrics) {
+    # select the k_th injury (k = 1,2,3)
+    inj <- eval(parse(text = paste0("injury$", metrics[k])))
+    # plot results
+    plot(p2spar, inj, xlab = par.name, ylab = metrics[k])
+    dat4mod <- data.frame(par = p2spar, inj = injury[, k])
+    # if there are not enough unique values of the parameter being evaluated
+    # only happens if the parameter is ASM (2-3 unique values)
+    # force a linear model fit, else a relatively inflexible GAM
+    if (length(unique(inj))<=3) {
+      mod <- lm(inj ~ par, data = dat4mod)
+    } else {
+      mod <- gam(inj ~ s(par,k=3), data = dat4mod)
+    }
+    seqpars <- seq(min(p2spar), max(p2spar), length = 500)
+    preds <- predict(mod, newdata = data.frame(par = seqpars), type = "response")
+    # check model adequate for predictions by plotting relationship and add model on top
+    lines(seqpars, preds)
+    mpar <- mean(p2spar)
+    delta <- c(0.995, 1, 1.005)
+    nd <- data.frame(par = mpar * delta)
+    preds <- predict(mod, newdata = nd, type = "response")
+    m.metrics <- mean(inj)
+    abline(v = c(mpar * delta), col = c("red", "green", "red"))
+    abline(h = c(preds), col = c("red", "green", "red"))
+    # calculate elasticity measure for the m_th parameter and k_th injury metric
+    elas <- 100 * (preds[3] - preds[1]) / preds[2]     
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
+    # save it in the right slot
+    elasticity[i, 3 + k] <- elas
+    # add number to top of the plot
+    mtext(text = round(elas,3), side = 3, cex = 0.8)
+  }
+}
+```
+
+We represent the elasticity measures per parameter here:
+
+```{r}
+par(mfrow = c(1, 1), mar = c(4, 6, 2.5, 0.5))
+barplot(t(as.matrix(elasticity[, 4:6])), col = c(4, 2, 1), beside = TRUE, ylab = "Percent change per 1% change in parameter", main = species)
+for (i in 1:nrow(elasticity)) {
+  # set reasonable label
+  label <- switch(elasticity$parameter[i],
+    ASM = "ASM",
+    N0 = expression(N[0]),
+    br = expression(R[baseline]),
+    por = expression(R[1]),
+    rho = expression(rho),
+    per = expression(P[recovery]),
+    spos = expression(S[1]),
+    Fmax = expression(F[max]),
+    Fnom = expression(F[nom]),
+    ascS = expression(paste(S[f, j], " & ", S[m, j])),
+    PM = expression(P[marked]),
+    BrTt = "BrTt",
+    pe = expression(p[e]),
+    PorTt = "PorTt",
+    SR = "SR"
+  )
+  axis(side = 1, at = 2.5 + (i - 1) * 4, labels = label, las = 2)
+}
+legend("bottomleft", col = c(4, 2, 1), pt.bg = c(4, 2, 1), legend = metrics, inset = 0.2, cex = 1.2, pch = 22)
+```
+
+
+
+
+
+## Shelf bottlenose dolphins
+
+### Uncertainty
+
+We calculate the uncertainty measures per parameter and plot them:
+
+```{r}
+species <- "Bottlenose_dolphin_shelf"
+# get files names
+files <- list.files(path = paste0("InOutBySp/",species), pattern = patt)
+# check how many files
+nfiles <- length(files)
+# set up number of plots in figure
+par(mfrow = c(1, 1), mar = c(5, 4, 2.5, 0.5))
+plot(c(0.5, 11.5), c(-1, 1), type = "n", xlab = "", main = species, xaxt = "n", ylab = "Proportional change (95% CI)")
+abline(h = 0, lty = 2)
+for (i in 1:nfiles) {
+  # for each parameter
+  # load the sensitivity results
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by runs4Sens iterations data.frame
+  ## a 3 column (one per injury metric) by nsims iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  # scale the injury by subtracting mean injury for each injury metric
+  sinjury <- scale(injury, scale = FALSE)
+  # divide by mean for each injury metric
+  sinjury[, 1] <- sinjury[, 1] / mean(injury[, 1], na.rm = TRUE)
+  sinjury[, 2] <- sinjury[, 2] / mean(injury[, 2], na.rm = TRUE)
+  sinjury[, 3] <- sinjury[, 3] / mean(injury[, 3], na.rm = TRUE)
+  # plot results
+  qsinjury <- apply(sinjury, 2, quantile, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+  segments(i - 0.2, qsinjury[1, 1], i - 0.2, qsinjury[3, 1], col = 4)
+  segments(i, qsinjury[1, 2], i, qsinjury[3, 2], col = 2)
+  segments(i + 0.2, qsinjury[1, 2], i + 0.2, qsinjury[3, 2], col = 1)
+  points(c(i - 0.2, i, i + 0.2), qsinjury[2, ], col = c(4, 2, 1), pch = c(16, 15, 18))
+  label <- par.name
+  if (par.name == "N0") label <- expression(N[0])
+  if (par.name == "br") label <- expression(R[baseline])
+  if (par.name == "rho") label <- expression(rho)
+  if (par.name == "per") label <- expression(P[recovery])
+  if (par.name == "Fmax") label <- expression(F[max])
+  if (par.name == "Fnom") label <- expression(F[nom])
+  if (par.name == "ascS") label <- expression(paste(S[f, j], " & ", S[m, j]))
+  if (par.name == "PM") label <- expression(P[marked])
+  axis(side = 1, at = i, labels = label, las = 2)
+  legend("topleft", inset = 0.05, legend = names(injury), col = c(4, 2, 1), lty = 1, pch = c(16, 15, 18))
+}
+```
+
+### Elasticity
+
+Next we calculate the elasticity measures per parameter and plot them.
+
+```{r,echo=FALSE}
+#We first define an object to hold the elasticity measure for each parameter.
+metrics <- c("LCY", "YTR", "MPD")
+nmetrics <- length(metrics)
+elasticity <- data.frame(parID = 1:nfiles, parameter = NA, LCY = NA, YTR = NA, MPD = NA)
+#```{r, results='hide', fig.show='hide'}
+# set up number of plots in figure
+par(mfrow = c(1, 3), mar = c(4, 4, 2.5, 0.5))
+for (i in 1:nfiles) {
+  # this loads up a workspace that includes object injury
+  # a 3 column (one per injury metric) by number of iterations data.frame
+  load(paste0("InOutBySp/",species,"/", files[i]))
+  # for each parameter
+  # get name of parameter in files[i]
+  str <- files[i]
+  # parameter name start
+  startp <- str_locate(string = str, pattern = "Sens")[2] + 1
+  # parameters name end
+  endp <- str_locate(string = str, pattern = ".RD")[1] - 1
+  par.name <- substr(str, startp, endp)
+  elasticity$parameter[i] <- par.name
+  # select the parameter being evaluated - change parameter name later to avoid this tweak
+  if (par.name == "ascS") par.name <- "meanSiler"
+  if (par.name == "PM") par.name <- "paPM"
+  cat(paste0("Elasticity analysis for parameter ",par.name," ; species:", species))
+  p2spar <- eval(parse(text = paste0("pars2save$", par.name)))
+  for (k in 1:nmetrics) {
+    # select the k_th injury (k = 1,2,3)
+    inj <- eval(parse(text = paste0("injury$", metrics[k])))
+    # plot results
+    plot(p2spar, inj, xlab = par.name, ylab = metrics[k])
+    dat4mod <- data.frame(par = p2spar, inj = injury[, k])
+    # if there are not enough unique values of the parameter being evaluated
+    # only happens if the parameter is ASM (2-3 unique values)
+    # force a linear model fit, else a relatively inflexible GAM
+    if (length(unique(inj))<=3) {
+      mod <- lm(inj ~ par, data = dat4mod)
+    } else {
+      mod <- gam(inj ~ s(par,k=3), data = dat4mod)
+    }
+    seqpars <- seq(min(p2spar), max(p2spar), length = 500)
+    preds <- predict(mod, newdata = data.frame(par = seqpars), type = "response")
+    # check model adequate for predictions by plotting relationship and add model on top
+    lines(seqpars, preds)
+    mpar <- mean(p2spar)
+    delta <- c(0.995, 1, 1.005)
+    nd <- data.frame(par = mpar * delta)
+    preds <- predict(mod, newdata = nd, type = "response")
+    m.metrics <- mean(inj)
+    abline(v = c(mpar * delta), col = c("red", "green", "red"))
+    abline(h = c(preds), col = c("red", "green", "red"))
+    # calculate elasticity measure for the m_th parameter and k_th injury metric
+    elas <- 100 * (preds[3] - preds[1]) / preds[2]
+    if(preds[2]<1 & metrics[k]=="YTR") elas <- NA
+    # save it in the right slot
+    elasticity[i, 2 + k] <- elas
+    # add number to top of the plot
+    mtext(text = round(elas,3), side = 3, cex = 0.8)
+  }
+}
+```
+
+We represent the elasticity measures per parameter here:
+
+```{r}
+par(mfrow = c(1, 1), mar = c(4, 6, 2.5, 0.5))
+barplot(t(as.matrix(elasticity[, 3:5])), col = c(4, 2, 1), beside = TRUE, ylab = "Percent change per 1% change in parameter", main = species)
+for (i in 1:nrow(elasticity)) {
+  # set reasonable label
+  label <- switch(elasticity$parameter[i],
+    ASM = "ASM",
+    N0 = expression(N[0]),
+    br = expression(R[baseline]),
+    por = expression(R[1]),
+    rho = expression(rho),
+    per = expression(P[recovery]),
+    spos = expression(S[1]),
+    Fmax = expression(F[max]),
+    Fnom = expression(F[nom]),
+    ascS = expression(paste(S[f, j], " & ", S[m, j])),
+    PM = expression(P[marked]),
+    BrTt = "BrTt",
+    pe = expression(p[e]),
+    PorTt = "PorTt",
+    SR = "SR"
+  )
+  axis(side = 1, at = 2.5 + (i - 1) * 4, labels = label, las = 2)
+}
+legend("bottomleft", col = c(4, 2, 1), pt.bg = c(4, 2, 1), legend = metrics, inset = 0.2, cex = 1.2, pch = 22)
+```
+
+
+# References
+
+Benton, T. G. & Grant, A. 1999 Elasticity analysis as an important tool in evolutionary and population ecology *Trends in Ecology & Evolution*  **14**: 467-471
+
+Caswell H. 2006 *Matrix Population Models: Construction, Analysis, and Interpretation*, 2nd ed. Sinauer Associates, Inc, Sunderland, Massachusetts. 
+
+Schwacke, L. H.; Thomas, L.; Wells, R. S.; McFee, W. E.; Hohn, A. A.; Mullin, K. D.; Zolman, E. S.; Quigley, B. M.; Rowles, T. K. & Schwacke, J. H. 2017. Quantifying injury to common bottlenose dolphins from the Deepwater Horizon oil spill using an age-, sex- and class-structured population model *Endangered Species Research* **33**: 265-279
+
+Schwacke, L. H.; Marques, T. A.; Thomas, L.; Booth, C.; Balmer, B. C.; Barratclough, A.; Colegrove, K.; Guise, S. D.; Garrison, L. P.; Gomez, F. M.; Morey, J. S.; Mullin, K. D.; Quigley, B. M.; Rosel, P.; Rowles, T. K.; Takeshita, R.; Townsend, F. I.; Speakman, T. R.; Wells, R. S.; Zolman, E. S. & Smith, C. R. 2021 Modeling population impacts of the Deepwater Horizon oil spill on a long-lived species with implications and recommendations for future environmental disasters Conservation Biology. DOI: [10.1111/cobi.13878](https://doi.org/10.1111/cobi.13878)
