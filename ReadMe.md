@@ -1,17 +1,19 @@
-This is a github repository that holds all the code required to reproduce the results in the Integrative Modeling papers that assess the injury on the cetacean populations of the Gulf of Mexico DeepWater Horizon explosion in 2010.
+This is a github repository that holds all the code and data required to reproduce the results in the Integrative Modeling papers that assess the injury on the cetacean populations of the Gulf of Mexico $DeepWater$ $Horizon$ explosion in 2010.
 
 These papers were created within the CARMMHA project, where a team of marine mammal health scientists conducted cross-discipline research that included veterinary assessments of managed animals, field assessments with wild populations, and integrative statistical modeling to understand how the DWH oil spill affected Gulf of Mexico marine mammal health.
 
+Check out the project webpage for additional details: https://carmmha.nmmf.org/
+
 There are currently three papers:
 
-1. A paper focused on bottlenose dolphins in Barataria Bay, where all the animals are assumed to have been exposed to oil. The published version of the paper is at: https://conbio.onlinelibrary.wiley.com/doi/10.1111/cobi.13878
+1. "Modeling population effects of the $Deepwater$ $Horizon$ oil spill on a long-lived species" published in Conservation Biology, A paper focused on bottlenose dolphins in Barataria Bay, where all the animals are assumed to have been exposed to oil. The published version of the paper is at: https://conbio.onlinelibrary.wiley.com/doi/10.1111/cobi.13878
 
 2. A paper focusing on 15 pelagic taxonomic units, including both dolphins :dolphin: and whales :whale:, where the different taxa were exposed to different extents to oil. The published version of the paper "Population consequences of the $Deepwater$ $Horizon$
 oil spill on pelagic cetaceans" at Marine Ecology Progress Series was selected as a "Feature Article" in MEPS and is therefore Open Access free here: https://www.int-res.com/articles/feature/m714p001.pdf.
 
-3. A short paper published in Marine Mammal Science, entitled "Model predicts catastrophic decline of common bottlenose dolphin ($Tursiops$ $truncatus$) population under proposed land restoration project in Barataria Bay, Louisiana, USA" describing the effects on Bottlenose dolphin Barataria Bay population dynamics of a proposed Mississippi river diversion project (Mid-Barataria Sediment Diversion). That paper is published here: https://onlinelibrary.wiley.com/doi/10.1111/mms.12930 
+3. A short paper published in Marine Mammal Science, entitled "Model predicts catastrophic decline of common bottlenose dolphin ($Tursiops$ $truncatus$) population under proposed land restoration project in Barataria Bay, Louisiana, USA" describing the effects on bottlenose dolphin Barataria Bay population dynamics of a proposed Mississippi river diversion project (Mid-Barataria Sediment Diversion). That paper is published here: https://onlinelibrary.wiley.com/doi/10.1111/mms.12930 
 
-This document describes how you can navigate through this material. We note upfront that while there are three different papers, the underlying population dynamics simulation code that allows us to simulate populations of animals in the presence of oil and in the absence of oil is common to all three papers, and hence the reason for this sahred git repository. 
+This document describes how you can navigate through this material. We note upfront that while there are three different papers, the underlying population dynamics simulation code that allows us to simulate populations of animals in the presence of oil and in the absence of oil is common to all three papers, and hence the reason for this shared git repository. 
 
 The results for the three papers can  be obtained by running about same code, just by using different arguments to the key functions involved in running the population dynamics model and that evaluate the injury metrics.
 
