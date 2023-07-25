@@ -5,9 +5,11 @@ These papers were created within the CARMMHA project, where a team of marine mam
 There are two main papers:
 
 1. A paper focused on bottlenose dolphins in Barataria Bay, where all the animals are assumed to have been exposed to oil. The published version of the paper is at: https://conbio.onlinelibrary.wiley.com/doi/10.1111/cobi.13878
-2. A paper focusing on 15 pelagic taxonomic units, including both dolphins :dolphin: and whales :whale:, where the different taxa were exposed to different extents to oil. The published version of the paper now in press at Marine Ecology Progress Series will be added here as soon as it is published online.
 
-Here we describe how you can navigate through this material. We note upfront that while there are two different papers, the underlying population dynamics simulation code that allows us to simulate populations of animals in the presence of oil and in the absence of oil is common to both papers. 
+2. A paper focusing on 15 pelagic taxonomic units, including both dolphins :dolphin: and whales :whale:, where the different taxa were exposed to different extents to oil. The published version of the paper "Population consequences of the $Deepwater$ $Horizon$
+oil spill on pelagic cetaceans" at Marine Ecology Progress Series was selected as a "Feature Article" in MEPS and is therefore Open Access free here: https://www.int-res.com/articles/feature/m714p001.pdf.
+
+This document describes how you can navigate through this material. We note upfront that while there are two different papers, the underlying population dynamics simulation code that allows us to simulate populations of animals in the presence of oil and in the absence of oil is common to both papers. 
 
 Hence, the results for both papers can  be obtained by running the same code just by using different arguments to the key functions involved in running the population dynamics model and that evaluate the injury metrics.
 
